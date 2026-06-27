@@ -7,8 +7,9 @@
     <style>
         :root {
             --color-for-edit: white;
-            --color-for-edit: yellow;
             --color-for-edit: orange;
+            --color-for-edit: lightblue;
+            --color-for-edit: yellow;
         }
 
         [inert] {
@@ -539,6 +540,8 @@
 
         ///////////////////////////////////
         // Testing Lovable:
+
+        /*
         let committed = "";          // only finalized text, ever
         let lastReported = "";
         const isAndroid = /android/i.test(navigator.userAgent);
@@ -580,9 +583,111 @@
             }
         };
 
+        */
 
 
 
+        /*
+        let hasCommitted = false;  // reset each time you call recognition.start()
+        let finalText = "";
+
+        recognition.continuous = false;     // single utterance
+        recognition.interimResults = true;  // needed so we can read interim safely
+
+        recognition.onstart = () => {
+            hasCommitted = false;
+            finalText = "";
+        };
+
+        recognition.onresult = (event) => {
+            // Walk only the new results from resultIndex; take the latest FINAL one.
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const r = event.results[i];
+                if (r.isFinal) {
+                    finalText = r[0].transcript.trim();
+                }
+                // interim results are intentionally ignored — do not append them
+            }
+
+            // Commit exactly once per session, as soon as we have a final result.
+            if (finalText && !hasCommitted) {
+                hasCommitted = true;
+                yourAppHandleResult(finalText);
+            }
+        };
+
+        recognition.onend = () => {
+            // Safety net: Android sometimes ends before onresult delivers the final.
+            // If we got a final after committing was missed, commit now.
+            if (!hasCommitted && finalText) {
+                hasCommitted = true;
+                yourAppHandleResult(finalText);
+            }
+        };
+
+        recognition.onerror = (e) => {
+            // 'no-speech' / 'aborted' should not commit anything
+            hasCommitted = true;  // prevent onend from committing stale text
+        };
+        */
+
+        // Your append function — make sure it APPENDS, never replaces:
+        function BADyourAppHandleResult(text) {
+            const ta = document.getElementById('your-textarea-id');
+            const sep = ta.value && !ta.value.endsWith(' ') ? ' ' : '';
+            ta.value += sep + text + ' ';
+        }
+
+
+        let shouldKeepListening = false;  // set true when user starts, false when they hit pause
+        let hasCommitted = false;
+        let finalText = "";
+
+        recognition.continuous = false;     // Android ignores `true` anyway — restart manually
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+            hasCommitted = false;
+            finalText = "";
+        };
+
+        recognition.onresult = (event) => {
+            // Only look at results from this utterance onward
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const r = event.results[i];
+                if (r.isFinal) {
+                    finalText = r[0].transcript.trim();
+                }
+            }
+            // Commit as soon as we have a final, exactly once per session
+            if (finalText && !hasCommitted) {
+                hasCommitted = true;
+                yourAppHandleResult(finalText);
+            }
+        };
+
+        recognition.onend = () => {
+            // Safety net: if onresult never fired with isFinal, commit whatever we have
+            if (!hasCommitted && finalText) {
+                hasCommitted = true;
+                yourAppHandleResult(finalText);
+            }
+            // Auto-restart for continuous dictation until user pauses
+            if (shouldKeepListening) {
+                try { recognition.start(); } catch (_) { /* already starting */ }
+            }
+        };
+
+        recognition.onerror = (e) => {
+            hasCommitted = true;  // block onend from re-committing stale text
+            // 'no-speech' and 'aborted' are normal during continuous use — let onend restart
+            if (e.error !== "no-speech" && e.error !== "aborted") {
+                shouldKeepListening = false;
+            }
+        };
+
+        // Starting:  shouldKeepListening = true; recognition.start();
+        // Pausing:   shouldKeepListening = false; recognition.stop();
 
 
 
@@ -604,9 +709,11 @@
             eltOut.scrollIntoView();
         }
         // Fires when the engine completely disconnects
+        /*
         recognition.onend = () => {
             eltMicStatus.textContent = "Recognition session has fully ended.";
         };
+        */
 
         displayPage();
         function displayPage() {
