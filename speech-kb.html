@@ -49,7 +49,7 @@
         #edit-buttons {
             display: flex;
             gap: 15px;
-            margin-bottom: -10px;
+            margin-bottom: 2px;
 
             button {
                 background: yellow;
@@ -76,6 +76,8 @@
             min-height: 80px;
             background: #ccc;
             padding: 10px;
+            max-height: 80px;
+            overflow-y: auto;
         }
     </style>
     <script src="./init-error-new.js"></script>
@@ -184,8 +186,8 @@
     <p id="result-log">
         RESULT LOG:
     </p>
-    <p id="output-text">
-    </p>
+    <div id="output-text">
+    </div>
 
     <script type="module">
         const eltMicStatus = document.getElementById("mic-status");
@@ -226,8 +228,12 @@
             let finalTranscript = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
-                    // finalTranscript += event.results[i][0].transcript;
-                    finalTranscript = event.results[i][0].transcript;
+                    const newTranscript = event.results[i][0].transcript;
+                    //// Fix- for Andoid:
+                    // Skip if the new result is already part of the final transcript
+                    if (!finalTranscript.includes(newTranscript)) {
+                        finalTranscript = newTranscript; // Overwrite (or += for appending)
+                    }
                 }
             }
             finalTranscript = finalTranscript.trim();
@@ -237,6 +243,7 @@
                 eltOut.classList.add("final-out");
                 const eltOutputText = document.getElementById("output-text");
                 eltOutputText.appendChild(eltOut);
+                eltOut.scrollIntoView();
             }
         };
 
