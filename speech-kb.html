@@ -233,417 +233,28 @@
 
         // --- LIFECYCLE EVENTS ---
 
-        recognition.OLDonresult = (event) => {
-            let finalTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    const newTranscript = event.results[i][0].transcript;
-                    //// Fix- for Andoid:
-                    // Skip if the new result is already part of the final transcript
-                    if (!finalTranscript.includes(newTranscript)) {
-                        finalTranscript = newTranscript; // Overwrite (or += for appending)
-                    }
-                }
-            }
-            finalTranscript = finalTranscript.trim();
-            console.log(`Live Text: ${finalTranscript}`);
-            if (finalTranscript.length > 0) {
-                const eltOut = mkElt("div", undefined, finalTranscript);
-                eltOut.classList.add("final-out");
-                const eltOutputText = document.getElementById("output-text");
-                eltOutputText.appendChild(eltOut);
-                eltOut.scrollIntoView();
-            }
-        };
-        // Initialize
-        // const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        // let finalTranscript = "";
-
-        // Handle results and report to your app
-        // let finalTranscript = "";
-        /*
-                recognition.OLD2onresult = (event) => {
-                    const finalTranscripts = [];
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        if (event.results[i].isFinal) {
-                            finalTranscripts.push(event.results[i][0].transcript);
-                        }
-                    }
-        
-                    if (finalTranscripts.length === 0) return;
-        
-                    const last = finalTranscripts[finalTranscripts.length - 1];
-                    const isAndroidLike = finalTranscripts.length > 1 &&
-                        finalTranscripts.every(t => last.includes(t));
-                    const isAndroid = /android/i.test(navigator.userAgent);
-                    if (isAndroid !== isAndroidLike) {
-                        debugger;
-                        console.warn(`isAndroid ${isAndroid} !== isAndroidLike ${isAndroidLike}`);
-                    }
-        
-                    if (isAndroid) {
-                        // Android: Replace with the last result (ignores isFinal)
-                        finalTranscript = event.results[event.results.length - 1][0].transcript;
-                    } else {
-                        // Desktop: Append only final results
-                        for (let i = event.resultIndex; i < event.results.length; ++i) {
-                            if (event.results[i].isFinal) {
-                                finalTranscript += event.results[i][0].transcript;
-                            }
-                        }
-                    }
-                    // Report to your app (e.g., update UI, trigger callback, etc.)
-                    yourAppHandleResult(finalTranscript);
-                };
-        */
 
 
-        /*
-                recognition.OLD3onresult = (event) => {
-                    const finalTranscripts = [];
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        if (event.results[i].isFinal) {
-                            finalTranscripts.push(event.results[i][0].transcript);
-                        }
-                    }
-        
-                    if (finalTranscripts.length === 0) return;
-        
-                    const last = finalTranscripts[finalTranscripts.length - 1];
-                    const isAndroidLike = finalTranscripts.length > 1 &&
-                        finalTranscripts.every(t => last.includes(t));
-                    const isAndroid = /android/i.test(navigator.userAgent);
-                    if (isAndroid !== isAndroidLike) {
-                        debugger;
-                        console.warn(`isAndroid ${isAndroid} !== isAndroidLike ${isAndroidLike}`);
-                    }
-        
-                    if (isAndroid) {
-                        finalTranscript = last; // <-- FIX: Use 'last' (final-only) instead of event.results
-                    } else {
-                        for (let i = event.resultIndex; i < event.results.length; ++i) {
-                            if (event.results[i].isFinal) {
-                                finalTranscript += event.results[i][0].transcript;
-                            }
-                        }
-                    }
-                    yourAppHandleResult(finalTranscript);
-                };
-        */
-
-        // let finalTranscript = ""; // Declare OUTSIDE the callback
 
 
-        /*
-                recognition.OLD4onresult = (event) => {
-                    const isAndroid = /android/i.test(navigator.userAgent);
-                    let newText = "";
-        
-                    // Collect all NEW final results in this event
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        if (event.results[i].isFinal) {
-                            newText += event.results[i][0].transcript + " ";
-                        }
-                    }
-        
-                    if (!newText.trim()) return; // Skip if no final results
-        
-                    if (isAndroid) {
-                        // Android: Replace with the latest complete result
-                        finalTranscript = newText.trim();
-                    } else {
-                        // Desktop: Append new final results
-                        finalTranscript += newText;
-                    }
-        
-                    yourAppHandleResult(finalTranscript); // Report to app
-                };
-        */
-
-        // let finalTranscript = "";
-        // let reportTimer = null;
-        // const isAndroid = /android/i.test(navigator.userAgent);
-
-        /*
-                recognition.OLD5onresult = (event) => {
-                    let newText = "";
-        
-                    // Collect ONLY new final results in this event
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        if (event.results[i].isFinal) {
-                            newText += event.results[i][0].transcript;
-                        }
-                    }
-        
-                    if (!newText.trim()) return;
-        
-                    if (isAndroid) {
-                        finalTranscript = newText.trim(); // Replace (Android)
-                    } else {
-                        finalTranscript += newText; // Append (Windows)
-                    }
-        
-                    // Debounce: Report only after 300ms of no new results
-                    clearTimeout(reportTimer);
-                    reportTimer = setTimeout(() => {
-                        yourAppHandleResult(finalTranscript);
-                    }, 300); // 300ms = "real-time" for speech (sub-second latency)
-                };
-        
-        */
-
-        // let finalTranscript = "";
-        // let reportTimer = null;
-
-        /*
-                recognition.OLD6onresult = (event) => {
-                    // Find the LAST FINAL result among NEW results (no accumulation)
-                    for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
-                        if (event.results[i].isFinal) {
-                            finalTranscript = event.results[i][0].transcript;
-                            break;
-                        }
-                    }
-        
-                    // Debounce: Report only after 300ms of no new results
-                    clearTimeout(reportTimer);
-                    reportTimer = setTimeout(() => {
-                        yourAppHandleResult(finalTranscript);
-                    }, 300);
-                };
-        
-        */
-
-        // let finalTranscript = "";
-        // let lastReported = "";
-        // let reportTimer = null;
-        // const isAndroid = /android/i.test(navigator.userAgent);
-
-        recognition.OLD7onresult = (event) => {
-            let newText = "";
-
-            // Collect ONLY new final results
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                if (event.results[i].isFinal) {
-                    newText += event.results[i][0].transcript;
-                }
-            }
-
-            if (!newText.trim()) return;
-
-            if (isAndroid) {
-                // Android: Replace with latest result
-                finalTranscript = newText.trim();
-                clearTimeout(reportTimer);
-                reportTimer = setTimeout(() => {
-                    if (finalTranscript !== lastReported) {
-                        lastReported = finalTranscript;
-                        yourAppHandleResult(finalTranscript);
-                    }
-                }, 300);
-            } else {
-                // Windows: Accumulate new results
-                finalTranscript += newText;
-                if (finalTranscript !== lastReported) {
-                    lastReported = finalTranscript;
-                    yourAppHandleResult(finalTranscript);
-                }
-            }
-        };
 
 
-        // let finalTranscript = "";
-        // let lastReported = "";
-        // let reportTimer = null;
-        // const isAndroid = /android/i.test(navigator.userAgent);
-
-        recognition.OLD8onresult = (event) => {
-            // Get the LAST FINAL result from NEW results only
-            let lastFinal = "";
-            for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
-                if (event.results[i].isFinal) {
-                    lastFinal = event.results[i][0].transcript;
-                    break;
-                }
-            }
-
-            if (!lastFinal) return;
-            finalTranscript = lastFinal; // Always REPLACE (no accumulation)
-
-            if (isAndroid) {
-                // Android: Debounce to avoid fragments
-                clearTimeout(reportTimer);
-                reportTimer = setTimeout(() => {
-                    if (finalTranscript !== lastReported) {
-                        lastReported = finalTranscript;
-                        yourAppHandleResult(finalTranscript);
-                    }
-                }, 300);
-            } else {
-                // Windows: Report immediately if changed
-                if (finalTranscript !== lastReported) {
-                    lastReported = finalTranscript;
-                    yourAppHandleResult(finalTranscript);
-                }
-            }
-        };
 
 
-        // let finalTranscript = "";
-        // let lastReported = "";
-        // let reportTimer = null;
-        // const isAndroid = /android/i.test(navigator.userAgent);
 
-        recognition.OLD9onresult = (event) => {
-            if (isAndroid) {
-                // Android: Use LAST result (ignore isFinal to avoid interim leaks)
-                if (event.results.length > 0) {
-                    finalTranscript = event.results[event.results.length - 1][0].transcript;
-                } else {
-                    return;
-                }
-            } else {
-                // Windows: Use LAST FINAL result from new results
-                for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript = event.results[i][0].transcript;
-                        break;
-                    }
-                }
-                if (!finalTranscript) return;
-            }
 
-            // Report logic (unchanged from working Windows version)
-            if (isAndroid) {
-                clearTimeout(reportTimer);
-                reportTimer = setTimeout(() => {
-                    if (finalTranscript !== lastReported) {
-                        lastReported = finalTranscript;
-                        yourAppHandleResult(finalTranscript);
-                    }
-                }, 300);
-            } else {
-                if (finalTranscript !== lastReported) {
-                    lastReported = finalTranscript;
-                    yourAppHandleResult(finalTranscript);
-                }
-            }
-        };
-
-        recognition.OLDonend = () => {
-            clearTimeout(reportTimer);
-            if (finalTranscript !== lastReported) {
-                yourAppHandleResult(finalTranscript);
-            }
-        };
 
 
         ///////////////////////////////////
         // Testing Lovable:
 
-        /*
-        let committed = "";          // only finalized text, ever
-        let lastReported = "";
         const isAndroid = /android/i.test(navigator.userAgent);
 
-        recognition.continuous = true;     // ignored on Android, fine on desktop
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-            let newlyFinal = "";
-            let interim = "";
-
-            // Walk only what's new. On Android resultIndex is usually 0 each event,
-            // which is correct because the array was rebuilt.
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const r = event.results[i];
-                if (r.isFinal) newlyFinal += r[0].transcript;
-                else interim += r[0].transcript;
-            }
-
-            if (newlyFinal) committed += newlyFinal;
-
-            // Report committed + current interim, but only commit interim
-            // once the engine marks it final (or in onend, see below).
-            const toReport = (committed + interim).trim();
-            if (toReport && toReport !== lastReported) {
-                lastReported = toReport;
-                yourAppHandleResult(toReport);
-            }
-        };
-
-        recognition.onend = () => {
-            // Android: engine stopped at a pause. Promote any trailing interim
-            // to committed (it won't come back), then restart for continuous UX.
-            if (lastReported && lastReported !== committed.trim()) {
-                committed = lastReported + " ";
-            }
-            if (shouldKeepListening) {        // your own flag, set on start/stop button
-                try { recognition.start(); } catch { }
-            }
-        };
-
-        */
-
-
-
-        /*
-        let hasCommitted = false;  // reset each time you call recognition.start()
-        let finalText = "";
-
-        recognition.continuous = false;     // single utterance
-        recognition.interimResults = true;  // needed so we can read interim safely
-
-        recognition.onstart = () => {
-            hasCommitted = false;
-            finalText = "";
-        };
-
-        recognition.onresult = (event) => {
-            // Walk only the new results from resultIndex; take the latest FINAL one.
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const r = event.results[i];
-                if (r.isFinal) {
-                    finalText = r[0].transcript.trim();
-                }
-                // interim results are intentionally ignored — do not append them
-            }
-
-            // Commit exactly once per session, as soon as we have a final result.
-            if (finalText && !hasCommitted) {
-                hasCommitted = true;
-                yourAppHandleResult(finalText);
-            }
-        };
-
-        recognition.onend = () => {
-            // Safety net: Android sometimes ends before onresult delivers the final.
-            // If we got a final after committing was missed, commit now.
-            if (!hasCommitted && finalText) {
-                hasCommitted = true;
-                yourAppHandleResult(finalText);
-            }
-        };
-
-        recognition.onerror = (e) => {
-            // 'no-speech' / 'aborted' should not commit anything
-            hasCommitted = true;  // prevent onend from committing stale text
-        };
-        */
-
-        // Your append function — make sure it APPENDS, never replaces:
-        function BADyourAppHandleResult(text) {
-            const ta = document.getElementById('your-textarea-id');
-            const sep = ta.value && !ta.value.endsWith(' ') ? ' ' : '';
-            ta.value += sep + text + ' ';
-        }
-
-
-        let shouldKeepListening = false;  // set true when user starts, false when they hit pause
+        let shouldKeepListening = false;
         let hasCommitted = false;
         let finalText = "";
 
-        recognition.continuous = false;     // Android ignores `true` anyway — restart manually
+        recognition.continuous = !isAndroid;   // true on Windows, false on Android
         recognition.interimResults = true;
 
         recognition.onstart = () => {
@@ -652,42 +263,62 @@
         };
 
         recognition.onresult = (event) => {
-            // Only look at results from this utterance onward
+            // Walk only new results this event delivered
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const r = event.results[i];
                 if (r.isFinal) {
-                    finalText = r[0].transcript.trim();
+                    const utterance = r[0].transcript.trim();
+                    if (utterance) {
+                        // Desktop (continuous): commit each final utterance as it arrives
+                        // Android (single-shot): accumulate, commit once in this session
+                        if (isAndroid) {
+                            finalText = utterance;
+                        } else {
+                            yourAppHandleResult(utterance);
+                        }
+                    }
                 }
             }
-            // Commit as soon as we have a final, exactly once per session
-            if (finalText && !hasCommitted) {
-                hasCommitted = true;
-                yourAppHandleResult(finalText);
-            }
-        };
 
-        recognition.onend = () => {
-            // Safety net: if onresult never fired with isFinal, commit whatever we have
-            if (!hasCommitted && finalText) {
+            if (isAndroid && finalText && !hasCommitted) {
                 hasCommitted = true;
                 yourAppHandleResult(finalText);
-            }
-            // Auto-restart for continuous dictation until user pauses
-            if (shouldKeepListening) {
-                try { recognition.start(); } catch (_) { /* already starting */ }
             }
         };
 
         recognition.onerror = (e) => {
-            hasCommitted = true;  // block onend from re-committing stale text
-            // 'no-speech' and 'aborted' are normal during continuous use — let onend restart
+            // no-speech / aborted are normal between phrases on Android
             if (e.error !== "no-speech" && e.error !== "aborted") {
                 shouldKeepListening = false;
             }
+            hasCommitted = true; // block stale commit in onend
         };
 
-        // Starting:  shouldKeepListening = true; recognition.start();
-        // Pausing:   shouldKeepListening = false; recognition.stop();
+        recognition.onend = () => {
+            // Android safety net: commit if onresult never finalised
+            if (isAndroid && !hasCommitted && finalText) {
+                hasCommitted = true;
+                yourAppHandleResult(finalText);
+            }
+
+            // Auto-restart:
+            //  - Android: required after every utterance (continuous is ignored)
+            //  - Windows: only restarts if the engine itself stopped (silence timeout, error)
+            if (shouldKeepListening) {
+                try {
+                    recognition.start();
+                } catch (_) {
+                    // already starting — ignore
+                }
+            }
+        };
+
+        // To begin dictation:
+        // shouldKeepListening = true; recognition.start();
+        //
+        // To pause (your pause button):
+        // shouldKeepListening = false; recognition.stop();
+
 
 
 
