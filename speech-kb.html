@@ -191,20 +191,12 @@
                 startListening();
             });
             const btnStop = mkElt("button", { id: "btn-stop" }, "Stop");
-            btnStart.addEventListener("click", evt => {
+            btnStop.addEventListener("click", evt => {
                 evt.stopPropagation();
                 stopListening();
             });
-            /*
-            const divButtons = mkElt("div", { id: "buttons" }, [
-                btnStart,
-                btnStop,
-            ]);
-            */
             const divButtons = document.getElementById("buttons");
             divButtons.append(btnStart, btnStop);
-            // const divInputs = document.getElementById("inputs");
-            // divInputs.appendChild(divButtons);
         }
     </script>
 </body>
