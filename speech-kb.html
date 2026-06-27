@@ -3,19 +3,38 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg" href="./img/speech-kb.svg">
     <style>
         #result-log {
             border: 2px dotted red;
             background: yellow;
+        }
+
+        #logo {
+            display: block;
+            width: 60px;
+            height: 60px;
+            background-image: url(./img/speech-kb.svg);
+            outline: 1px dotted red;
+        }
+        #inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #buttons {
+            display: flex;
+            gap: 10px;
         }
     </style>
     <script src="./init-error-new.js"></script>
 </head>
 
 <body>
+    <span id="logo"></span>
     <h1>Speech keyboard</h1>
-    <p id="buttons">
-        <label for="speech-lang">Select Speech Language:</label>
+    <div id="inputs">
+        <label>Select Speech Language:
         <select id="speech-lang" name="speech-lang">
             <!-- Arabic -->
             <optgroup label="Arabic">
@@ -33,7 +52,7 @@
 
             <!-- English -->
             <optgroup label="English">
-                <option value="en-US">English (United States)</option>
+                <option value="en-US" selected>English (United States)</option>
                 <option value="en-GB">English (United Kingdom)</option>
                 <option value="en-AU">English (Australia)</option>
                 <option value="en-CA">English (Canada)</option>
@@ -106,8 +125,10 @@
                 <option value="vi-VN">Vietnamese</option>
             </optgroup>
         </select>
-    <div id="mic-status">(Not started)</div>
-    </p>
+        </label>
+        <div id="buttons"></div>
+        <div id="mic-status">(Not started)</div>
+    </div>
     <p id="result-log">
         RESULT LOG:
     </p>
@@ -174,12 +195,16 @@
                 evt.stopPropagation();
                 stopListening();
             });
-            const divButtonsInner = mkElt("div", undefined, [
+            /*
+            const divButtons = mkElt("div", { id: "buttons" }, [
                 btnStart,
                 btnStop,
             ]);
+            */
             const divButtons = document.getElementById("buttons");
-            divButtons.appendChild(divButtonsInner);
+            divButtons.append(btnStart, btnStop);
+            // const divInputs = document.getElementById("inputs");
+            // divInputs.appendChild(divButtons);
         }
     </script>
 </body>
