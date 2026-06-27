@@ -8,6 +8,7 @@
         #result-log {
             border: 2px dotted red;
             background: yellow;
+            display: none;
         }
 
         #logo {
@@ -25,6 +26,15 @@
         #buttons {
             display: flex;
             gap: 10px;
+        }
+        .final-out {
+            outline: 1px dashed red;
+        }
+        #output-text {
+            width: 100%;
+            min-height: 80px;
+            background: #ccc;
+            padding: 10px;
         }
     </style>
     <script src="./init-error-new.js"></script>
@@ -132,6 +142,8 @@
     <p id="result-log">
         RESULT LOG:
     </p>
+    <p id="output-text">
+    </p>
 
     <script type="module">
         const eltMicStatus = document.getElementById("mic-status");
@@ -175,7 +187,14 @@
                     finalTranscript += event.results[i][0].transcript;
                 }
             }
+            finalTranscript = finalTranscript.trim();
             console.log(`Live Text: ${finalTranscript}`);
+            if (finalTranscript.length > 0) {
+                const eltOut = mkElt("div", undefined, finalTranscript);
+                eltOut.classList.add("final-out");
+                const eltOutputText = document.getElementById("output-text");
+                eltOutputText.appendChild(eltOut);
+            }
         };
 
         // Fires when the engine completely disconnects
