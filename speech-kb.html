@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg" href="./img/speech-kb.svg">
     <style>
+        [inert] {
+            cursor: default;
+            filter: grayscale(1);
+            opacity: 0.8;
+            color: gray;
+            outline: dotted 4px red !important;
+
+            input[type=radio] {
+                opacity: 0.5;
+            }
+
+            button {
+                color: white;
+            }
+        }
+
         #result-log {
             border: 2px dotted red;
             background: yellow;
@@ -18,18 +34,43 @@
             background-image: url(./img/speech-kb.svg);
             outline: 1px dotted red;
         }
+
         #inputs {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
+
         #buttons {
             display: flex;
             gap: 10px;
         }
-        .final-out {
-            outline: 1px dashed red;
+
+        #edit-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: -10px;
+
+            button {
+                background: yellow;
+                border: 1px solid gray;
+                border-radius: 10px;
+                padding: 4px;
+                aspect-ratio: 1 / 1;
+                width: 32px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+            }
         }
+
+        #output-text {
+            .final-out:last-child {
+                background-color: yellow;
+            }
+        }
+
         #output-text {
             width: 100%;
             min-height: 80px;
@@ -45,99 +86,100 @@
     <h1>Speech keyboard</h1>
     <div id="inputs">
         <label>Select Speech Language:
-        <select id="speech-lang" name="speech-lang">
-            <!-- Arabic -->
-            <optgroup label="Arabic">
-                <option value="ar-EG">Arabic (Egypt)</option>
-                <option value="ar-SA">Arabic (Saudi Arabia)</option>
-                <option value="ar-AE">Arabic (UAE)</option>
-            </optgroup>
+            <select id="speech-lang" name="speech-lang">
+                <!-- Arabic -->
+                <optgroup label="Arabic">
+                    <option value="ar-EG">Arabic (Egypt)</option>
+                    <option value="ar-SA">Arabic (Saudi Arabia)</option>
+                    <option value="ar-AE">Arabic (UAE)</option>
+                </optgroup>
 
-            <!-- Chinese -->
-            <optgroup label="Chinese">
-                <option value="zh-CN" selected>Chinese (Mandarin Simplified)</option>
-                <option value="zh-TW">Chinese (Taiwanese Mandarin)</option>
-                <option value="zh-HK">Chinese (Hong Kong Cantonese)</option>
-            </optgroup>
+                <!-- Chinese -->
+                <optgroup label="Chinese">
+                    <option value="zh-CN" selected>Chinese (Mandarin Simplified)</option>
+                    <option value="zh-TW">Chinese (Taiwanese Mandarin)</option>
+                    <option value="zh-HK">Chinese (Hong Kong Cantonese)</option>
+                </optgroup>
 
-            <!-- English -->
-            <optgroup label="English">
-                <option value="en-US" selected>English (United States)</option>
-                <option value="en-GB">English (United Kingdom)</option>
-                <option value="en-AU">English (Australia)</option>
-                <option value="en-CA">English (Canada)</option>
-                <option value="en-IN">English (India)</option>
-                <option value="en-NZ">English (New Zealand)</option>
-                <option value="en-ZA">English (South Africa)</option>
-            </optgroup>
+                <!-- English -->
+                <optgroup label="English">
+                    <option value="en-US" selected>English (United States)</option>
+                    <option value="en-GB">English (United Kingdom)</option>
+                    <option value="en-AU">English (Australia)</option>
+                    <option value="en-CA">English (Canada)</option>
+                    <option value="en-IN">English (India)</option>
+                    <option value="en-NZ">English (New Zealand)</option>
+                    <option value="en-ZA">English (South Africa)</option>
+                </optgroup>
 
-            <!-- French -->
-            <optgroup label="French">
-                <option value="fr-FR">French (France)</option>
-                <option value="fr-CA">French (Canada)</option>
-                <option value="fr-CH">French (Switzerland)</option>
-            </optgroup>
+                <!-- French -->
+                <optgroup label="French">
+                    <option value="fr-FR">French (France)</option>
+                    <option value="fr-CA">French (Canada)</option>
+                    <option value="fr-CH">French (Switzerland)</option>
+                </optgroup>
 
-            <!-- German -->
-            <optgroup label="German">
-                <option value="de-DE">German (Germany)</option>
-                <option value="de-AT">German (Austria)</option>
-                <option value="de-CH">German (Switzerland)</option>
-            </optgroup>
+                <!-- German -->
+                <optgroup label="German">
+                    <option value="de-DE">German (Germany)</option>
+                    <option value="de-AT">German (Austria)</option>
+                    <option value="de-CH">German (Switzerland)</option>
+                </optgroup>
 
-            <!-- Italian -->
-            <optgroup label="Italian">
-                <option value="it-IT">Italian (Italy)</option>
-                <option value="it-CH">Italian (Switzerland)</option>
-            </optgroup>
+                <!-- Italian -->
+                <optgroup label="Italian">
+                    <option value="it-IT">Italian (Italy)</option>
+                    <option value="it-CH">Italian (Switzerland)</option>
+                </optgroup>
 
-            <!-- Japanese & Korean -->
-            <optgroup label="East Asian">
-                <option value="ja-JP">Japanese</option>
-                <option value="ko-KR">Korean</option>
-            </optgroup>
+                <!-- Japanese & Korean -->
+                <optgroup label="East Asian">
+                    <option value="ja-JP">Japanese</option>
+                    <option value="ko-KR">Korean</option>
+                </optgroup>
 
-            <!-- Portuguese -->
-            <optgroup label="Portuguese">
-                <option value="pt-BR">Portuguese (Brazil)</option>
-                <option value="pt-PT">Portuguese (Portugal)</option>
-            </optgroup>
+                <!-- Portuguese -->
+                <optgroup label="Portuguese">
+                    <option value="pt-BR">Portuguese (Brazil)</option>
+                    <option value="pt-PT">Portuguese (Portugal)</option>
+                </optgroup>
 
-            <!-- Spanish -->
-            <optgroup label="Spanish">
-                <option value="es-ES">Spanish (Spain)</option>
-                <option value="es-MX">Spanish (Mexico)</option>
-                <option value="es-US">Spanish (United States)</option>
-                <option value="es-AR">Spanish (Argentina)</option>
-                <option value="es-CO">Spanish (Colombia)</option>
-            </optgroup>
+                <!-- Spanish -->
+                <optgroup label="Spanish">
+                    <option value="es-ES">Spanish (Spain)</option>
+                    <option value="es-MX">Spanish (Mexico)</option>
+                    <option value="es-US">Spanish (United States)</option>
+                    <option value="es-AR">Spanish (Argentina)</option>
+                    <option value="es-CO">Spanish (Colombia)</option>
+                </optgroup>
 
-            <!-- Other Languages -->
-            <optgroup label="Other Major Languages">
-                <option value="ca-ES">Catalan</option>
-                <option value="cs-CZ">Czech</option>
-                <option value="da-DK">Danish</option>
-                <option value="nl-NL">Dutch (Netherlands)</option>
-                <option value="fi-FI">Finnish</option>
-                <option value="el-GR">Greek</option>
-                <option value="he-IL">Hebrew</option>
-                <option value="hi-IN">Hindi</option>
-                <option value="hu-HU">Hungarian</option>
-                <option value="id-ID">Indonesian</option>
-                <option value="no-NO">Norwegian</option>
-                <option value="pl-PL">Polish</option>
-                <option value="ro-RO">Romanian</option>
-                <option value="ru-RU">Russian</option>
-                <option value="sv-SE">Swedish</option>
-                <option value="th-TH">Thai</option>
-                <option value="tr-TR">Turkish</option>
-                <option value="uk-UA">Ukrainian</option>
-                <option value="vi-VN">Vietnamese</option>
-            </optgroup>
-        </select>
+                <!-- Other Languages -->
+                <optgroup label="Other Major Languages">
+                    <option value="ca-ES">Catalan</option>
+                    <option value="cs-CZ">Czech</option>
+                    <option value="da-DK">Danish</option>
+                    <option value="nl-NL">Dutch (Netherlands)</option>
+                    <option value="fi-FI">Finnish</option>
+                    <option value="el-GR">Greek</option>
+                    <option value="he-IL">Hebrew</option>
+                    <option value="hi-IN">Hindi</option>
+                    <option value="hu-HU">Hungarian</option>
+                    <option value="id-ID">Indonesian</option>
+                    <option value="no-NO">Norwegian</option>
+                    <option value="pl-PL">Polish</option>
+                    <option value="ro-RO">Romanian</option>
+                    <option value="ru-RU">Russian</option>
+                    <option value="sv-SE">Swedish</option>
+                    <option value="th-TH">Thai</option>
+                    <option value="tr-TR">Turkish</option>
+                    <option value="uk-UA">Ukrainian</option>
+                    <option value="vi-VN">Vietnamese</option>
+                </optgroup>
+            </select>
         </label>
         <div id="buttons"></div>
         <div id="mic-status">(Not started)</div>
+        <div id="edit-buttons"></div>
     </div>
     <p id="result-log">
         RESULT LOG:
@@ -184,7 +226,8 @@
             let finalTranscript = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
+                    // finalTranscript += event.results[i][0].transcript;
+                    finalTranscript = event.results[i][0].transcript;
                 }
             }
             finalTranscript = finalTranscript.trim();
@@ -207,15 +250,27 @@
             const btnStart = mkElt("button", { id: "btn-start" }, "Start");
             btnStart.addEventListener("click", evt => {
                 evt.stopPropagation();
+                btnStart.inert = true;
+                btnStop.inert = false;
                 startListening();
             });
             const btnStop = mkElt("button", { id: "btn-stop" }, "Stop");
+            btnStop.inert = true;
             btnStop.addEventListener("click", evt => {
                 evt.stopPropagation();
+                btnStart.inert = false;
+                btnStop.inert = true;
                 stopListening();
             });
             const divButtons = document.getElementById("buttons");
             divButtons.append(btnStart, btnStop);
+
+            const btnDot = mkElt("button", undefined, ".");
+            const btnExclamation = mkElt("button", undefined, "!");
+            const btnQuestion = mkElt("button", undefined, "?");
+            const btnDelete = mkElt("button", undefined, "⌫");
+            const divEditButtons = document.getElementById("edit-buttons");
+            divEditButtons.append(btnDot, btnExclamation, btnQuestion, btnDelete);
         }
     </script>
 </body>
