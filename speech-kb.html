@@ -224,7 +224,7 @@
 
         // --- LIFECYCLE EVENTS ---
 
-        recognition.onresult = (event) => {
+        recognition.OLDonresult = (event) => {
             let finalTranscript = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
@@ -246,7 +246,51 @@
                 eltOut.scrollIntoView();
             }
         };
+        // Initialize
+        // const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        // let finalTranscript = "";
 
+        // Handle results and report to your app
+        recognition.onresult = (event) => {
+            const finalTranscripts = [];
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    finalTranscripts.push(event.results[i][0].transcript);
+                }
+            }
+
+            if (finalTranscripts.length === 0) return;
+
+            const last = finalTranscripts[finalTranscripts.length - 1];
+            const isAndroidLike = finalTranscripts.length > 1 &&
+                finalTranscripts.every(t => last.includes(t));
+            const isAndroid = /android/i.test(navigator.userAgent);
+            if (isAndroid !== isAndroidLike) {
+                debugger;
+                console.warn(`isAndroid ${isAndroid} !== isAndroidLike ${isAndroidLike}`);
+            }
+
+            let finalTranscript = "";
+            if (isAndroidLike) {
+                finalTranscript = last; // Android: use the last (most complete) result
+            } else {
+                finalTranscript += finalTranscripts.join(" "); // Desktop: append all
+            }
+
+            // Report to your app (e.g., update UI, trigger callback, etc.)
+            yourAppHandleResult(finalTranscript);
+        };
+
+        // Example: Replace with your app's function
+        function yourAppHandleResult(text) {
+            console.log("Reporting to app:", text);
+            // Your app logic here (e.g., update a textarea, send to server, etc.)
+            const eltOut = mkElt("div", undefined, text);
+            eltOut.classList.add("final-out");
+            const eltOutputText = document.getElementById("output-text");
+            eltOutputText.appendChild(eltOut);
+            eltOut.scrollIntoView();
+        }
         // Fires when the engine completely disconnects
         recognition.onend = () => {
             eltMicStatus.textContent = "Recognition session has fully ended.";
