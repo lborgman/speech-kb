@@ -7,6 +7,7 @@
     <style>
         :root {
             --color-for-edit: white;
+            --color-for-edit: yellow;
         }
 
         [inert] {
@@ -258,6 +259,7 @@
 
         // Handle results and report to your app
         // let finalTranscript = "";
+/*
         recognition.OLD2onresult = (event) => {
             const finalTranscripts = [];
             for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -291,9 +293,10 @@
             // Report to your app (e.g., update UI, trigger callback, etc.)
             yourAppHandleResult(finalTranscript);
         };
+*/
 
 
-
+/*
         recognition.OLD3onresult = (event) => {
             const finalTranscripts = [];
             for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -324,10 +327,12 @@
             }
             yourAppHandleResult(finalTranscript);
         };
-
+*/
 
         // let finalTranscript = ""; // Declare OUTSIDE the callback
 
+
+/*
         recognition.OLD4onresult = (event) => {
             const isAndroid = /android/i.test(navigator.userAgent);
             let newText = "";
@@ -351,12 +356,13 @@
 
             yourAppHandleResult(finalTranscript); // Report to app
         };
-
+*/
 
         // let finalTranscript = "";
         // let reportTimer = null;
         // const isAndroid = /android/i.test(navigator.userAgent);
 
+/*
         recognition.OLD5onresult = (event) => {
             let newText = "";
 
@@ -382,10 +388,12 @@
             }, 300); // 300ms = "real-time" for speech (sub-second latency)
         };
 
+*/
 
         // let finalTranscript = "";
         // let reportTimer = null;
 
+/*
         recognition.OLD6onresult = (event) => {
             // Find the LAST FINAL result among NEW results (no accumulation)
             for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
@@ -402,6 +410,7 @@
             }, 300);
         };
 
+*/
 
         // let finalTranscript = "";
         // let lastReported = "";
@@ -441,12 +450,12 @@
         };
 
 
-        let finalTranscript = "";
-        let lastReported = "";
-        let reportTimer = null;
-        const isAndroid = /android/i.test(navigator.userAgent);
+        // let finalTranscript = "";
+        // let lastReported = "";
+        // let reportTimer = null;
+        // const isAndroid = /android/i.test(navigator.userAgent);
 
-        recognition.onresult = (event) => {
+        recognition.OLD8onresult = (event) => {
             // Get the LAST FINAL result from NEW results only
             let lastFinal = "";
             for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
@@ -477,6 +486,48 @@
             }
         };
 
+
+        let finalTranscript = "";
+        let lastReported = "";
+        let reportTimer = null;
+        const isAndroid = /android/i.test(navigator.userAgent);
+
+        recognition.onresult = (event) => {
+            if (isAndroid) {
+                // Android: Use LAST result (ignore isFinal to avoid interim leaks)
+                if (event.results.length > 0) {
+                    finalTranscript = event.results[event.results.length - 1][0].transcript;
+                } else {
+                    return;
+                }
+            } else {
+                // Windows: Use LAST FINAL result from new results
+                for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript = event.results[i][0].transcript;
+                        break;
+                    }
+                }
+                if (!finalTranscript) return;
+            }
+
+            // Report logic (unchanged from working Windows version)
+            if (isAndroid) {
+                clearTimeout(reportTimer);
+                reportTimer = setTimeout(() => {
+                    if (finalTranscript !== lastReported) {
+                        lastReported = finalTranscript;
+                        yourAppHandleResult(finalTranscript);
+                    }
+                }, 300);
+            } else {
+                if (finalTranscript !== lastReported) {
+                    lastReported = finalTranscript;
+                    yourAppHandleResult(finalTranscript);
+                }
+            }
+        };
+
         recognition.onend = () => {
             clearTimeout(reportTimer);
             if (finalTranscript !== lastReported) {
@@ -490,18 +541,12 @@
 
 
 
-        // Ensure final result is reported
-        recognition.onend = () => {
-            clearTimeout(reportTimer);
-            yourAppHandleResult(finalTranscript);
-        };
 
 
-        // Ensure final result is reported even if no pause
-        recognition.onend = () => {
-            clearTimeout(reportTimer);
-            yourAppHandleResult(finalTranscript);
-        };
+
+
+
+
 
 
 
