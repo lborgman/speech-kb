@@ -320,8 +320,15 @@
             const btnExclamation = mkElt("button", undefined, "!");
             const btnQuestion = mkElt("button", undefined, "?");
             const btnDelete = mkElt("button", undefined, "⌫");
+            const btnParagraph = mkElt("button", undefined, "¶");
             const divEditButtons = document.getElementById("edit-buttons");
-            divEditButtons.append(btnDot, btnExclamation, btnQuestion, btnDelete);
+            divEditButtons.append(
+                btnDot,
+                btnExclamation,
+                btnQuestion,
+                btnDelete,
+                btnParagraph
+            );
         }
     </script>
 </body>
