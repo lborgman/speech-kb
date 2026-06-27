@@ -278,7 +278,7 @@
                 finalTranscript += finalTranscripts.join(" "); // Desktop: append all
             }
             */
-            if (isAndroidLike) {
+            if (isAndroid) {
                 // Android: Replace with the last result (ignores isFinal)
                 finalTranscript = event.results[event.results.length - 1][0].transcript;
             } else {
