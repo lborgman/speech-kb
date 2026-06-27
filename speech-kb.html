@@ -49,7 +49,7 @@
         #edit-buttons {
             display: flex;
             gap: 15px;
-            margin-bottom: 2px;
+            margin-top: 2px;
 
             button {
                 background: yellow;
@@ -87,6 +87,8 @@
 <body>
     <span id="logo"></span>
     <h1>Speech keyboard</h1>
+
+
     <div id="inputs">
         <label>Select Speech Language:
             <select id="speech-lang" name="speech-lang">
@@ -182,13 +184,11 @@
         </label>
         <div id="buttons"></div>
         <div id="mic-status">(Not started)</div>
-        <div id="edit-buttons"></div>
     </div>
-    <p id="result-log">
-        RESULT LOG:
-    </p>
-    <div id="output-text">
-    </div>
+    <p id="result-log"> RESULT LOG: </p>
+    <div id="output-text"> </div>
+    <div id="edit-buttons"></div>
+
 
     <script type="module">
         const eltMicStatus = document.getElementById("mic-status");
@@ -253,7 +253,7 @@
 
         // Handle results and report to your app
         let finalTranscript = "";
-        recognition.onresult = (event) => {
+        recognition.OLD2onresult = (event) => {
             const finalTranscripts = [];
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 if (event.results[i].isFinal) {
@@ -286,6 +286,40 @@
             // Report to your app (e.g., update UI, trigger callback, etc.)
             yourAppHandleResult(finalTranscript);
         };
+
+
+
+        recognition.onresult = (event) => {
+            const finalTranscripts = [];
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    finalTranscripts.push(event.results[i][0].transcript);
+                }
+            }
+
+            if (finalTranscripts.length === 0) return;
+
+            const last = finalTranscripts[finalTranscripts.length - 1];
+            const isAndroidLike = finalTranscripts.length > 1 &&
+                finalTranscripts.every(t => last.includes(t));
+            const isAndroid = /android/i.test(navigator.userAgent);
+            if (isAndroid !== isAndroidLike) {
+                debugger;
+                console.warn(`isAndroid ${isAndroid} !== isAndroidLike ${isAndroidLike}`);
+            }
+
+            if (isAndroid) {
+                finalTranscript = last; // <-- FIX: Use 'last' (final-only) instead of event.results
+            } else {
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    }
+                }
+            }
+            yourAppHandleResult(finalTranscript);
+        };
+
 
         // Example: Replace with your app's function
         function yourAppHandleResult(text) {
