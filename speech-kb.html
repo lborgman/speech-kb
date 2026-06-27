@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg" href="./img/speech-kb.svg">
     <style>
+        :root {
+            --color-for-edit: white;
+        }
+
         [inert] {
             cursor: default;
             filter: grayscale(1);
@@ -54,6 +58,7 @@
             button {
                 background: yellow;
                 background: lightblue;
+                background-color: var(--color-for-edit);
                 border: 1px solid gray;
                 border-radius: 10px;
                 padding: 4px;
@@ -68,7 +73,7 @@
 
         #output-text {
             .final-out:last-child {
-                background-color: yellow;
+                background-color: var(--color-for-edit);
             }
         }
 
@@ -252,7 +257,7 @@
         // let finalTranscript = "";
 
         // Handle results and report to your app
-        let finalTranscript = "";
+        // let finalTranscript = "";
         recognition.OLD2onresult = (event) => {
             const finalTranscripts = [];
             for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -289,7 +294,7 @@
 
 
 
-        recognition.onresult = (event) => {
+        recognition.OLD3onresult = (event) => {
             const finalTranscripts = [];
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 if (event.results[i].isFinal) {
@@ -319,6 +324,185 @@
             }
             yourAppHandleResult(finalTranscript);
         };
+
+
+        // let finalTranscript = ""; // Declare OUTSIDE the callback
+
+        recognition.OLD4onresult = (event) => {
+            const isAndroid = /android/i.test(navigator.userAgent);
+            let newText = "";
+
+            // Collect all NEW final results in this event
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    newText += event.results[i][0].transcript + " ";
+                }
+            }
+
+            if (!newText.trim()) return; // Skip if no final results
+
+            if (isAndroid) {
+                // Android: Replace with the latest complete result
+                finalTranscript = newText.trim();
+            } else {
+                // Desktop: Append new final results
+                finalTranscript += newText;
+            }
+
+            yourAppHandleResult(finalTranscript); // Report to app
+        };
+
+
+        // let finalTranscript = "";
+        // let reportTimer = null;
+        // const isAndroid = /android/i.test(navigator.userAgent);
+
+        recognition.OLD5onresult = (event) => {
+            let newText = "";
+
+            // Collect ONLY new final results in this event
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    newText += event.results[i][0].transcript;
+                }
+            }
+
+            if (!newText.trim()) return;
+
+            if (isAndroid) {
+                finalTranscript = newText.trim(); // Replace (Android)
+            } else {
+                finalTranscript += newText; // Append (Windows)
+            }
+
+            // Debounce: Report only after 300ms of no new results
+            clearTimeout(reportTimer);
+            reportTimer = setTimeout(() => {
+                yourAppHandleResult(finalTranscript);
+            }, 300); // 300ms = "real-time" for speech (sub-second latency)
+        };
+
+
+        // let finalTranscript = "";
+        // let reportTimer = null;
+
+        recognition.OLD6onresult = (event) => {
+            // Find the LAST FINAL result among NEW results (no accumulation)
+            for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
+                if (event.results[i].isFinal) {
+                    finalTranscript = event.results[i][0].transcript;
+                    break;
+                }
+            }
+
+            // Debounce: Report only after 300ms of no new results
+            clearTimeout(reportTimer);
+            reportTimer = setTimeout(() => {
+                yourAppHandleResult(finalTranscript);
+            }, 300);
+        };
+
+
+        // let finalTranscript = "";
+        // let lastReported = "";
+        // let reportTimer = null;
+        // const isAndroid = /android/i.test(navigator.userAgent);
+
+        recognition.OLD7onresult = (event) => {
+            let newText = "";
+
+            // Collect ONLY new final results
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    newText += event.results[i][0].transcript;
+                }
+            }
+
+            if (!newText.trim()) return;
+
+            if (isAndroid) {
+                // Android: Replace with latest result
+                finalTranscript = newText.trim();
+                clearTimeout(reportTimer);
+                reportTimer = setTimeout(() => {
+                    if (finalTranscript !== lastReported) {
+                        lastReported = finalTranscript;
+                        yourAppHandleResult(finalTranscript);
+                    }
+                }, 300);
+            } else {
+                // Windows: Accumulate new results
+                finalTranscript += newText;
+                if (finalTranscript !== lastReported) {
+                    lastReported = finalTranscript;
+                    yourAppHandleResult(finalTranscript);
+                }
+            }
+        };
+
+
+        let finalTranscript = "";
+        let lastReported = "";
+        let reportTimer = null;
+        const isAndroid = /android/i.test(navigator.userAgent);
+
+        recognition.onresult = (event) => {
+            // Get the LAST FINAL result from NEW results only
+            let lastFinal = "";
+            for (let i = event.results.length - 1; i >= event.resultIndex; i--) {
+                if (event.results[i].isFinal) {
+                    lastFinal = event.results[i][0].transcript;
+                    break;
+                }
+            }
+
+            if (!lastFinal) return;
+            finalTranscript = lastFinal; // Always REPLACE (no accumulation)
+
+            if (isAndroid) {
+                // Android: Debounce to avoid fragments
+                clearTimeout(reportTimer);
+                reportTimer = setTimeout(() => {
+                    if (finalTranscript !== lastReported) {
+                        lastReported = finalTranscript;
+                        yourAppHandleResult(finalTranscript);
+                    }
+                }, 300);
+            } else {
+                // Windows: Report immediately if changed
+                if (finalTranscript !== lastReported) {
+                    lastReported = finalTranscript;
+                    yourAppHandleResult(finalTranscript);
+                }
+            }
+        };
+
+        recognition.onend = () => {
+            clearTimeout(reportTimer);
+            if (finalTranscript !== lastReported) {
+                yourAppHandleResult(finalTranscript);
+            }
+        };
+
+
+
+
+
+
+
+        // Ensure final result is reported
+        recognition.onend = () => {
+            clearTimeout(reportTimer);
+            yourAppHandleResult(finalTranscript);
+        };
+
+
+        // Ensure final result is reported even if no pause
+        recognition.onend = () => {
+            clearTimeout(reportTimer);
+            yourAppHandleResult(finalTranscript);
+        };
+
 
 
         // Example: Replace with your app's function
