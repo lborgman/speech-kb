@@ -53,6 +53,7 @@
 
             button {
                 background: yellow;
+                background: lightblue;
                 border: 1px solid gray;
                 border-radius: 10px;
                 padding: 4px;
@@ -251,6 +252,7 @@
         // let finalTranscript = "";
 
         // Handle results and report to your app
+        let finalTranscript = "";
         recognition.onresult = (event) => {
             const finalTranscripts = [];
             for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -270,14 +272,6 @@
                 console.warn(`isAndroid ${isAndroid} !== isAndroidLike ${isAndroidLike}`);
             }
 
-            let finalTranscript = "";
-            /*
-            if (isAndroidLike) {
-                finalTranscript = last; // Android: use the last (most complete) result
-            } else {
-                finalTranscript += finalTranscripts.join(" "); // Desktop: append all
-            }
-            */
             if (isAndroid) {
                 // Android: Replace with the last result (ignores isFinal)
                 finalTranscript = event.results[event.results.length - 1][0].transcript;
