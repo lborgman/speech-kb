@@ -271,12 +271,24 @@
             }
 
             let finalTranscript = "";
+            /*
             if (isAndroidLike) {
                 finalTranscript = last; // Android: use the last (most complete) result
             } else {
                 finalTranscript += finalTranscripts.join(" "); // Desktop: append all
             }
-
+            */
+            if (isAndroidLike) {
+                // Android: Replace with the last result (ignores isFinal)
+                finalTranscript = event.results[event.results.length - 1][0].transcript;
+            } else {
+                // Desktop: Append only final results
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    }
+                }
+            }
             // Report to your app (e.g., update UI, trigger callback, etc.)
             yourAppHandleResult(finalTranscript);
         };
@@ -321,13 +333,16 @@
             const btnQuestion = mkElt("button", undefined, "?");
             const btnDelete = mkElt("button", undefined, "⌫");
             const btnParagraph = mkElt("button", undefined, "¶");
+            const btnEdit = mkElt("button", undefined, "✎");
+
             const divEditButtons = document.getElementById("edit-buttons");
             divEditButtons.append(
                 btnDot,
                 btnExclamation,
                 btnQuestion,
                 btnDelete,
-                btnParagraph
+                btnParagraph,
+                btnEdit
             );
         }
     </script>
