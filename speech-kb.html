@@ -219,13 +219,15 @@
         // --- CONTROLS ---
 
         // 1. START: Turns on microphone, begins listening
-        function startListening() {
+        function UserStartListening() {
+            shouldKeepListening = true;
             recognition.lang = langSelect.value;
             recognition.start();
         }
 
         // 2. STOP: Stops listening and FINISHES processing current speech
-        function stopListening() {
+        function UserStopListening() {
+            shouldKeepListening = false;
             recognition.stop();
         }
 
@@ -339,12 +341,6 @@
             }
         });
 
-        // To begin dictation:
-        // shouldKeepListening = true; recognition.start();
-        //
-        // To pause (your pause button):
-        // shouldKeepListening = false; recognition.stop();
-
 
 
 
@@ -388,12 +384,12 @@
             btnStart.addEventListener("click", evt => {
                 evt.stopPropagation();
                 // showListening(true);
-                startListening();
+                UserStartListening();
             });
             btnStop.addEventListener("click", evt => {
                 evt.stopPropagation();
                 // showListening(false);
-                stopListening();
+                UserStopListening();
             });
 
             function showListening(on) {
