@@ -1,0 +1,318 @@
+/* For basic-ui.js */
+/* body { background-color: red !important; } */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+:root {
+    --icon-button-size: 48;
+    --checkbox-border-color: #8b8c89;
+    --checkbox-checked-color: #274c77;
+    --checkbox-checked-color: orange;
+    --checkbox-checked-color: darkorange;
+    --checkbox-hover-color: #a3cef1;
+    --checkbox-hover-color: #a3cef133;
+    --checkbox-hover-color: red;
+    --checkbox-hover-color: orange;
+    --checkbox-disabled-bg-color: #d9d9d9;
+}
+
+button {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid gray;
+}
+
+label {
+    cursor: pointer;
+}
+
+input[type=radio] {
+    cursor: pointer;
+}
+
+input[type=range] {
+    cursor: pointer;
+}
+
+input[type=checkbox] {
+    cursor: pointer;
+}
+
+
+
+blockquote {
+    background-color: #fff4;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+    quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+blockquote:before {
+    color: #ccc;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    margin-right: 0.25em;
+    vertical-align: -0.4em;
+}
+
+blockquote p {
+    display: inline;
+}
+
+
+
+input[type="checkbox"] {
+    width: 20px;
+    width: 1rem;
+    height: 20px;
+    height: 1rem;
+    padding: 0;
+    border: 2px solid var(--checkbox-border-color);
+    appearance: none;
+    background-color: transparent;
+    outline: none;
+    transition: outline 0.1s, background-color 0.7s, border-color 0.7s;
+}
+
+input[type="checkbox"]:checked {
+    background-size: cover;
+    padding: 2px;
+}
+
+input[type="checkbox"]:not(:disabled):checked {
+    border-color: var(--checkbox-checked-color);
+    background-color: var(--checkbox-checked-color);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 32 32" xml:space="preserve"><path style="fill: %23274c77" d="M11.941,28.877l-11.941-11.942l5.695-5.696l6.246,6.246l14.364-14.364L32,8.818"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 32 32" xml:space="preserve"><path style="fill: black" d="M11.941,28.877l-11.941-11.942l5.695-5.696l6.246,6.246l14.364-14.364L32,8.818"/></svg>');
+}
+
+input[type="checkbox"]:disabled {
+    background-color: var(--checkbox-disabled-bg-color);
+}
+
+input[type="checkbox"]:disabled:checked {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 32 32" xml:space="preserve"><path style="fill: %238b8c89" d="M11.941,28.877l-11.941-11.942l5.695-5.696l6.246,6.246l14.364-14.364L32,8.818"/></svg>');
+}
+
+@media (hover: hover) {
+    input[type="checkbox"]:not(:disabled):hover {
+        background-color: var(--checkbox-hover-color);
+        outline: 6px solid var(--checkbox-hover-color);
+        transform: scale(1.05);
+    }
+}
+
+input[type="checkbox"]:focus-visible {
+    outline: 6px solid var(--checkbox-hover-color);
+    transform: scale(1.05);
+}
+
+label:has(input[type=checkbox]) {
+    display: flex;
+    align-items: center;
+}
+
+.slider {
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 4px;
+    background-color: olive;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: olive;
+    cursor: pointer;
+}
+
+
+
+dialog {
+    position: relative;
+    border: 1px solid gray;
+    border-radius: 8px;
+    padding: 0;
+    background-color: palegoldenrod;
+    max-width: calc(min(400px, 90vw));
+    opacity: 0;
+    transition-property: opacity, display, overlay;
+    transition-duration: 2s;
+    transition-behavior: allow-discrete;
+    /* transition-delay: 2s; */
+}
+
+dialog[open] {
+    opacity: 1;
+}
+
+/* Starting styles for entering */
+@starting-style {
+    dialog[open] {
+        opacity: 0;
+    }
+}
+
+/* CRITICAL: Change transition ONLY when closing */
+dialog:not([open]) {
+    transition-duration: 0.4s !important;
+}
+
+
+
+
+dialog.wide-dialog {
+    max-width: calc(90vw + 16px);
+}
+
+dialog>div {
+    padding: 20px;
+    /* outline: 1px dotted blue; */
+    /* border: 2px dotted red; */
+}
+
+dialog::backdrop {
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    transition-property: background-color, backdrop-filter;
+    transition-duration: 2s;
+}
+
+dialog[open]::backdrop {
+    background-color: #0008;
+    backdrop-filter: blur(2px);
+}
+
+@starting-style {
+    dialog[open]::backdrop {
+        background-color: transparent;
+        backdrop-filter: blur(0px);
+    }
+}
+/* CRITICAL: Change transition ONLY when closing */
+dialog:not([open])::backdrop {
+    transition-duration: 0.4s !important;
+}
+
+
+
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.x-close {
+    background: none;
+    border: none;
+    box-shadow: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 32px;
+    aspect-ratio: 1 / 1;
+}
+
+.x-close:hover {
+    background-color: red;
+}
+
+
+
+/* min-* from Gemini, no other AI found it... */
+.fab-button {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    min-height: 0;
+    min-width: 0;
+    font-size: 1.5rem;
+    border: none;
+    background-color: transparent;
+}
+
+.icon-button {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    min-height: 0;
+    min-width: 0;
+    color: inherit;
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+}
+
+
+[inert] {
+    cursor: default;
+    filter: grayscale(1);
+    opacity: 0.8;
+    color: gray;
+    outline: dotted 4px red !important;
+
+    input[type=radio] {
+        opacity: 0.5;
+    }
+
+    button {
+        color: white;
+    }
+}
+
+#snackbar {
+    position: fixed;
+    z-index: 2147483647;
+    top: auto;
+    bottom: 50px;
+    left: 20vw;
+    width: 60vw;
+    margin: 0;
+    padding: 4px;
+    color: black;
+    background-color: lightblue;
+    outline: none;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0px 0px 20px 4px lightblue;
+    overflow-x: clip;
+}
+
+
+.basic-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 4px;
+
+}
+
+.image-preview {
+    background-color: black;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
