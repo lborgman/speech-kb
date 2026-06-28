@@ -216,13 +216,11 @@
         function startListening() {
             recognition.lang = langSelect.value;
             recognition.start();
-            eltMicStatus.textContent = "Microphone is active. Speak now...";
         }
 
         // 2. STOP: Stops listening and FINISHES processing current speech
         function stopListening() {
             recognition.stop();
-            eltMicStatus.textContent = "Microphone turned off. Processing final audio...";
         }
 
         // 3. ABORT: Instantly kills the microphone and THROWS AWAY current speech
@@ -257,10 +255,11 @@
         recognition.continuous = !isAndroid;   // true on Windows, false on Android
         recognition.interimResults = true;
 
-        recognition.onstart = () => {
+        recognition.addEventListener("start", () => {
             hasCommitted = false;
             finalText = "";
-        };
+            // showListening(true);
+        });
 
         recognition.onresult = (event) => {
             // Walk only new results this event delivered
@@ -294,7 +293,7 @@
             hasCommitted = true; // block stale commit in onend
         };
 
-        recognition.onend = () => {
+        recognition.addEventListener("end", () => {
             // Android safety net: commit if onresult never finalised
             if (isAndroid && !hasCommitted && finalText) {
                 hasCommitted = true;
@@ -311,7 +310,7 @@
                     // already starting — ignore
                 }
             }
-        };
+        });
 
         // To begin dictation:
         // shouldKeepListening = true; recognition.start();
@@ -349,20 +348,37 @@
         displayPage();
         function displayPage() {
             const btnStart = mkElt("button", { id: "btn-start" }, "Start");
+            const btnStop = mkElt("button", { id: "btn-stop" }, "Stop");
+            // btnStop.inert = true;
+            showListening(false);
+            recognition.addEventListener("start", () => {
+                showListening(true);
+            });
+            recognition.addEventListener("end", () => {
+                showListening(false);
+            });
             btnStart.addEventListener("click", evt => {
                 evt.stopPropagation();
-                btnStart.inert = true;
-                btnStop.inert = false;
+                // showListening(true);
                 startListening();
             });
-            const btnStop = mkElt("button", { id: "btn-stop" }, "Stop");
-            btnStop.inert = true;
             btnStop.addEventListener("click", evt => {
                 evt.stopPropagation();
-                btnStart.inert = false;
-                btnStop.inert = true;
+                // showListening(false);
                 stopListening();
             });
+
+            function showListening(on) {
+                if (on) {
+                    btnStart.inert = true;
+                    btnStop.inert = false;
+                    eltMicStatus.textContent = "Microphone is active. Speak now...";
+                } else {
+                    btnStart.inert = false;
+                    btnStop.inert = true;
+                    eltMicStatus.textContent = "Microphone is off.";
+                }
+            }
             const divButtons = document.getElementById("buttons");
             divButtons.append(btnStart, btnStop);
 
