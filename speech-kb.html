@@ -74,6 +74,11 @@
             }
         }
 
+        #debug {
+            color: red;
+            outline: 2px solid red;
+            min-height: 80px;
+        }
         #output-text {
             .final-out:last-child {
                 background-color: var(--color-for-edit);
@@ -196,6 +201,7 @@
     <p id="result-log"> RESULT LOG: </p>
     <div id="output-text"> </div>
     <div id="edit-buttons"></div>
+    <div id="debug"></div>
 
 
     <script type="module">
@@ -285,7 +291,16 @@
             }
         };
 
+        function debugOutput(txt) {
+            const elt = mkElt("div", undefined, txt);
+            const eltDebug = document.getElementById("debug");
+            eltDebug.appendChild(elt);
+        }
+        debugOutput("TEST DEBUG"); debugOutput("TEST again");
+        // recognition.onerror = (e) => {
         recognition.onerror = (e) => {
+            debugOutput(e.error);
+
             // no-speech / aborted are normal between phrases on Android
             if (e.error !== "no-speech" && e.error !== "aborted") {
                 shouldKeepListening = false;
