@@ -291,22 +291,34 @@
             }
         };
 
+
         function debugOutput(txt) {
             const elt = mkElt("div", undefined, txt);
             const eltDebug = document.getElementById("debug");
             eltDebug.appendChild(elt);
         }
-        debugOutput("TEST DEBUG"); debugOutput("TEST again");
+        debugOutput("TEST DEBUG"); debugOutput("TEST again 2");
+        const lifeEvents = [
+            "start", "audiostart", "soundstart", "speechstart",
+            "speechend", "soundend", "audioend", "end"
+        ];
+        lifeEvents.forEach(evtName => {
+            recognition.addEventListener(evtName, evt =>{
+                debugOutput(evtName)
+            })
+        })
+
+
         // recognition.onerror = (e) => {
-        recognition.onerror = (e) => {
-            debugOutput(e.error);
+        recognition.addEventListener("error", (e) => {
+            debugOutput(`onerror: ${e.error}`);
 
             // no-speech / aborted are normal between phrases on Android
             if (e.error !== "no-speech" && e.error !== "aborted") {
                 shouldKeepListening = false;
             }
             hasCommitted = true; // block stale commit in onend
-        };
+        });
 
         recognition.addEventListener("end", () => {
             // Android safety net: commit if onresult never finalised
@@ -359,6 +371,7 @@
             eltMicStatus.textContent = "Recognition session has fully ended.";
         };
         */
+        // recognition.addEventListener("end", () => { debugOutput(`end:`) });
 
         displayPage();
         function displayPage() {
