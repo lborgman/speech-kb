@@ -262,9 +262,10 @@
 
 
     <script type="module">
-        const modBasicUI = await import("./js/mod/basic-ui.js");
-        console.log({ modBasicUI });
-        // debugger;
+        const modBasicUI = await importFc4i("basic-ui");
+        const modOPFS = await importFc4i("opfs");
+        console.log({ modBasicUI, modOPFS });
+        debugger;
         // modBasicUI.snackbar("Nice to see you!");
         const eltMicStatus = document.getElementById("mic-status");
         const langSelect = document.getElementById('speech-lang');
