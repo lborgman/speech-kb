@@ -85,7 +85,7 @@
             gap: 10px;
         }
 
-        #buttons {
+        #on-off-buttons {
             display: flex;
             gap: 10px;
         }
@@ -139,17 +139,19 @@
             outline: none;
         }
 
-        .mic-btn.is-active {
+        .mic-on .mic-btn {
             /* Inverts light grey to a dark baseline, then pumps up saturation into emerald green */
             filter: invert(56%) sepia(82%) saturate(497%) hue-rotate(103deg) brightness(87%) contrast(92%);
         }
 
-        .mic-btn.is-idle {
+        /* .mic-off */
+        .mic-btn {
             /* Inverts the light grey to a deep base and shifts the hue into a cool, professional slate grey */
             filter: invert(34%) sepia(16%) saturate(697%) hue-rotate(176deg) brightness(91%) contrast(87%);
         }
     </style>
     <script src="./init-error-new.js"></script>
+    <script src="./importmaps.js"></script>
 </head>
 
 <body>
@@ -249,8 +251,8 @@
                 </optgroup>
             </select>
         </label>
-        <div id="buttons"></div>
-        <div id="mic-status">(Not started)</div>
+        <div id="on-off-buttons"></div>
+        <!-- <div id="mic-status">(Not started)</div> -->
     </div>
     <p id="result-log"> RESULT LOG: </p>
     <div id="output-text"> </div>
@@ -443,28 +445,57 @@
             });
             btnStart.addEventListener("click", evt => {
                 evt.stopPropagation();
-                // showListening(true);
                 UserStartListening();
             });
             btnStop.addEventListener("click", evt => {
                 evt.stopPropagation();
-                // showListening(false);
                 UserStopListening();
             });
 
             function showListening(on) {
+                const eltMicStatus = document.getElementById("mic-status");
                 if (on) {
                     btnStart.inert = true;
                     btnStop.inert = false;
+                    document.documentElement.classList.add("mic-on");
                     eltMicStatus.textContent = "Microphone is active. Speak now...";
                 } else {
                     btnStart.inert = false;
                     btnStop.inert = true;
-                    eltMicStatus.textContent = "Microphone is off.";
+                    if (eltMicStatus) {
+                        // eltMicStatus.textContent = "Microphone is off.";
+                        eltMicStatus.textContent = "";
+                    }
+                    document.documentElement.classList.remove("mic-on");
                 }
             }
-            const divButtons = document.getElementById("buttons");
-            divButtons.append(btnStart, btnStop);
+
+            const eltMic = mkElt("div");
+            eltMic.title = "- Turn mic on/off";
+            eltMic.classList.add("mic-btn");
+            eltMic.style = `
+                background-image: url(./img/mic2.svg);
+                background-size: contain;
+                outline: 1px dotted red;
+                width: 48px;
+                height: 48px;
+                cursor: pointer;
+            `;
+            eltMic.addEventListener("click", evt => {
+                evt.stopPropagation();
+                const isOn = document.documentElement.classList.contains("mic-on");
+                if (isOn) {
+                    UserStopListening();
+                } else {
+                    UserStartListening();
+                }
+            });
+
+            const eltMicStatus = mkElt("div", { id: "mic-status" });
+
+            const divOnOffButtons = document.getElementById("on-off-buttons");
+            // divOnOffButtons.append(btnStart, btnStop, eltMic);
+            divOnOffButtons.append(eltMic, eltMicStatus);
 
 
             /************** EDIT ***********/
