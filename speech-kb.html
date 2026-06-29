@@ -585,6 +585,76 @@
             }
 
         }
+
+
+        //////////// Copy to clipboard
+        // FIX-ME: NOT READY!
+        async function SYNCcopyElementToClipboard(htmlContent) {
+            try {
+                // 1. Create your temporary element to format/verify content
+                const tempEl = document.createElement('div');
+                tempEl.innerHTML = htmlContent;
+
+                // (Optional) Tweak styles inline here to ensure Google Docs reads them
+                // Example: tempEl.querySelectorAll('p').forEach(p => p.style.color = 'blue');
+
+                // 2. Extract the formatted HTML string and a plain text fallback
+                const htmlString = tempEl.innerHTML;
+                const plainText = tempEl.innerText;
+
+                // 3. Convert both into Blobs with specific MIME types
+                const htmlBlob = new Blob([htmlString], { type: 'text/html' });
+                const textBlob = new Blob([plainText], { type: 'text/plain' });
+
+                // 4. Write to the clipboard via the modern API
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': htmlBlob,
+                        'text/plain': textBlob
+                    })
+                ]);
+
+                console.log('Copied directly via modern Clipboard API!');
+            } catch (err) {
+                console.error('Modern API failed. Error code/message:', err);
+            }
+        }
+
+        async function TESTASYNCElementToClipboard() {
+            document.getElementById('copy-button').addEventListener('click', () => {
+
+                // 1. Construct Promises that handle the heavy lifting/element generation
+                const htmlPromise = new Promise(async (resolve) => {
+                    // Simulate complex element creation or a quick network request
+                    const response = await fetch('/api/get-docs-template');
+                    const data = await response.json();
+
+                    const tempEl = document.createElement('div');
+                    tempEl.innerHTML = `<div style="font-family: Calibri;">${data.html}</div>`;
+                    resolve(new Blob([tempEl.innerHTML], { type: 'text/html' }));
+                });
+
+                const textPromise = new Promise(async (resolve) => {
+                    // Keep this synced with your HTML data payload
+                    const response = await fetch('/api/get-docs-template');
+                    const data = await response.json();
+                    resolve(new Blob([data.plainText], { type: 'text/plain' }));
+                });
+
+                // 2. Hand off the Promises synchronously inside the click handler
+                // This satisfies the browser's strict security timing constraint!
+                navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': htmlPromise,
+                        'text/plain': textPromise
+                    })
+                ]).then(() => {
+                    console.log("Background processing complete. Written to Google Docs clipboard format!");
+                }).catch((err) => {
+                    console.error("Clipboard assignment failed:", err);
+                });
+            });
+        }
     </script>
 </body>
 
