@@ -266,7 +266,7 @@ dialog:not([open])::backdrop {
 }
 
 
-[inert] {
+[inertx] {
     cursor: default;
     filter: grayscale(1);
     opacity: 0.8;

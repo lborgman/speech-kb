@@ -13,7 +13,7 @@
             --color-for-edit: yellow;
         }
 
-        [inert] {
+        [inertx] {
             cursor: default;
             filter: grayscale(1);
             opacity: 0.8;
@@ -28,6 +28,36 @@
                 color: white;
             }
         }
+
+        [inert] {
+            outline: dotted 1px indigo !important;
+        }
+
+        /* 1. Style every element except labels in one clean sweep */
+        [inert] *:not(label) {
+            color: #555555 !important;
+            background-color: #f0f0f0 !important;
+            border-color: #cccccc !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+        }
+
+        /* 2. Give labels only the text color and cursor (no background/borders) */
+        [inert] label {
+            color: #555555 !important;
+            cursor: not-allowed;
+        }
+
+        /* 3. Handle inputs with placeholders */
+        [inert] input::placeholder {
+            color: #999999 !important;
+        }
+
+        /* 4. Handle checkboxes and radios */
+        [inert] input:is([type="checkbox"], [type="radio"]) {
+            accent-color: #666666 !important;
+        }
+
 
         #result-log {
             border: 2px dotted red;
@@ -224,7 +254,7 @@
     </div>
     <p id="result-log"> RESULT LOG: </p>
     <div id="output-text"> </div>
-    <div id="edit-buttons"></div>
+    <div id="edit-buttons" inert></div>
     <div id="debug"></div>
 
 
@@ -388,6 +418,8 @@
             const eltOutputText = document.getElementById("output-text");
             eltOutputText.appendChild(eltOut);
             eltOut.scrollIntoView();
+            const eltEditButtons = document.getElementById("edit-buttons");
+            eltEditButtons.inert = false;
         }
         // Fires when the engine completely disconnects
         /*
@@ -434,6 +466,8 @@
             const divButtons = document.getElementById("buttons");
             divButtons.append(btnStart, btnStop);
 
+
+            /************** EDIT ***********/
             const btnDot = mkElt("button", undefined, ".");
             const btnExclamation = mkElt("button", undefined, "!");
             const btnQuestion = mkElt("button", undefined, "?");
@@ -446,10 +480,68 @@
                 btnDot,
                 btnExclamation,
                 btnQuestion,
-                btnDelete,
                 btnParagraph,
-                btnEdit
+                btnEdit,
+                btnDelete,
             );
+            btnDot.addEventListener("click", evt => {
+                evt.stopPropagation();
+                const eltToEdit = getLastFinalOut();
+                UpperFirstCharPlusPunctuation(eltToEdit, ".");
+            });
+            btnExclamation.addEventListener("click", evt => {
+                evt.stopPropagation();
+                const eltToEdit = getLastFinalOut();
+                UpperFirstCharPlusPunctuation(eltToEdit, "!");
+            });
+            btnQuestion.addEventListener("click", evt => {
+                evt.stopPropagation();
+                const eltToEdit = getLastFinalOut();
+                UpperFirstCharPlusPunctuation(eltToEdit, "?");
+            });
+            btnParagraph.addEventListener("click", evt => {
+                evt.stopPropagation();
+                alert("not ready paragraph");
+            });
+            btnEdit.addEventListener("click", evt => {
+                evt.stopPropagation();
+                alert("not ready edit");
+            });
+            btnDelete.addEventListener("click", evt => {
+                evt.stopPropagation();
+                const eltToEdit = getLastFinalOut();
+                console.log({ eltToEdit });
+                debugger;
+                eltToEdit.remove();
+                const eltOutputText = document.getElementById("output-text");
+                const eltOut = eltOutputText.querySelector(".final-out");
+                if (!eltOut) {
+                    const eltEditButtons = document.getElementById("edit-buttons");
+                    eltEditButtons.inert = true;
+                }
+            });
+            function getLastFinalOut() {
+                const eltOutputText = document.getElementById("output-text");
+                const eltLast = eltOutputText.querySelector(":last-child");
+                return eltLast;
+            }
+            /**
+             * {HTMLElement} elt
+             * {string} punctuation
+             */
+            function UpperFirstCharPlusPunctuation(eltToEdit, punctuation) {
+                const orig = eltToEdit.textContent;
+                const first = orig.slice(0, 1);
+                let tail = orig.slice(1);
+                const last = orig.slice(-1);
+                if (".!?".indexOf(last) > -1) {
+                    tail = tail.slice(0, -1);
+                }
+                const uFirst = first.toLocaleUpperCase();
+                const fixed = uFirst.concat(tail, punctuation);
+                eltToEdit.textContent = fixed;
+            }
+
         }
     </script>
 </body>
