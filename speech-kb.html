@@ -73,8 +73,10 @@
             padding: 4px;
             border-radius: 4px;
             border-color: #3333;
+            background-color: transparent;
             width: fit-content;
-            min-width: calc(100vw - 70px);
+            min-width: calc(60vw);
+            max-width: calc(100vw - 70px);
             display: flex;
             justify-content: space-between;
         }
@@ -472,8 +474,8 @@
 
         displayPage();
         function displayPage() {
-            const btnStart = mkElt("button", { id: "btn-start" }, "Start");
-            const btnStop = mkElt("button", { id: "btn-stop" }, "Stop");
+            // const btnStart = mkElt("button", { id: "btn-start" }, "Start");
+            // const btnStop = mkElt("button", { id: "btn-stop" }, "Stop");
             // btnStop.inert = true;
             showListening(false);
             recognition.addEventListener("start", () => {
@@ -482,6 +484,8 @@
             recognition.addEventListener("end", () => {
                 showListening(false);
             });
+
+            /*
             btnStart.addEventListener("click", evt => {
                 evt.stopPropagation();
                 UserStartListening();
@@ -490,17 +494,24 @@
                 evt.stopPropagation();
                 UserStopListening();
             });
+            */
+
+            const btnDoc = document.getElementById("doc");
+            btnDoc.addEventListener("click", evt => {
+                evt.stopPropagation()
+                alert("not ready");
+            })
 
             function showListening(on) {
                 const eltMicStatus = document.getElementById("mic-status");
                 if (on) {
-                    btnStart.inert = true;
-                    btnStop.inert = false;
+                    // btnStart.inert = true;
+                    // btnStop.inert = false;
                     document.documentElement.classList.add("mic-on");
                     eltMicStatus.textContent = "Microphone is on";
                 } else {
-                    btnStart.inert = false;
-                    btnStop.inert = true;
+                    // btnStart.inert = false;
+                    // btnStop.inert = true;
                     if (eltMicStatus) {
                         // eltMicStatus.textContent = "Microphone is off.";
                         eltMicStatus.textContent = "";
