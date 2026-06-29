@@ -458,7 +458,7 @@
                     btnStart.inert = true;
                     btnStop.inert = false;
                     document.documentElement.classList.add("mic-on");
-                    eltMicStatus.textContent = "Microphone is active. Speak now...";
+                    eltMicStatus.textContent = "Microphone is active";
                 } else {
                     btnStart.inert = false;
                     btnStop.inert = true;
@@ -476,7 +476,7 @@
             eltMic.style = `
                 background-image: url(./img/mic2.svg);
                 background-size: contain;
-                outline: 1px dotted red;
+                NOoutline: 1px dotted red;
                 width: 48px;
                 height: 48px;
                 cursor: pointer;
@@ -491,7 +491,12 @@
                 }
             });
 
-            const eltMicStatus = mkElt("div", { id: "mic-status" });
+            const eltMicStatus = mkElt("div", { id: "mic-status" }, "Tap mic to speak");
+            eltMicStatus.style = `
+                display: flex;
+                align-content: center;
+                flex-wrap: wrap;
+            `;
 
             const divOnOffButtons = document.getElementById("on-off-buttons");
             // divOnOffButtons.append(btnStart, btnStop, eltMic);
@@ -536,7 +541,13 @@
             });
             btnEdit.addEventListener("click", evt => {
                 evt.stopPropagation();
-                alert("not ready edit");
+                const eltToEdit = getLastFinalOut();
+                eltToEdit.setAttribute("contenteditable", true);
+                eltToEdit.focus();
+                // setTimeout(() => { eltToEdit.focus(); }, 200);
+                eltToEdit.addEventListener("focusout", evt => {
+                    eltToEdit.setAttribute("contenteditable", false);
+                });
             });
             btnDelete.addEventListener("click", evt => {
                 evt.stopPropagation();
