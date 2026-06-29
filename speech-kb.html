@@ -70,11 +70,12 @@
             width: 60px;
             height: 60px;
             background-image: url(./img/speech-kb.svg);
-            outline: 1px dotted red;
+            /* outline: 1px dotted red; */
         }
 
         h1 {
             display: flex;
+            align-items: center;
             gap: 10px;
             font-size: 24px;
         }
@@ -87,7 +88,7 @@
 
         #on-off-buttons {
             display: flex;
-            gap: 10px;
+            /* gap: 10px; */
         }
 
         #edit-buttons {
@@ -458,7 +459,7 @@
                     btnStart.inert = true;
                     btnStop.inert = false;
                     document.documentElement.classList.add("mic-on");
-                    eltMicStatus.textContent = "Microphone is active";
+                    eltMicStatus.textContent = "Microphone is on";
                 } else {
                     btnStart.inert = false;
                     btnStop.inert = true;
@@ -474,7 +475,7 @@
             eltMic.title = "- Turn mic on/off";
             eltMic.classList.add("mic-btn");
             eltMic.style = `
-                background-image: url(./img/mic2.svg);
+                background-image: url(./img/gmic.svg);
                 background-size: contain;
                 NOoutline: 1px dotted red;
                 width: 48px;
@@ -491,7 +492,7 @@
                 }
             });
 
-            const eltMicStatus = mkElt("div", { id: "mic-status" }, "Tap mic to speak");
+            const eltMicStatus = mkElt("div", { id: "mic-status" }, "Tap this mic to speak");
             eltMicStatus.style = `
                 display: flex;
                 align-content: center;
