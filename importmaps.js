@@ -314,6 +314,7 @@ const cacheImportFc4i = new Map();
         } catch (err) {
             console.error("mod", absImportLink, err);
             debugger;
+            throw Error(`mod: ${err}, ${absImportLink}`);
         }
 
 
