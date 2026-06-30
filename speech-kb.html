@@ -539,33 +539,64 @@
             const btnDoc = document.getElementById("doc");
             btnDoc.addEventListener("click", evt => {
                 evt.stopPropagation()
-                // alert("not ready");
-                const bcrDoc = btnDoc.getBoundingClientRect();
-                const eltDialogMenuContainer = mkElt("dialog", { class: "menu-container" });
-                eltDialogMenuContainer.addEventListener("click", evt =>{
-                    evt.stopPropagation();
-                    eltDialogMenuContainer.close();
-                })
+                const dialogMenu = mkDialogMenu();
+                function mkDialogMenu() {
+                    const eltDialogMenuContainer = mkElt("dialog", { class: "menu-container" });
+                    // The bubbling:
+                    eltDialogMenuContainer.addEventListener("click", evt => {
+                        evt.stopPropagation();
+                        eltDialogMenuContainer.close();
+                    });
+                    return eltDialogMenuContainer;
+                }
 
-                const eltAltTest = mkMenuAlt("Test", () => { alert("test is here"); });
-                eltDialogMenuContainer.appendChild(eltAltTest);
-                const eltAltTest2 = mkMenuAlt("Test two with a long name", () => { alert("test 2 is here"); });
-                eltDialogMenuContainer.appendChild(eltAltTest2);
+                addMenuAlt(dialogMenu, "Very New test here", () => {
+                    modBasicUI.snackbar("new Test here");
+                });
+                addMenuAlt(dialogMenu, "Test two with a long name", () => {
+                    modBasicUI.snackbar("test 2 ver 2 is here");
+                });
 
-                eltDialogMenuContainer.style.top = `${bcrDoc.bottom}px`;
-                const distanceFromRightEdge = window.innerWidth - bcrDoc.right;
-                eltDialogMenuContainer.style.right = `${distanceFromRightEdge}px`;
 
-                document.body.appendChild(eltDialogMenuContainer);
-                eltDialogMenuContainer.showModal();
+                const objDlgPosition = {
+                    parent: btnDoc,
+                    relativeX: "inner-right",
+                }
+                displayMenu(objDlgPosition);
+                function displayMenu(objDialogPosition) {
+                    const { parent, relativeX } = objDialogPosition;
+                    const bcrParent = parent.getBoundingClientRect();
+                    dialogMenu.style.top = `${bcrParent.bottom}px`;
+                    switch (relativeX) {
+                        case "inner-right":
+                            const distanceFromRightEdge = window.innerWidth - bcrParent.right;
+                            dialogMenu.style.right = `${distanceFromRightEdge}px`;
+                            break;
+                        default:
+                            throw Error(`Bad relativeX == "${relativeX}"`);
+                    }
 
-                function mkMenuAlt(txt, fun) {
-                    const btn = mkElt("button", { class: "menu-alt" }, txt);
-                    btn.addEventListener("click", evt => {
-                        // evt.stopPropagation();
-                        fun();
-                    })
-                    return btn;
+                    document.body.appendChild(dialogMenu);
+                    dialogMenu.showModal();
+                }
+
+                function addMenuAlt(dialogMenu, txt, fun) {
+                    if (!(dialogMenu instanceof HTMLDialogElement)) {
+                        throw Error("dialogMenu is not <dialog>");
+                    }
+                    if (!(dialogMenu.classList.contains("menu-container"))) {
+                        throw Error("!dialogMenu.menu-container");
+                    }
+                    const alt = mkMenuAlt(txt, fun);
+                    dialogMenu.appendChild(alt);
+                    function mkMenuAlt(txt, fun) {
+                        const btn = mkElt("button", { class: "menu-alt" }, txt);
+                        btn.addEventListener("click", evt => {
+                            // evt.stopPropagation();
+                            fun();
+                        })
+                        return btn;
+                    }
                 }
             })
 
