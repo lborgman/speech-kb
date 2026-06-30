@@ -181,46 +181,6 @@
             /* Inverts the light grey to a deep base and shifts the hue into a cool, professional slate grey */
             filter: invert(34%) sepia(16%) saturate(697%) hue-rotate(176deg) brightness(91%) contrast(87%);
         }
-
-        dialog.menu-container {
-            margin: 0;
-            /* Clears the auto-centering alignment */
-
-            inset-inline-start: unset;
-            /* Overrides browser-enforced horizontal bounds */
-
-            inset-inline-end: unset;
-            /* Prevents layout stretching or locked states */
-
-            border-radius: 8px;
-            transition-duration: 0.3s;
-        }
-
-        dialog.menu-container::backdrop {
-            transition-duration: 0.3s;
-        }
-
-        dialog[open].menu-container::backdrop {
-            background-color: #0004;
-            backdrop-filter: blur(0.5px);
-        }
-
-        .menu-container {
-            position: fixed;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            width: fit-content;
-            height: fit-content;
-        }
-
-        .menu-container>button {
-            text-align: left;
-            border-radius: 0;
-            border: none;
-            padding: 8px;
-            NObackground: red;
-        }
     </style>
     <script src="./init-error-new.js"></script>
     <script src="./importmaps.js"></script>

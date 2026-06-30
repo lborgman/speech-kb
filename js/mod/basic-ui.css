@@ -212,6 +212,7 @@ dialog[open]::backdrop {
         backdrop-filter: blur(0px);
     }
 }
+
 /* CRITICAL: Change transition ONLY when closing */
 dialog:not([open])::backdrop {
     transition-duration: 0.4s !important;
@@ -315,4 +316,47 @@ dialog:not([open])::backdrop {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
+}
+
+
+
+/***** dialog menus */
+dialog.menu-container {
+    margin: 0;
+    /* Clears the auto-centering alignment */
+
+    inset-inline-start: unset;
+    /* Overrides browser-enforced horizontal bounds */
+
+    inset-inline-end: unset;
+    /* Prevents layout stretching or locked states */
+
+    border-radius: 8px;
+    transition-duration: 0.3s;
+}
+
+dialog.menu-container::backdrop {
+    transition-duration: 0.3s;
+}
+
+dialog[open].menu-container::backdrop {
+    background-color: #0004;
+    backdrop-filter: blur(0.5px);
+}
+
+.menu-container {
+    position: fixed;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+}
+
+.menu-container>button {
+    text-align: left;
+    border-radius: 0;
+    border: none;
+    padding: 8px;
+    NObackground: red;
 }
