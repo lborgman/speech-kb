@@ -192,7 +192,7 @@
             inset-inline-end: unset;
             /* Prevents layout stretching or locked states */
 
-            border-radius: 0;
+            border-radius: 8px;
             transition-duration: 0.3s;
         }
 
@@ -201,7 +201,7 @@
         }
 
         dialog[open].menu-container::backdrop {
-            background-color: #0002;
+            background-color: #0004;
             backdrop-filter: blur(0.5px);
         }
 
@@ -541,19 +541,23 @@
                 evt.stopPropagation()
                 // alert("not ready");
                 const bcrDoc = btnDoc.getBoundingClientRect();
-                const eltMenuContainer = mkElt("dialog", { class: "menu-container" });
+                const eltDialogMenuContainer = mkElt("dialog", { class: "menu-container" });
+                eltDialogMenuContainer.addEventListener("click", evt =>{
+                    evt.stopPropagation();
+                    eltDialogMenuContainer.close();
+                })
 
                 const eltAltTest = mkMenuAlt("Test", () => { alert("test is here"); });
-                eltMenuContainer.appendChild(eltAltTest);
+                eltDialogMenuContainer.appendChild(eltAltTest);
                 const eltAltTest2 = mkMenuAlt("Test two with a long name", () => { alert("test 2 is here"); });
-                eltMenuContainer.appendChild(eltAltTest2);
+                eltDialogMenuContainer.appendChild(eltAltTest2);
 
-                eltMenuContainer.style.top = `${bcrDoc.bottom}px`;
+                eltDialogMenuContainer.style.top = `${bcrDoc.bottom}px`;
                 const distanceFromRightEdge = window.innerWidth - bcrDoc.right;
-                eltMenuContainer.style.right = `${distanceFromRightEdge}px`;
+                eltDialogMenuContainer.style.right = `${distanceFromRightEdge}px`;
 
-                document.body.appendChild(eltMenuContainer);
-                eltMenuContainer.showModal();
+                document.body.appendChild(eltDialogMenuContainer);
+                eltDialogMenuContainer.showModal();
 
                 function mkMenuAlt(txt, fun) {
                     const btn = mkElt("button", { class: "menu-alt" }, txt);
