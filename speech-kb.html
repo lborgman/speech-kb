@@ -560,11 +560,11 @@
 
                 const objDlgPosition = {
                     parent: btnDoc,
-                    relativeX: "inner-right",
+                    // relativeX: "inner-right",
                 }
                 displayMenu(objDlgPosition);
                 function displayMenu(objDialogPosition) {
-                    const { parent, relativeX } = objDialogPosition;
+                    const { parent, relativeX = "inner-right" } = objDialogPosition;
                     const bcrParent = parent.getBoundingClientRect();
                     dialogMenu.style.top = `${bcrParent.bottom}px`;
                     switch (relativeX) {
@@ -639,7 +639,7 @@
                 }
             });
 
-            const eltMicStatus = mkElt("div", { id: "mic-status" }, "Tap this mic to speak");
+            const eltMicStatus = mkElt("div", { id: "mic-status" }, "↫ Tap mic to speak");
             eltMicStatus.style = `
                 display: flex;
                 align-content: center;
