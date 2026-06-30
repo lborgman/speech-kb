@@ -660,7 +660,7 @@ function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}
       snackbar.remove();
     }, { once: true });
   };
-  
+
   setTimeout(dismiss, duration * 1000);
 
   if (hasButton) {
@@ -702,4 +702,84 @@ function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}
   requestAnimationFrame(() => {
     snackbar.style.opacity = '1';
   });
+}
+
+
+
+//////////////////////////////
+//// Menus
+
+/**
+ * @returns {HTMLDialogElement}
+ */
+export function mkDialogMenu() {
+  const eltDialogMenuContainer = mkElt("dialog", { class: "menu-container" });
+  // The bubbling:
+  eltDialogMenuContainer.addEventListener("click", evt => {
+    evt.stopPropagation();
+    eltDialogMenuContainer.close();
+  });
+  return eltDialogMenuContainer;
+}
+
+/**
+ *
+ * @param {HTMLDialogElement} dialogMenu 
+ * @param {string} txt 
+ * @param {function():void} fun 
+ */
+export function addMenuAlt(dialogMenu, txt, fun) {
+  if (!(dialogMenu instanceof HTMLDialogElement)) {
+    throw Error("dialogMenu is not <dialog>");
+  }
+  if (!(dialogMenu.classList.contains("menu-container"))) {
+    throw Error("!dialogMenu.menu-container");
+  }
+  const alt = mkMenuAlt(txt, fun);
+  dialogMenu.appendChild(alt);
+  function mkMenuAlt(txt, fun) {
+    const btn = mkElt("button", { class: "menu-alt" }, txt);
+    btn.addEventListener("click", evt => {
+      // evt.stopPropagation();
+      fun();
+    })
+    return btn;
+  }
+}
+
+/**
+ * @param {HTMLDialogElement} dialogMenu
+ * @param {Object} objDialogPosition
+ */
+export function displayMenu(dialogMenu, objDialogPosition) {
+  const {
+    parent,
+    relativeX = "right-inner",
+    ...rest
+  } = objDialogPosition;
+  if (Object.keys(rest).length > 0) {
+    const unknownKeys = Object.keys(rest).join(", ");
+    throw new Error(
+      `Invalid options passed to displayMenu: ${unknownKeys}. ` +
+      `Only allowed: parent, relativeX`
+    );
+  }
+  const bcrParent = parent.getBoundingClientRect();
+  dialogMenu.style.top = `${bcrParent.bottom}px`;
+  switch (relativeX) {
+    case "right-inner":
+      {
+        const distanceFromRightEdge = window.innerWidth - bcrParent.right;
+        dialogMenu.style.right = `${distanceFromRightEdge}px`;
+      }
+      break;
+    case "left-inner":
+      dialogMenu.style.left = `${bcrParent.left}px`;
+      break;
+    default:
+      throw Error(`Bad relativeX == "${relativeX}"`);
+  }
+
+  document.body.appendChild(dialogMenu);
+  dialogMenu.showModal();
 }
