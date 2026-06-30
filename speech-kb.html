@@ -181,6 +181,46 @@
             /* Inverts the light grey to a deep base and shifts the hue into a cool, professional slate grey */
             filter: invert(34%) sepia(16%) saturate(697%) hue-rotate(176deg) brightness(91%) contrast(87%);
         }
+
+        dialog.menu-container {
+            margin: 0;
+            /* Clears the auto-centering alignment */
+
+            inset-inline-start: unset;
+            /* Overrides browser-enforced horizontal bounds */
+
+            inset-inline-end: unset;
+            /* Prevents layout stretching or locked states */
+
+            border-radius: 0;
+            transition-duration: 0.3s;
+        }
+
+        dialog.menu-container::backdrop {
+            transition-duration: 0.3s;
+        }
+
+        dialog[open].menu-container::backdrop {
+            background-color: #0002;
+            backdrop-filter: blur(0.5px);
+        }
+
+        .menu-container {
+            position: fixed;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            width: fit-content;
+            height: fit-content;
+        }
+
+        .menu-container>button {
+            text-align: left;
+            border-radius: 0;
+            border: none;
+            padding: 8px;
+            NObackground: red;
+        }
     </style>
     <script src="./init-error-new.js"></script>
     <script src="./importmaps.js"></script>
@@ -499,7 +539,30 @@
             const btnDoc = document.getElementById("doc");
             btnDoc.addEventListener("click", evt => {
                 evt.stopPropagation()
-                alert("not ready");
+                // alert("not ready");
+                const bcrDoc = btnDoc.getBoundingClientRect();
+                const eltMenuContainer = mkElt("dialog", { class: "menu-container" });
+
+                const eltAltTest = mkMenuAlt("Test", () => { alert("test is here"); });
+                eltMenuContainer.appendChild(eltAltTest);
+                const eltAltTest2 = mkMenuAlt("Test two with a long name", () => { alert("test 2 is here"); });
+                eltMenuContainer.appendChild(eltAltTest2);
+
+                eltMenuContainer.style.top = `${bcrDoc.bottom}px`;
+                const distanceFromRightEdge = window.innerWidth - bcrDoc.right;
+                eltMenuContainer.style.right = `${distanceFromRightEdge}px`;
+
+                document.body.appendChild(eltMenuContainer);
+                eltMenuContainer.showModal();
+
+                function mkMenuAlt(txt, fun) {
+                    const btn = mkElt("button", { class: "menu-alt" }, txt);
+                    btn.addEventListener("click", evt => {
+                        // evt.stopPropagation();
+                        fun();
+                    })
+                    return btn;
+                }
             })
 
             function showListening(on) {
