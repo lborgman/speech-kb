@@ -13,50 +13,7 @@
             --color-for-edit: yellow;
         }
 
-        [inertx] {
-            cursor: default;
-            filter: grayscale(1);
-            opacity: 0.8;
-            color: gray;
-            outline: dotted 4px red !important;
 
-            input[type=radio] {
-                opacity: 0.5;
-            }
-
-            button {
-                color: white;
-            }
-        }
-
-        [inert] {
-            outline: dotted 1px indigo !important;
-        }
-
-        /* 1. Style every element except labels in one clean sweep */
-        [inert] *:not(label) {
-            color: #555555 !important;
-            background-color: #f0f0f0 !important;
-            border-color: #cccccc !important;
-            box-shadow: none !important;
-            cursor: not-allowed;
-        }
-
-        /* 2. Give labels only the text color and cursor (no background/borders) */
-        [inert] label {
-            color: #555555 !important;
-            cursor: not-allowed;
-        }
-
-        /* 3. Handle inputs with placeholders */
-        [inert] input::placeholder {
-            color: #999999 !important;
-        }
-
-        /* 4. Handle checkboxes and radios */
-        [inert] input:is([type="checkbox"], [type="radio"]) {
-            accent-color: #666666 !important;
-        }
 
         header {
             display: flex;
@@ -79,6 +36,9 @@
             max-width: calc(100vw - 70px);
             display: flex;
             justify-content: space-between;
+        }
+        button#doc:hover {
+            color: darkred;
         }
 
         #beside-logo {
