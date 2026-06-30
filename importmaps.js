@@ -142,7 +142,7 @@ const cacheImportFc4i = new Map();
         "moving-lines": "./moving-lines.js",
         "my-svg": "./js/mod/my-svg.js",
 
-        "opfs": "../js/mod/opfs.js",
+        "opfs": "./js/mod/opfs.js",
 
         "sharing-params": "./src/js/mod/sharing-params.js",
         "toolsJs": "../js/mod/tools.js",
