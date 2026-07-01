@@ -142,6 +142,16 @@
             /* Inverts the light grey to a deep base and shifts the hue into a cool, professional slate grey */
             filter: invert(34%) sepia(16%) saturate(697%) hue-rotate(176deg) brightness(91%) contrast(87%);
         }
+
+        #doc-name {
+            color: red;
+            opacity: 0;
+        }
+
+        .has-doc #doc-name {
+            color: unset;
+            NOopacity: unset;
+        }
     </style>
     <script src="./init-error-new.js"></script>
     <script src="./importmaps.js"></script>
@@ -153,7 +163,7 @@
         <div id="beside-logo">
             <h1>Speech Writer</h1>
             <button id="doc">
-                <span id="doc-name">doc-name</span>
+                <span id="doc-name"></span>
                 <span>⋮</span>
             </button>
         </div>

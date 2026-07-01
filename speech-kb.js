@@ -6,23 +6,25 @@ console.log(`here is basic-ui.js, module,${SPEECH_KB_VER}`);
 if (document.currentScript) throw Error("import .currentScript"); // is module
 
 // debugger;
-export function dummyModule() {}
+export function dummyModule() { }
 
 const modBasicUI = await importFc4i("basic-ui");
 const modOPFS = await importFc4i("opfs");
-// console.log({ modBasicUI, modOPFS });
 
 const STORING_PREFIX = "SPEECH-KB-";
 const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
     /**
      * @param {string} key
-     * @param {number|boolean} definitionValue
+     * @param {number|boolean|string} definitionValue
      */
     constructor(key, definitionValue) {
         super(STORING_PREFIX, key, definitionValue);
     }
+
 }
+const strNoDoc = "(no document)";
+const settingCurrentDoc = new OurLocalSetting("current-doc", strNoDoc);
 
 
 
@@ -222,11 +224,54 @@ function displayPage() {
         evt.stopPropagation()
         const dialogMenu = modBasicUI.mkDialogMenu();
 
+        /*
         modBasicUI.addMenuAlt(dialogMenu, "Very New test here", () => {
             modBasicUI.snackbar("new Test here");
         });
         modBasicUI.addMenuAlt(dialogMenu, "Test two with a long name", () => {
             modBasicUI.snackbar("test 2 ver 2 is here");
+        });
+        */
+        modBasicUI.addMenuAlt(dialogMenu, "Reset (debugging tool)", () => {
+            console.log({ modOPFS });
+            modOPFS.resetOPFS();
+            settingCurrentDoc.reset();
+            displayDocInfo();
+        });
+        modBasicUI.addMenuAlt(dialogMenu, "New document", async () => {
+            const newName = prompt("New doc name:", "");
+            if (newName == strNoDoc) {
+                debugger;
+                throw Error(`invalid doc name: ${newName}`)
+            }
+            settingCurrentDoc.value = newName;
+            displayDocInfo();
+        });
+        modBasicUI.addMenuAlt(dialogMenu, "Open document", async () => {
+            console.log({ modOPFS });
+            const list = await modOPFS.listDirectoryContents();
+            const files = list.files;
+            console.log({ list, files });
+            const eltFiles = mkElt("div")
+            const body = mkElt("div", undefined, [
+                mkElt("h2", undefined, "Open Doc"),
+                eltFiles,
+            ]);
+            files.forEach(f => {
+                const eltFile = mkOpenButton(f);
+                eltFiles.appendChild(eltFile);
+            });
+            function mkOpenButton(fileName) {
+                const btn = mkElt("button", { class: "open-button" }, fileName);
+                btn.addEventListener("click", evt => {
+                    evt.stopPropagation();
+                    debugger;
+                    loadDoc(fileName);
+                })
+                return btn;
+            }
+            // const dlg = mkElt("dialog", undefined, body);
+            modBasicUI.showDialog(body);
         });
 
 
@@ -497,7 +542,7 @@ async function saveToOPFS(mutations) {
         const root = await navigator.storage.getDirectory();
 
         // Get (or create) a reference to your file
-        const fileHandle = await root.getFileHandle("autosave.txt", { create: true });
+        const fileHandle = await root.getFileHandle(settingCurrentDoc.valueS, { create: true });
 
         // Create a writeable stream access point
         const writable = await fileHandle.createWritable();
@@ -541,13 +586,42 @@ function stopMonitoringOutputText() {
     console.log("Observer stopped.");
 }
 
-// Get old text
-const p = modOPFS.getSavedFileBlob("autosave.txt")
-const t = await p;
-const t2 = await t.text();
-// output-text
-const eltOutputText = document.getElementById("output-text");
-eltOutputText.innerHTML = t2;
+{
+    displayDocInfo();
+    let theDocName = settingCurrentDoc.valueS;
+    if (theDocName != strNoDoc) {
+        loadDoc(theDocName);
+    }
+}
+
+
+
+function displayDocInfo() {
+    const docName = settingCurrentDoc.valueS;
+    if (docName != strNoDoc) {
+        document.documentElement.classList.add("has-doc");
+    } else {
+        document.documentElement.classList.remove("has-doc");
+    }
+    const eltDocName = document.getElementById("doc-name");
+    if (!eltDocName) throw Error("Did not find doc-name");
+    eltDocName.textContent = docName;
+    eltDocName.style.opacity = "1";
+}
+
+/**
+ * @param {string} docName 
+ */
+async function loadDoc(docName) {
+    const promBlob = modOPFS.getSavedFileBlob(docName);
+    const blob = await promBlob;
+    if (blob) {
+        const text = await blob.text();
+        const eltOutputText = document.getElementById("output-text");
+        if (!eltOutputText) throw Error("Did not find output-text");
+        eltOutputText.innerHTML = text;
+    }
+}
 
 startMonitoringOutputText();
 

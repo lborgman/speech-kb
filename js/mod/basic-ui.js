@@ -735,6 +735,18 @@ export function addMenuAlt(dialogMenu, txt, fun) {
   if (!(dialogMenu.classList.contains("menu-container"))) {
     throw Error("!dialogMenu.menu-container");
   }
+  const tofTxt = typeof txt;
+  if (tofTxt != "string"){
+    throw Error(`typeof txt: "${tofTxt} != "string`);
+  }
+  const tofFun = typeof txt;
+  if (tofFun != "string"){
+    throw Error(`typeof fun: "${toffun} != "function`);
+  }
+  if (fun.length > 0) {
+    throw Error(`function fun should take 0 parameter: ${fun.length}`);
+  }
+
   const alt = mkMenuAlt(txt, fun);
   dialogMenu.appendChild(alt);
   function mkMenuAlt(txt, fun) {

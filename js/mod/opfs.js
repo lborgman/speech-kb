@@ -253,11 +253,16 @@ export async function resetOPFS() {
     }
 }
 
-export async function listDirectoryContents(directoryHandle, depth) {
+export async function OLDlistDirectoryContents(directoryHandle, depth) {
     depth = depth || 1;
+    if (depth > 1) {
+        debugger;
+        throw Error("can only handle depth == 1 yet");
+    }
     directoryHandle = directoryHandle || await navigator.storage.getDirectory();
     const entries = await directoryHandle.values();
 
+    const filesNames = [];
     for await (const entry of entries) {
         // Add proper indentation based on the depth
         const indentation = '    '.repeat(depth);
@@ -270,6 +275,32 @@ export async function listDirectoryContents(directoryHandle, depth) {
         } else {
             // If it's a file, log its name
             console.log(`${indentation}${entry.name}`);
+            filesNames.push(entry.name);
         }
+    }
+    return filesNames;
+}
+export async function listDirectoryContents(directoryHandle) {
+    // Fallback to Origin Private File System if no handle is passed
+    const dir = directoryHandle || await navigator.storage.getDirectory();
+    const fileNames = [];
+    const dirNames = [];
+
+    for await (const entry of dir.values()) {
+        const isDir = entry.kind === 'directory';
+
+        // Log directories with a trailing slash, files normally
+        // console.log(`    ${entry.name}${isDir ? '/' : ''}`);
+
+        if (!isDir) {
+            fileNames.push(entry.name);
+        } else {
+            dirNames.push(entry.name)
+        }
+    }
+    // return fileNames;
+    return {
+        files: fileNames.sort(),
+        dirs: dirNames.sort(),
     }
 }
