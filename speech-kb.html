@@ -37,6 +37,7 @@
             display: flex;
             justify-content: space-between;
         }
+
         button#doc:hover {
             color: darkred;
         }
@@ -579,7 +580,7 @@
                 evt.stopPropagation();
                 const eltToEdit = getLastFinalOut();
                 console.log({ eltToEdit });
-                debugger;
+                // debugger;
                 eltToEdit.remove();
                 const eltOutputText = document.getElementById("output-text");
                 const eltOut = eltOutputText.querySelector(".final-out");
@@ -681,6 +682,115 @@
                 });
             });
         }
+
+        /////// Storing
+        function debounce(func, wait) {
+            let timeoutId;
+
+            return function (...args) {
+                const context = this;
+
+                // Clear any existing active timer
+                clearTimeout(timeoutId);
+
+                // Set a new timer to execute the function
+                timeoutId = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+
+        /*
+        function handleInput() {
+            console.log("------- handleInput");
+        }
+        const processInput = debounce(handleInput, 1000);
+        function checkInput() {
+            processInput();
+        }
+        */
+
+
+
+        // 2. Select the HTML element you want to monitor
+        const targetElement = document.getElementById('my-element');
+
+        // 3. Define the actual task you want to execute after changes stop
+        function handleDomChanges(mutations) {
+            // console.log(`DOM stabilized. Processing ${mutations.length} bundled changes.`);
+
+            // Example loop to see exactly what changed:
+            mutations.forEach(mutation => {
+                console.log(`Change type detected: ${mutation.type}`);
+            });
+            console.log({ modOPFS });
+            debugger;
+        }
+        async function saveToOPFS(mutations) {
+            try {
+                const targetElement = document.getElementById("output-text");
+                // Get text content from our observed element
+                // const contentToSave = targetElement.innerText;
+                const contentToSave = targetElement.innerHTML;
+
+                // Get the root of the Origin Private File System
+                const root = await navigator.storage.getDirectory();
+
+                // Get (or create) a reference to your file
+                const fileHandle = await root.getFileHandle("autosave.txt", { create: true });
+
+                // Create a writeable stream access point
+                const writable = await fileHandle.createWritable();
+
+                // Write your DOM content and immediately close the stream to save disk space
+                await writable.write(contentToSave);
+                await writable.close();
+
+                console.log(`Saved to OPFS at ${new Date().toLocaleTimeString()}! Data size: ${contentToSave.length} chars.`);
+            } catch (error) {
+                console.error("Failed to write data to OPFS:", error);
+            }
+        }
+
+
+        // 4. Wrap your task function with debounce (e.g., wait 500ms of silence)
+        // const debouncedProcess = debounce(handleDomChanges, 3000);
+        const debouncedProcess = debounce(saveToOPFS, 3000);
+
+        // 5. Create the observer and pass the debounced function as the callback
+        const observerOutputText = new MutationObserver((mutationsList) => {
+            // Pass the accumulated mutations list to your debounced handler
+            debouncedProcess(mutationsList);
+        });
+
+        // 6. Define what to watch (Attributes, Child Elements, and Text)
+        const config = {
+            attributes: true,
+            childList: true,
+            subtree: true,
+            characterData: true
+        };
+
+        function startMonitoringOutputText() {
+            const targetElement = document.getElementById("output-text");
+            observerOutputText.observe(targetElement, config);
+            console.log("Observer activated.");
+        }
+        function stopMonitoringOutputText() {
+            observerOutputText.disconnect();
+            console.log("Observer stopped.");
+        }
+
+        // Get old text
+        const p = modOPFS.getSavedFileBlob("autosave.txt")
+        const t = await p;
+        const t2 = await t.text();
+        // output-text
+        const eltOutputText = document.getElementById("output-text");
+        eltOutputText.innerHTML = t2;
+
+        startMonitoringOutputText();
+
     </script>
 </body>
 
