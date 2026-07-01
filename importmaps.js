@@ -137,7 +137,7 @@ const cacheImportFc4i = new Map();
         // "is-displayed": "./js/mod/is-displayed.js",
         "google-icons": "../js/mod/google-icons.js",
 
-        "local-settings": "../js/mod/local-settings.js",
+        "local-settings": "./js/mod/local-settings.js",
 
         "moving-lines": "./moving-lines.js",
         "my-svg": "./js/mod/my-svg.js",
