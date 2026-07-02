@@ -1,7 +1,93 @@
 // @ts-check
-const LOCAL_FILE_READER_VER = "0.0.02";
+const LOCAL_FILE_READER_VER = "0.0.1";
 window["logConsoleHereIs"](`here is opfs.js, module, ${LOCAL_FILE_READER_VER}`);
 if (document.currentScript) { throw "opfs.js is not loaded as module"; }
+
+// Good description: https://web.dev/articles/origin-private-file-system
+
+
+/** @type {undefined|string} */
+let myOpfsSubDirName;
+/**
+ * If the web page uses arbitrary file names it should have its own
+ * sub directory.
+ *
+ * @param {string} subDirName
+ */
+export function setMyOpfsDirectory(subDirName) {
+    if (!isValidOPFSName(subDirName)) {
+        debugger;
+        throw Error(`"${subDirName}" is not a valid OPFS directory name`);
+    }
+    myOpfsSubDirName = subDirName;
+}
+
+/**
+ * @returns {Promise<FileSystemDirectoryHandle>}
+ */
+async function getMyOpfsRoot() {
+    const opfsRoot = await navigator.storage.getDirectory();
+    if (myOpfsSubDirName == undefined) {
+        return opfsRoot;
+    }
+    const mySubdir = opfsRoot.getDirectoryHandle(myOpfsSubDirName, { create: true });
+    return mySubdir;
+}
+
+
+/**
+ * Validates if a string is a legal file or directory name in OPFS.
+ * @param {string} name - The filename to validate.
+ * @returns {boolean} - True if valid, false if invalid.
+ */
+function isValidOPFSName(name) {
+    // 1. Must be a non-empty string
+    if (typeof name !== 'string' || name.trim() === '') {
+        return false;
+    }
+
+    // 2. Length check (Most filesystems max out at 255 characters)
+    if (name.length > 255) {
+        return false;
+    }
+
+    // 3. Reject forbidden characters
+    // Blocks path separators (/ and \), control characters (0x00-0x1F, 0x7F), 
+    // and characters illegal on Windows/macOS/Linux paths (< > : " | ? *)
+    const forbiddenChars = /[\\\/:*?"<>|[\x00-\x1F\x7F]/;
+    if (forbiddenChars.test(name)) {
+        return false;
+    }
+
+    // 4. Reject names that are just dots (current or parent directory references)
+    if (name === '.' || name === '..') {
+        return false;
+    }
+
+    // 5. Reject trailing dots or spaces (causes issues on Windows)
+    if (name.endsWith('.') || name.endsWith(' ')) {
+        return false;
+    }
+
+    // 6. Reject Windows Reserved Names (case-insensitive, with or without extensions)
+    // e.g., "con", "lpt1.txt", "PRN.tar.gz" are all blocked
+    const reservedWindowsNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\..*)?$/i;
+    if (reservedWindowsNames.test(name)) {
+        return false;
+    }
+
+    // 7. Ensure valid Unicode (OPFS uses USVString)
+    // If the string contains unpaired surrogates, it's invalid
+    try {
+        // encodeURIComponent throws if it hits malformed Unicode strings
+        encodeURIComponent(name);
+    } catch (e) {
+        return false;
+    }
+
+    return true;
+}
+
 
 // #region showOpenFilePicker
 function makeFilePickerOptions(mediaTypes, title) {
@@ -93,15 +179,13 @@ export async function selectAndSaveFileAdvanced(savedName, pickerOptions) {
 // #endregion
 
 
+
 /**
  * 
  * @param {string} fileName 
  * @param {FileSystemFileHandle} fileHandle 
  */
-export async function saveFileSystemHandleAsBlob(fileName, fileHandle) {
-    // await saveToOpfs(fileName, fileHandle);
-// }
-// async function saveToOpfs(fileName, fileHandle) {
+async function saveFileSystemHandleAsBlob(fileName, fileHandle) {
     if (!fileHandle) {
         // Bug hunting:
         const msg = `!handle`;
@@ -111,12 +195,42 @@ export async function saveFileSystemHandleAsBlob(fileName, fileHandle) {
     }
     const file = await fileHandle.getFile();
 
-    const root = await navigator.storage.getDirectory();
-    const opfsFileHandle = await root.getFileHandle(fileName, { create: true });
+    // const opfsRoot = await navigator.storage.getDirectory();
+    // const opfsFileHandle = await opfsRoot.getFileHandle(fileName, { create: true });
+    const myDir = await getMyOpfsRoot();
+    const opfsFileHandle = await myDir.getFileHandle(fileName, { create: true });
 
     const writable = await opfsFileHandle.createWritable();
     await writable.write(file);
     await writable.close();
+}
+
+/**
+ * @param {string} fileName
+ * @param {string} text
+ * @return {Promise<undefined|FileSystemFileHandle>}
+ */
+export async function saveTextAsBlob(fileName, text) {
+    // Just check to see we got the params in the right order:
+    const lenFileName = fileName.length;
+    const maxFileName = 50;
+    if (lenFileName > maxFileName) {
+        throw Error(`Max length saveName == ${maxFileName}, current length ${lenFileName}`)
+    }
+    let opfsFileHandle;
+    try {
+        // const opfsRoot = await navigator.storage.getDirectory();
+        // opfsFileHandle = await opfsRoot.getFileHandle(fileName, { create: true });
+        const myDir = await getMyOpfsRoot();
+        opfsFileHandle = await myDir.getFileHandle(fileName, { create: true });
+
+        const writable = await opfsFileHandle.createWritable();
+        await writable.write(text);
+        await writable.close();
+    } catch (error) {
+        console.error("Failed to write data to OPFS:", error);
+    }
+    return opfsFileHandle;
 }
 
 /**
@@ -161,11 +275,11 @@ async function getBlobUrlFromOPFS(fileName) {
  * @returns {Promise<FileSystemHandle|undefined}
  */
 async function getHandleFromOPFS(fileName) {
-    const root = await navigator.storage.getDirectory();
+    const opfsRoot = await navigator.storage.getDirectory();
 
     // 1. Get the private handle for the file
     try {
-        const fileHandle = await root.getFileHandle(fileName);
+        const fileHandle = await opfsRoot.getFileHandle(fileName);
         return fileHandle;
     } catch (err) {
         if (!(err instanceof Error)) throw Error("err is not Error");
@@ -187,6 +301,7 @@ export async function fileExistsInOPFS(fileName) {
     const fileHandle = await getHandleFromOPFS(fileName);
     return fileHandle != undefined;
 }
+
 /**
  * @param {string} fileName 
  * @returns {Promise<Blob|undefined>}
@@ -240,14 +355,14 @@ export async function isObjectUrlValid(url) {
  * Developer script to reset OPFS data
  * (Please run on Chrome devtools console)
  */
-export async function resetOPFS() {
+export async function clearOPFS() {
     if ('storage' in navigator && 'getDirectory' in navigator.storage) {
-        const root = await navigator.storage.getDirectory();
-        for await (const entry of root.values()) {
+        const opfsRoot = await navigator.storage.getDirectory();
+        for await (const entry of opfsRoot.values()) {
             console.log(`Remove: ${entry.name} (${entry.kind})`);
             await entry.remove();
         }
-        console.log('OPFS has been reset');
+        console.log('OPFS has been cleared');
     } else {
         console.log('OPFS is not supported in this browser');
     }

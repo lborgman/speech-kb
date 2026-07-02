@@ -27,6 +27,16 @@ const strNoDoc = "(no document)";
 const settingCurrentDoc = new OurLocalSetting("current-doc", strNoDoc);
 
 
+/**
+ * @returns {HTMLDivElement}
+ */
+function getElementOutputText() {
+    const eltOutputText = document.getElementById("output-text");
+    if (!eltOutputText) throw Error("Did not find output-text");
+    return eltOutputText;
+}
+const eltOutputText = document.getElementById("output-text");
+if (!eltOutputText) throw Error("Did not find output-text");
 
 // debugger;
 const eltMicStatus = document.getElementById("mic-status");
@@ -43,14 +53,14 @@ recognition.lang = 'en-US';
 // --- CONTROLS ---
 
 // 1. START: Turns on microphone, begins listening
-function UserStartListening() {
+function userStartListening() {
     shouldKeepListening = true;
     recognition.lang = langSelect.value;
     recognition.start();
 }
 
 // 2. STOP: Stops listening and FINISHES processing current speech
-function UserStopListening() {
+function userStopListening() {
     shouldKeepListening = false;
     recognition.stop();
 }
@@ -181,7 +191,6 @@ function yourAppHandleResult(text) {
     // Your app logic here (e.g., update a textarea, send to server, etc.)
     const eltOut = mkElt("div", undefined, text);
     eltOut.classList.add("final-out");
-    const eltOutputText = document.getElementById("output-text");
     eltOutputText.appendChild(eltOut);
     eltOut.scrollIntoView();
     const eltEditButtons = document.getElementById("edit-buttons");
@@ -224,18 +233,11 @@ function displayPage() {
         evt.stopPropagation()
         const dialogMenu = modBasicUI.mkDialogMenu();
 
-        /*
-        modBasicUI.addMenuAlt(dialogMenu, "Very New test here", () => {
-            modBasicUI.snackbar("new Test here");
-        });
-        modBasicUI.addMenuAlt(dialogMenu, "Test two with a long name", () => {
-            modBasicUI.snackbar("test 2 ver 2 is here");
-        });
-        */
-        modBasicUI.addMenuAlt(dialogMenu, "Reset (debugging tool)", () => {
+        modBasicUI.addMenuAlt(dialogMenu, "Reset (debugging tool, don't use!)", () => {
             console.log({ modOPFS });
-            modOPFS.resetOPFS();
+            modOPFS.clearOPFS();
             settingCurrentDoc.reset();
+            eltOutputText.innerText = "";
             displayDocInfo();
         });
         modBasicUI.addMenuAlt(dialogMenu, "New document", async () => {
@@ -245,6 +247,8 @@ function displayPage() {
                 throw Error(`invalid doc name: ${newName}`)
             }
             settingCurrentDoc.value = newName;
+            // output-text
+
             displayDocInfo();
         });
         modBasicUI.addMenuAlt(dialogMenu, "Open document", async () => {
@@ -252,21 +256,38 @@ function displayPage() {
             const list = await modOPFS.listDirectoryContents();
             const files = list.files;
             console.log({ list, files });
-            const eltFiles = mkElt("div")
+            const eltFiles = mkElt("div", { id: "elt-docs" });
+            eltFiles.style = `
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            `;
             const body = mkElt("div", undefined, [
-                mkElt("h2", undefined, "Open Doc"),
+                mkElt("h2", undefined, "Documents"),
                 eltFiles,
             ]);
-            files.forEach(f => {
-                const eltFile = mkOpenButton(f);
-                eltFiles.appendChild(eltFile);
-            });
+            if (files.length == 0) {
+                eltFiles.textContent = "No documents";
+            } else {
+                files.forEach(f => {
+                    const eltFile = mkOpenButton(f);
+                    eltFiles.appendChild(eltFile);
+                });
+            }
             function mkOpenButton(fileName) {
-                const btn = mkElt("button", { class: "open-button" }, fileName);
+                if (fileName == settingCurrentDoc.valueS) {
+                    return mkElt("div", undefined, `${fileName} - current`);
+                }
+                const btn = mkElt("button", { class: "open-doc-button" }, fileName);
                 btn.addEventListener("click", evt => {
-                    evt.stopPropagation();
-                    debugger;
+                    // evt.stopPropagation();
+                    // debugger;
+                    settingCurrentDoc.value = fileName;
+                    userStopListening();
+                    displayDocInfo();
                     loadDoc(fileName);
+                    const dlg = btn.closest("dialog");
+                    dlg.close();
                 })
                 return btn;
             }
@@ -317,9 +338,9 @@ function displayPage() {
         evt.stopPropagation();
         const isOn = document.documentElement.classList.contains("mic-on");
         if (isOn) {
-            UserStopListening();
+            userStopListening();
         } else {
-            UserStartListening();
+            userStartListening();
         }
     });
 
@@ -387,7 +408,7 @@ function displayPage() {
         console.log({ eltToEdit });
         // debugger;
         eltToEdit.remove();
-        const eltOutputText = document.getElementById("output-text");
+        // const eltOutputText = document.getElementById("output-text");
         const eltOut = eltOutputText.querySelector(".final-out");
         if (!eltOut) {
             const eltEditButtons = document.getElementById("edit-buttons");
@@ -395,7 +416,7 @@ function displayPage() {
         }
     });
     function getLastFinalOut() {
-        const eltOutputText = document.getElementById("output-text");
+        // const eltOutputText = document.getElementById("output-text");
         const eltLast = eltOutputText.querySelector(":last-child");
         return eltLast;
     }
@@ -531,7 +552,13 @@ function handleDomChanges(mutations) {
     console.log({ modOPFS });
     debugger;
 }
-async function saveToOPFS(mutations) {
+async function saveOutputTextToOPFS(mutations) {
+    const fileName = settingCurrentDoc.valueS;
+    // const targetElement = document.getElementById("output-text");
+    const contentToSave = eltOutputText.innerHTML;
+    return modOPFS.saveTextAsBlob(fileName, contentToSave)
+
+    /*
     try {
         const targetElement = document.getElementById("output-text");
         // Get text content from our observed element
@@ -555,12 +582,13 @@ async function saveToOPFS(mutations) {
     } catch (error) {
         console.error("Failed to write data to OPFS:", error);
     }
+    */
 }
 
 
 // 4. Wrap your task function with debounce (e.g., wait 500ms of silence)
 // const debouncedProcess = debounce(handleDomChanges, 3000);
-const debouncedProcess = debounce(saveToOPFS, 3000);
+const debouncedProcess = debounce(saveOutputTextToOPFS, 3000);
 
 // 5. Create the observer and pass the debounced function as the callback
 const observerOutputText = new MutationObserver((mutationsList) => {
@@ -577,8 +605,9 @@ const config = {
 };
 
 function startMonitoringOutputText() {
-    const targetElement = document.getElementById("output-text");
-    observerOutputText.observe(targetElement, config);
+    // const targetElement = document.getElementById("output-text");
+    // observerOutputText.observe(targetElement, config);
+    observerOutputText.observe(eltOutputText, config);
     console.log("Observer activated.");
 }
 function stopMonitoringOutputText() {
@@ -613,12 +642,13 @@ function displayDocInfo() {
  * @param {string} docName 
  */
 async function loadDoc(docName) {
+    // const eltOutputText = document.getElementById("output-text");
+    // if (!eltOutputText) throw Error("Did not find output-text");
+    eltOutputText.innerText = "";
     const promBlob = modOPFS.getSavedFileBlob(docName);
     const blob = await promBlob;
     if (blob) {
         const text = await blob.text();
-        const eltOutputText = document.getElementById("output-text");
-        if (!eltOutputText) throw Error("Did not find output-text");
         eltOutputText.innerHTML = text;
     }
 }
