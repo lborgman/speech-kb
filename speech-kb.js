@@ -190,6 +190,7 @@ function yourAppHandleResult(text) {
     console.log("Reporting to app:", text);
     // Your app logic here (e.g., update a textarea, send to server, etc.)
     const eltOut = mkElt("div", undefined, text);
+    eltOut.dataset.orig = text;
     eltOut.classList.add("final-out");
     eltOutputText.appendChild(eltOut);
     eltOut.scrollIntoView();
@@ -283,9 +284,10 @@ function displayPage() {
                     // evt.stopPropagation();
                     // debugger;
                     settingCurrentDoc.value = fileName;
-                    userStopListening();
-                    displayDocInfo();
-                    loadDoc(fileName);
+                    // userStopListening();
+                    // displayDocInfo();
+                    // loadDoc(fileName);
+                    doTheDocLoading(fileName);
                     const dlg = btn.closest("dialog");
                     dlg.close();
                 })
@@ -360,18 +362,24 @@ function displayPage() {
     const btnDot = mkElt("button", undefined, ".");
     const btnExclamation = mkElt("button", undefined, "!");
     const btnQuestion = mkElt("button", undefined, "?");
-    const btnDelete = mkElt("button", undefined, "⌫");
     const btnParagraph = mkElt("button", undefined, "¶");
     const btnEdit = mkElt("button", undefined, "✎");
+    const btnDelete = mkElt("button", undefined, "⌫");
+    const btnRevert = mkElt("button", undefined, "⟲");
 
-    const divEditButtons = document.getElementById("edit-buttons");
-    divEditButtons.append(
+    // const divEditButtons = document.getElementById("edit-buttons");
+    const divMinorEditButtons = document.getElementById("minor-edit-buttons");
+    divMinorEditButtons.append(
         btnDot,
         btnExclamation,
         btnQuestion,
         btnParagraph,
-        btnEdit,
+    );
+    const divMajorEditButtons = document.getElementById("major-edit-buttons");
+    divMajorEditButtons.append(
         btnDelete,
+        btnRevert,
+        btnEdit,
     );
     btnDot.addEventListener("click", evt => {
         evt.stopPropagation();
@@ -406,14 +414,20 @@ function displayPage() {
         evt.stopPropagation();
         const eltToEdit = getLastFinalOut();
         console.log({ eltToEdit });
-        // debugger;
         eltToEdit.remove();
-        // const eltOutputText = document.getElementById("output-text");
+        checkEditButtonsState();
+        /*
         const eltOut = eltOutputText.querySelector(".final-out");
         if (!eltOut) {
             const eltEditButtons = document.getElementById("edit-buttons");
             eltEditButtons.inert = true;
         }
+        */
+    });
+    btnRevert.addEventListener("click", evt => {
+        evt.stopPropagation();
+        const eltToEdit = getLastFinalOut();
+        eltToEdit.textContent = eltToEdit.dataset.orig;
     });
     function getLastFinalOut() {
         // const eltOutputText = document.getElementById("output-text");
@@ -619,7 +633,9 @@ function stopMonitoringOutputText() {
     displayDocInfo();
     let theDocName = settingCurrentDoc.valueS;
     if (theDocName != strNoDoc) {
-        loadDoc(theDocName);
+        // loadDoc(theDocName);
+        // checkEditButtonsState();
+        doTheDocLoading(theDocName);
     }
 }
 
@@ -651,6 +667,18 @@ async function loadDoc(docName) {
         const text = await blob.text();
         eltOutputText.innerHTML = text;
     }
+}
+
+async function doTheDocLoading(docName) {
+    userStopListening();
+    await loadDoc(docName);
+    displayDocInfo();
+    checkEditButtonsState();
+}
+function checkEditButtonsState() {
+    const eltEditButtons = document.getElementById("edit-buttons");
+    const eltOut = eltOutputText.querySelector(".final-out");
+    eltEditButtons.inert = !!!eltOut;
 }
 
 startMonitoringOutputText();

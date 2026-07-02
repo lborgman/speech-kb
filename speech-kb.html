@@ -84,9 +84,10 @@
         }
 
         #edit-buttons {
-            display: flex;
-            gap: 15px;
             margin-top: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
 
             button {
                 background-color: var(--color-for-edit);
@@ -100,6 +101,15 @@
                 font-size: 18px;
                 font-weight: bold;
             }
+        }
+        #minor-edit-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        #major-edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
         }
 
         #debug {
@@ -284,7 +294,10 @@
     </div>
     <p id="result-log"> RESULT LOG: </p>
     <div id="output-text"> </div>
-    <div id="edit-buttons" inert></div>
+    <div id="edit-buttons" inert>
+        <div id="minor-edit-buttons"></div>
+        <div id="major-edit-buttons"></div>
+    </div>
     <div id="debug"></div>
 
 
