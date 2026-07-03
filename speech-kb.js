@@ -63,7 +63,13 @@ function userStartListening() {
 function userStopListening() {
     shouldKeepListening = false;
     recognition.stop();
+    const elt = document.getElementById("mic-status");
+    // tellTapMic(elt);
 }
+function tellTapMic(eltMicSts) {
+    eltMicSts.textContent = "↫ Tap mic to speak";
+}
+
 
 // 3. ABORT: Instantly kills the microphone and THROWS AWAY current speech
 function cancelListening() {
@@ -191,6 +197,7 @@ function yourAppHandleResult(text) {
     // Your app logic here (e.g., update a textarea, send to server, etc.)
     const eltOut = mkElt("div", undefined, text);
     eltOut.dataset.orig = text;
+    UpperFirstCharPlusPunctuation(eltOut, ".");
     eltOut.classList.add("final-out");
     eltOutputText.appendChild(eltOut);
     eltOut.scrollIntoView();
@@ -247,10 +254,11 @@ function displayPage() {
                 debugger;
                 throw Error(`invalid doc name: ${newName}`)
             }
+            userStopListening();
+            // tap mic
             settingCurrentDoc.value = newName;
-            // output-text
-
             displayDocInfo();
+            eltOutputText.textContent = "";
         });
         modBasicUI.addMenuAlt(dialogMenu, "Open document", async () => {
             console.log({ modOPFS });
@@ -319,7 +327,8 @@ function displayPage() {
             // btnStop.inert = true;
             if (eltMicStatus) {
                 // eltMicStatus.textContent = "Microphone is off.";
-                eltMicStatus.textContent = "";
+                // eltMicStatus.textContent = "";
+                tellTapMic(eltMicStatus);
             }
             document.documentElement.classList.remove("mic-on");
         }
@@ -346,7 +355,10 @@ function displayPage() {
         }
     });
 
-    const eltMicStatus = mkElt("div", { id: "mic-status" }, "↫ Tap mic to speak");
+    // const eltMicStatus = mkElt("div", { id: "mic-status" }, "↫ Tap mic to speak");
+    const eltMicStatus = mkElt("div", { id: "mic-status" });
+    tellTapMic(eltMicStatus);
+
     eltMicStatus.style = `
                 display: flex;
                 align-content: center;
@@ -434,24 +446,26 @@ function displayPage() {
         const eltLast = eltOutputText.querySelector(":last-child");
         return eltLast;
     }
-    /**
-     * {HTMLElement} elt
-     * {string} punctuation
-     */
-    function UpperFirstCharPlusPunctuation(eltToEdit, punctuation) {
-        const orig = eltToEdit.textContent;
-        const first = orig.slice(0, 1);
-        let tail = orig.slice(1);
-        const last = orig.slice(-1);
-        if (".!?".indexOf(last) > -1) {
-            tail = tail.slice(0, -1);
-        }
-        const uFirst = first.toLocaleUpperCase();
-        const fixed = uFirst.concat(tail, punctuation);
-        eltToEdit.textContent = fixed;
-    }
-
 }
+
+
+/**
+ * {HTMLElement} elt
+ * {string} punctuation
+ */
+function UpperFirstCharPlusPunctuation(eltToEdit, punctuation) {
+    const orig = eltToEdit.textContent;
+    const first = orig.slice(0, 1);
+    let tail = orig.slice(1);
+    const last = orig.slice(-1);
+    if (".!?".indexOf(last) > -1) {
+        tail = tail.slice(0, -1);
+    }
+    const uFirst = first.toLocaleUpperCase();
+    const fixed = uFirst.concat(tail, punctuation);
+    eltToEdit.textContent = fixed;
+}
+
 
 
 //////////// Copy to clipboard
