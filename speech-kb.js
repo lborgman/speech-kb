@@ -241,14 +241,6 @@ function displayPage() {
         evt.stopPropagation()
         const dialogMenu = modBasicUI.mkDialogMenu();
 
-        const eltDebugTitle = mkElt("span", {style:"color:red;"}, "Reset (debugging tool, don't use!)");
-        modBasicUI.addMenuAlt(dialogMenu, eltDebugTitle, () => {
-            console.log({ modOPFS });
-            modOPFS.clearOPFS();
-            settingCurrentDoc.reset();
-            eltOutputText.innerText = "";
-            displayDocInfo();
-        });
         modBasicUI.addMenuAlt(dialogMenu, "New document", async () => {
             const newName = prompt("New doc name:", "");
             if (newName == strNoDoc) {
@@ -304,6 +296,18 @@ function displayPage() {
             }
             // const dlg = mkElt("dialog", undefined, body);
             modBasicUI.showDialog(body);
+        });
+        const eltDebugTitle = mkElt("span", { style: "color:red;" }, "Reset (debugging tool, don't use!)");
+        modBasicUI.addMenuAlt(dialogMenu, eltDebugTitle, () => {
+            console.log({ modOPFS });
+            modOPFS.clearOPFS();
+            settingCurrentDoc.reset();
+            eltOutputText.innerText = "";
+            displayDocInfo();
+        });
+        modBasicUI.addMenuAlt(dialogMenu, "List OPFS to console (debugging tool)", async () => {
+            const opfsContent = await modOPFS.listDirectoryContents();
+            console.log({ opfsContent });
         });
 
 
