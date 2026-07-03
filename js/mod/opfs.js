@@ -5,6 +5,8 @@ if (document.currentScript) { throw "opfs.js is not loaded as module"; }
 
 // Good description: https://web.dev/articles/origin-private-file-system
 
+// @ts-ignore
+const mkElt = window["mkElt"];
 
 /** @type {undefined|string} */
 let myOpfsSubDirName;
@@ -25,7 +27,7 @@ export function setMyOpfsDirectory(subDirName) {
 /**
  * @returns {Promise<FileSystemDirectoryHandle>}
  */
-async function getMyOpfsRoot() {
+export async function getMyOpfsRoot() {
     const opfsRoot = await navigator.storage.getDirectory();
     if (myOpfsSubDirName == undefined) {
         return opfsRoot;
@@ -393,7 +395,7 @@ export async function OLDlistDirectoryContents(directoryHandle, depth) {
     }
     return filesNames;
 }
-export async function OLD2listDirectoryContents(directoryHandle) {
+export async function listDirectoryContents(directoryHandle) {
     // Fallback to Origin Private File System if no handle is passed
     const dir = directoryHandle || await navigator.storage.getDirectory();
     const fileNames = [];
@@ -417,22 +419,55 @@ export async function OLD2listDirectoryContents(directoryHandle) {
         dirs: dirNames.sort(),
     }
 }
+
+/**
+ * 
+ * @param {FileSystemDirectoryHandle|null} dirHandle 
+ * @param {string} indent 
+ * @return {Promise<string[]>}
+ */
 export async function listOPFS(dirHandle, indent = "") {
+    const tofIndent = typeof indent;
+    if (tofIndent != "string") {
+        console.error(`${tofIndent}`);
+        debugger;
+        throw Error(`${tofIndent}`);
+    }
+    /** @type {string[]} */
+    const lines = []
+    const addToElt = (txt) => {
+        const tofTxt = typeof txt;
+        if (tofTxt != "string") {
+            debugger;
+            throw Error("not string", { txt });
+        }
+        lines.push(txt);
+    }
     // If no directory is passed, default to the root OPFS directory
     if (!dirHandle) {
         dirHandle = await navigator.storage.getDirectory();
-        console.log("📂 [OPFS Root]");
+        // console.log("📂 [OPFS Root]");
+        const txt = "📂 [OPFS Root]";
+        console.log(txt);
+        addToElt(txt);
     }
 
     for await (const [name, handle] of dirHandle.entries()) {
         if (handle.kind === "directory") {
-            console.log(`${indent}📁 ${name}/`);
+            // console.log(`${indent}📁 ${name}/`);
+            const txt = `${indent}📁 ${name}/`;
+            console.log(txt);
+            addToElt(txt);
             // Recursively list the contents of the subfolder
             await listOPFS(handle, indent + "  ");
         } else {
-            console.log(`${indent}📄 ${name}`);
+            // console.log(`${indent}📄 ${name}`);
+            const txt = `${indent}📄 ${name}`;
+            console.log(txt);
+            addToElt(txt);
         }
     }
+    return lines;
 }
 
 // Run the function

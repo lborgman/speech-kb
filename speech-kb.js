@@ -5,8 +5,11 @@ const SPEECH_KB_VER = "0.0.01";
 console.log(`here is basic-ui.js, module,${SPEECH_KB_VER}`);
 if (document.currentScript) throw Error("import .currentScript"); // is module
 
+// @ts-ignore
+const mkElt = window["mkElt"];
+
 // debugger;
-export function dummyModule() { }
+export function dummyMakeMeModule() { }
 
 const modBasicUI = await importFc4i("basic-ui");
 const modOPFS = await importFc4i("opfs");
@@ -307,7 +310,14 @@ function displayPage() {
             displayDocInfo();
         });
         modBasicUI.addMenuAlt(dialogMenu, "List OPFS to console (debugging tool)", async () => {
-            modOPFS.listOPFS();
+            const divList = mkElt("div", undefined, [
+                mkElt("h2", undefined, "OPFS list"),
+            ]);
+            const list = await modOPFS.listOPFS(await modOPFS.getMyOpfsRoot());
+            list.forEach(element => {
+                divList.appendChild(mkElt("div", undefined, element));
+            });
+            modBasicUI.showDialog(divList);
             return;
             const opfsContent = await modOPFS.listDirectoryContents();
             console.log({ opfsContent });
