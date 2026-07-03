@@ -718,6 +718,7 @@ export function mkDialogMenu() {
   eltDialogMenuContainer.addEventListener("click", evt => {
     evt.stopPropagation();
     eltDialogMenuContainer.close();
+    eltDialogMenuContainer.remove();
   });
   return eltDialogMenuContainer;
 }

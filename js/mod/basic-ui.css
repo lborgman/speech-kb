@@ -290,7 +290,7 @@ dialog:not([open])::backdrop {
 }
 
 /* 1. Style every element except labels in one clean sweep */
-[inert] *:not(label) {
+[inert] *:not(label):not(div) {
     color: #555555 !important;
     background-color: #f0f0f0 !important;
     border-color: #cccccc !important;

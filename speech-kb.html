@@ -11,6 +11,9 @@
             --color-for-edit: orange;
             --color-for-edit: lightblue;
             --color-for-edit: yellow;
+            background-color: black;
+            background-color: #130b0b;
+            color: white;
         }
 
 
@@ -27,12 +30,15 @@
         }
 
         button#doc {
+            color: black;
+            background: #f4ebe1;
+            background-color: transparent;
+            color: unset;
+            color: var(--color-for-edit);
             padding: 4px;
             border-radius: 4px;
-            border-color: #3333;
-            background-color: transparent;
             width: fit-content;
-            min-width: calc(60vw);
+            NOmin-width: calc(60vw);
             max-width: calc(100vw - 70px);
             display: flex;
             justify-content: space-between;
@@ -40,6 +46,9 @@
 
         button#doc:hover {
             color: darkred;
+            color: yellow;
+            color: goldenrod;
+            color: orange;
         }
 
         #beside-logo {
@@ -102,10 +111,12 @@
                 font-weight: bold;
             }
         }
+
         #minor-edit-buttons {
             display: flex;
             gap: 10px;
         }
+
         #major-edit-buttons {
             display: flex;
             gap: 10px;
@@ -128,18 +139,33 @@
         #output-text {
             width: 100%;
             min-height: 80px;
-            background: #ccc;
             padding: 10px;
             max-height: 80px;
             overflow-y: auto;
+            border-radius: 4px;
+            color: black;
+            background: #ccc;
+            background: #dfd0b9;
+            background: #fdfbf7;
+            background: #f9f6f0;
+            background: #f5f2eb;
+            background: #E6DEC9;
+            background: #DFD0B9;
+            background: #F6F1EE;
+            background: #A2A392;
+            background: #948474;
+            background: #f4ebe1;
         }
 
         select#speech-lang {
             background-color: #ccc;
             padding: 8px 8px;
             border-radius: 8px;
-            border: 1px sold #ccc3;
+            NOborder: 1px sold #ccc3;
             outline: none;
+        }
+        .mic-on select#speech-lang {
+            outline: 4px solid #0a9b5d
         }
 
         .mic-on .mic-btn {
@@ -167,6 +193,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+
             button {
                 padding: 4px;
                 border-radius: 3px;
@@ -174,6 +201,7 @@
                 background-color: #fff8;
                 border-color: currentColor;
             }
+
             button:hover {
                 color: green;
             }
@@ -189,8 +217,8 @@
         <div id="beside-logo">
             <h1>Speech Writer</h1>
             <button id="doc">
-                <span id="doc-name"></span>
-                <span>⋮</span>
+                <span id="doc-name" title="- Handle documents"></span>
+                <span style="margin-left:20px;">⋮</span>
             </button>
         </div>
     </header>
