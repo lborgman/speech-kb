@@ -313,7 +313,8 @@ function displayPage() {
             const divList = mkElt("div", undefined, [
                 mkElt("h2", undefined, "OPFS list"),
             ]);
-            const list = await modOPFS.listOPFS(await modOPFS.getMyOpfsRoot());
+            // const list = await modOPFS.listOPFS(await modOPFS.getMyOpfsRoot());
+            const list = await modOPFS.listOPFS();
             list.forEach(element => {
                 divList.appendChild(mkElt("div", undefined, element));
             });
