@@ -12,6 +12,7 @@ const modBasicUI = await importFc4i("basic-ui");
 const modOPFS = await importFc4i("opfs");
 
 const STORING_PREFIX = "SPEECH-KB-";
+modOPFS.setMyOpfsDirectory(STORING_PREFIX);
 const modLocalSettings = await importFc4i("local-settings");
 class OurLocalSetting extends modLocalSettings.LocalSetting {
     /**
@@ -306,6 +307,8 @@ function displayPage() {
             displayDocInfo();
         });
         modBasicUI.addMenuAlt(dialogMenu, "List OPFS to console (debugging tool)", async () => {
+            modOPFS.listOPFS();
+            return;
             const opfsContent = await modOPFS.listDirectoryContents();
             console.log({ opfsContent });
         });

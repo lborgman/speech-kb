@@ -356,16 +356,14 @@ export async function isObjectUrlValid(url) {
  * (Please run on Chrome devtools console)
  */
 export async function clearOPFS() {
-    if ('storage' in navigator && 'getDirectory' in navigator.storage) {
-        const opfsRoot = await navigator.storage.getDirectory();
-        for await (const entry of opfsRoot.values()) {
-            console.log(`Remove: ${entry.name} (${entry.kind})`);
-            await entry.remove();
-        }
-        console.log('OPFS has been cleared');
-    } else {
-        console.log('OPFS is not supported in this browser');
+    await (await navigator.storage.getDirectory()).remove({ recursive: true });
+    return;
+    const opfsRoot = await navigator.storage.getDirectory();
+    for await (const entry of opfsRoot.values()) {
+        console.log(`Remove: ${entry.name} (${entry.kind})`);
+        await entry.remove();
     }
+    console.log('OPFS has been cleared');
 }
 
 export async function OLDlistDirectoryContents(directoryHandle, depth) {
@@ -395,7 +393,7 @@ export async function OLDlistDirectoryContents(directoryHandle, depth) {
     }
     return filesNames;
 }
-export async function listDirectoryContents(directoryHandle) {
+export async function OLD2listDirectoryContents(directoryHandle) {
     // Fallback to Origin Private File System if no handle is passed
     const dir = directoryHandle || await navigator.storage.getDirectory();
     const fileNames = [];
@@ -419,3 +417,23 @@ export async function listDirectoryContents(directoryHandle) {
         dirs: dirNames.sort(),
     }
 }
+export async function listOPFS(dirHandle, indent = "") {
+    // If no directory is passed, default to the root OPFS directory
+    if (!dirHandle) {
+        dirHandle = await navigator.storage.getDirectory();
+        console.log("📂 [OPFS Root]");
+    }
+
+    for await (const [name, handle] of dirHandle.entries()) {
+        if (handle.kind === "directory") {
+            console.log(`${indent}📁 ${name}/`);
+            // Recursively list the contents of the subfolder
+            await listOPFS(handle, indent + "  ");
+        } else {
+            console.log(`${indent}📄 ${name}`);
+        }
+    }
+}
+
+// Run the function
+await listOPFS();
