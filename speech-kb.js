@@ -241,7 +241,8 @@ function displayPage() {
         evt.stopPropagation()
         const dialogMenu = modBasicUI.mkDialogMenu();
 
-        modBasicUI.addMenuAlt(dialogMenu, "Reset (debugging tool, don't use!)", () => {
+        const eltDebugTitle = mkElt("span", {style:"color:red;"}, "Reset (debugging tool, don't use!)");
+        modBasicUI.addMenuAlt(dialogMenu, eltDebugTitle, () => {
             console.log({ modOPFS });
             modOPFS.clearOPFS();
             settingCurrentDoc.reset();

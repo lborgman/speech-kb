@@ -737,12 +737,16 @@ export function addMenuAlt(dialogMenu, txt, fun) {
     throw Error("!dialogMenu.menu-container");
   }
   const tofTxt = typeof txt;
-  if (tofTxt != "string"){
-    throw Error(`typeof txt: "${tofTxt} != "string`);
+  if (tofTxt != "string") {
+    if (!(txt instanceof HTMLSpanElement)) {
+      // throw Error(`typeof txt: "${tofTxt} != "string`);
+      throw Error(`Must be string or <span>`);
+    }
   }
-  const tofFun = typeof txt;
-  if (tofFun != "string"){
-    throw Error(`typeof fun: "${toffun} != "function`);
+  const tofFun = typeof fun;
+  if (tofFun != "function") {
+    debugger;
+    throw Error(`typeof fun: "${tofFun} != "function`);
   }
   if (fun.length > 0) {
     throw Error(`function fun should take 0 parameter: ${fun.length}`);
