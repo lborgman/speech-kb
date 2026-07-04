@@ -307,7 +307,7 @@ function displayPage() {
         const eltDebugTitle = mkElt("span", { style: "background-color:red;padding:8px;" }, "DEBUGGING");
         modBasicUI.addMenuAlt(dialogMenu, eltDebugTitle);
 
-        const eltClearOpfsTitle = mkElt("span", { style: "color:red;" }, "Clear whold OPFS (don't use!)");
+        const eltClearOpfsTitle = mkElt("span", { style: "color:red;" }, "Clear whole OPFS (don't use!)");
         modBasicUI.addMenuAlt(dialogMenu, eltClearOpfsTitle, () => {
             console.log({ modOPFS });
             modOPFS.clearOPFS();

@@ -774,9 +774,13 @@ export function addMenuAlt(dialogMenu, txt, fun) {
         fun();
       });
     } else {
+      /*
       btn.addEventListener("click", evt => {
         evt.stopPropagation();
       });
+      */
+     btn.disabled = true;
+     btn.style.color = "currentColor";
     }
     return btn;
   }
