@@ -29,6 +29,8 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
 }
 const strNoDoc = "(no document)";
 const settingCurrentDoc = new OurLocalSetting("current-doc", strNoDoc);
+const settingAdvancedSpeech = new OurLocalSetting("advanced-speech", false);
+const settingDeepgramApiKey = new OurLocalSetting("deepgram-api-key", "");
 
 
 /**
@@ -392,7 +394,37 @@ function displayPage() {
 
     const divOnOffButtons = document.getElementById("on-off-buttons");
     // divOnOffButtons.append(btnStart, btnStop, eltMic);
-    divOnOffButtons.append(eltMic, eltMicStatus);
+    const eltTheMic = mkElt("span", { id: "the-mic" }, [eltMic, eltMicStatus]);
+    const inpModel = settingAdvancedSpeech.getInputElement();
+    const lblModel = mkElt("label", undefined, [
+        "More accurate: ",
+        inpModel
+    ]);
+    inpModel.addEventListener("change", async evt => {
+        console.log(inpModel.checked);
+        if (inpModel.checked) {
+            const inpKey = settingDeepgramApiKey.getInputElement();
+            const bdy = mkElt("div", undefined, [
+                // mkElt("h2", undefined, "Better speech to text"),
+                mkElt("h2", { style: "color:red" }, "Better speech to text (not ready!)"),
+                mkElt("p", undefined, [
+                    `You need an API key for Deepgram for this!`
+                ]),
+                // mkElt("lbl", undefined, ["Deepgram API key: ", inpKey]),
+                mkElt("div", undefined, "Deepgram API key: "),
+                inpKey,
+            ]);
+            // FIX-ME:
+            const checkApiKeyWasGiven = async () => {
+                debugger;
+                return false;
+            }
+            await modBasicUI.showDialog(bdy, checkApiKeyWasGiven);
+            debugger;
+        }
+    });
+    const eltModel = mkElt("span", { id: "the-model" }, lblModel);
+    divOnOffButtons.append(eltTheMic, eltModel);
 
 
     /************** EDIT ***********/

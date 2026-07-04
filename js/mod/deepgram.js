@@ -42,6 +42,7 @@ export function setTranscriptOutput(elt) {
 */
 
 export function languageSelectInnerHtml() {
+    // List updated 2026-07-04
     return
     `
     <label for="language-select">Choose Language:</label>
