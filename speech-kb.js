@@ -301,8 +301,14 @@ function displayPage() {
             // const dlg = mkElt("dialog", undefined, body);
             modBasicUI.showDialog(body);
         });
-        const eltDebugTitle = mkElt("span", { style: "color:red;" }, "Reset (debugging tool, don't use!)");
-        modBasicUI.addMenuAlt(dialogMenu, eltDebugTitle, () => {
+
+        modBasicUI.addMenuDivider(dialogMenu);
+
+        const eltDebugTitle = mkElt("span", { style: "background-color:red;padding:8px;" }, "DEBUGGING");
+        modBasicUI.addMenuAlt(dialogMenu, eltDebugTitle);
+
+        const eltClearOpfsTitle = mkElt("span", { style: "color:red;" }, "Clear whold OPFS (don't use!)");
+        modBasicUI.addMenuAlt(dialogMenu, eltClearOpfsTitle, () => {
             console.log({ modOPFS });
             modOPFS.clearOPFS();
             settingCurrentDoc.reset();

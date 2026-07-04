@@ -723,6 +723,16 @@ export function mkDialogMenu() {
   return eltDialogMenuContainer;
 }
 
+export function addMenuDivider(dialogMenu) {
+  const divider = mkElt("div");
+  divider.style = `
+    height: 4px;
+    background-color: lightgray;
+    margin: 0;
+    padding: 0;
+  `;
+  dialogMenu.appendChild(divider);
+}
 /**
  *
  * @param {HTMLDialogElement} dialogMenu 
@@ -743,23 +753,31 @@ export function addMenuAlt(dialogMenu, txt, fun) {
       throw Error(`Must be string or <span>`);
     }
   }
-  const tofFun = typeof fun;
-  if (tofFun != "function") {
-    debugger;
-    throw Error(`typeof fun: "${tofFun} != "function`);
-  }
-  if (fun.length > 0) {
-    throw Error(`function fun should take 0 parameter: ${fun.length}`);
+  if (fun) {
+    const tofFun = typeof fun;
+    if (tofFun != "function") {
+      debugger;
+      throw Error(`typeof fun: "${tofFun} != "function`);
+    }
+    if (fun.length > 0) {
+      throw Error(`function fun should take 0 parameter: ${fun.length}`);
+    }
   }
 
   const alt = mkMenuAlt(txt, fun);
   dialogMenu.appendChild(alt);
   function mkMenuAlt(txt, fun) {
     const btn = mkElt("button", { class: "menu-alt" }, txt);
-    btn.addEventListener("click", evt => {
-      // evt.stopPropagation();
-      fun();
-    })
+    if (fun) {
+      btn.addEventListener("click", evt => {
+        // evt.stopPropagation();
+        fun();
+      });
+    } else {
+      btn.addEventListener("click", evt => {
+        evt.stopPropagation();
+      });
+    }
     return btn;
   }
 }
