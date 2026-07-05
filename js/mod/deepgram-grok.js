@@ -3,6 +3,10 @@
  * Uses AudioWorklet for modern browser compatibility + basic VAD.
  */
 
+let reportErrorCodeFun;
+export function setReportErrorCodeFun(fun) {
+    reportErrorCodeFun = fun;
+}
 /**
  * Creates a Deepgram real-time transcriber instance.
  *
@@ -165,10 +169,41 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                 }
             };
 
-            socket.onerror = (err) => console.error('Deepgram WebSocket error:', err);
-            socket.onclose = () => {
-                console.log('Deepgram WebSocket closed');
+            socket.onerror = (evt) => {
+                console.error('WebSocket error:', evt);
+            }
+            socket.onclose = (evt) => {
                 isStreaming = false;
+                const code = evt.code;
+                const reason = evt.reason;
+                const wasClean = evt.wasClean;
+                console.log("WebSocket closed", { evt, code, reason, wasClean });
+                if (code === 1006) {
+                    callBackToUser( "websocket1006", true);
+                }
+                switch (code) {
+                    case 1000: // Normal Closure
+                        break;
+
+                    case 1002: // Protocol Error
+                    case 1003: // Unsupported Data
+                    case 1009: // Message too big
+                        // FIX-ME: handle this better
+                        throw Error(`WebSocket closed with code ${code}`);
+
+                    case 1001: // Going Away
+                    case 1005: // No Status Recieved
+                    case 1006: // network problem or bad API credentials
+                    // FIX-ME: note that this might be auth problem!
+                    case 1011: // Server error
+                    case 1015: // TLS Handshake Failure
+                        console.error(`WebSocket close, code: ${code}`)
+                        break;
+
+                    default:
+                        console.warn(`WebSocket close, unknown or private code: ${code}`)
+                }
+
             };
 
         } catch (err) {
