@@ -59,10 +59,50 @@ recognition.lang = 'en-US';
 // --- CONTROLS ---
 
 // 1. START: Turns on microphone, begins listening
-function userStartListening() {
+let transcriber;
+function transcriberCallback(what, objDetails) {
+    const tofWhat = typeof what;
+    if (tofWhat != "string") {
+        debugger;
+        throw Error(`tofWhat=="${tofWhat}"`);
+    }
+
+    // eltOutputText
+    console.warn("deepgramCallback: ", objDetails);
+    switch (what) {
+        case "transcript":
+            const isFinal = objDetails.isFinal;
+            const tofIsFinal = typeof isFinal;
+            if (tofIsFinal != "boolean") {
+                debugger;
+                throw Error(`tofIsFinal=="${tofIsFinal}"`);
+            }
+            const transcript = objDetails.transcript;
+            console.log({transcript});
+            break;
+        default:
+            debugger;
+    }
+}
+
+async function userStartListening() {
     shouldKeepListening = true;
-    recognition.lang = langSelect.value;
-    recognition.start();
+    if (settingAdvancedSpeech.value) {
+        if (!transcriber) {
+            const modDeepgram = await importFc4i("deepgram")
+            console.log({ modDeepgram });
+            // debugger;
+            // modDeepgram.setCallBackFun(deepgramCallback);
+            // modDeepgram.setApiKey(settingDeepgramApiKey.valueS);
+            // modDeepgram.start();
+            transcriber = modDeepgram.createDeepgramTranscriber(settingDeepgramApiKey.valueS, transcriberCallback);
+            console.log({ transcriber });
+        }
+        transcriber.start();
+    } else {
+        recognition.lang = langSelect.value;
+        recognition.start();
+    }
 }
 
 // 2. STOP: Stops listening and FINISHES processing current speech

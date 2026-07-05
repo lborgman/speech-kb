@@ -9,9 +9,9 @@ if (document.currentScript) throw Error("import .currentScript"); // is module
 // https://deepgram.com/voice-ai-platform
 
 // const apiKey = 'YOUR_DEEPGRAM_API_KEY';
-let API_KEY = "";
+let DEEPGRAM_API_KEY = "";
 export function setApiKey(key) {
-    API_KEY = key;
+    DEEPGRAM_API_KEY = key;
 }
 /** @type {function|undefined} */
 let callbackToCaller;
@@ -117,7 +117,8 @@ let socket;
 
 // startBtn.addEventListener('click', async () => {
 export async function start() {
-    if (API_KEY.length == 0) {
+    if (DEEPGRAM_API_KEY.length == 0) {
+        debugger;
         throw Error("deepgram API key is not set");
     }
     const tofCallbackToCaller = typeof callbackToCaller;
@@ -126,20 +127,23 @@ export async function start() {
     }
 
     // 1. Request microphone access from the user
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
     // Validate browser support for container format
     if (!MediaRecorder.isTypeSupported('audio/webm')) {
         return alert('Your browser does not support audio/webm.');
     }
 
-    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' });
 
     // 2. Establish a WebSocket connection directly to Deepgram
     // IN PRODUCTION: Route this through your own server to hide your API Key!
     // const apiKey = 'YOUR_DEEPGRAM_API_KEY';
-    const apiKey = API_KEY;
-    socket = new WebSocket('wss://://deepgram.com', [
+    const apiKey = DEEPGRAM_API_KEY;
+    const urlAuthority = "api.deepgram.com/v1/listen";
+
+
+    socket = new WebSocket(`wss://${urlAuthority}`, [
         'token', apiKey
     ]);
 
@@ -148,6 +152,9 @@ export async function start() {
         // startBtn.disabled = true;
         // stopBtn.disabled = false;
         console.log("%cdeepgram socket opened", "font-size:20px; color:red;");
+        callbackToCaller({
+            subject: "opened"
+        });
 
         // 3. Send audio chunks to Deepgram every 250ms as they become available
         mediaRecorder.addEventListener('dataavailable', async (event) => {
@@ -169,11 +176,22 @@ export async function start() {
         }
     };
 
-    socket.onerror = (error) => console.error('WebSocket Error:', error);
-    socket.onclose = () => {
-        statusSpan.textContent = 'Disconnected';
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
+    socket.onerror = (error) => {
+        console.error('WebSocket Error:', error);
+        callbackToCaller({
+            subject: "WebSocket Error",
+            // No details here!
+        });
+    }
+    socket.onclose = (evt) => {
+        console.error('WebSocket close:', evt);
+        // statusSpan.textContent = 'Disconnected';
+        // startBtn.disabled = false;
+        // stopBtn.disabled = true;
+        callbackToCaller({
+            subject: "close",
+            details: `code:"${evt.code}", reason:"${evt.reason}"`
+        });
     };
     // });
 }
