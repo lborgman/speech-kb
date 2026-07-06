@@ -135,6 +135,7 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
             socket.onopen = () => {
                 console.log('✅ Deepgram WebSocket connected (with basic VAD)');
                 isStreaming = true;
+                callBackToUser("websocket-open", true);
             };
 
             socket.onmessage = (event) => {

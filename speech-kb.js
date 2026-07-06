@@ -47,7 +47,7 @@ if (!eltOutputText) throw Error("Did not find output-text");
 
 // debugger;
 const eltMicStatus = document.getElementById("mic-status");
-const langSelect = document.getElementById('speech-lang');
+const langSelect = document.getElementById('speech-lang-chrome');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 
@@ -71,9 +71,13 @@ function transcriberCallback(what, objDetails) {
     // eltOutputText
     console.warn("deepgramCallback: ", objDetails);
     switch (what) {
+        case "websocket-open":
+            showListening(true);
+            break;
         case "websocket1006":
             debugger;
             settingWebsocket1006.value = objDetails;
+            debugOutput("1006");
             break;
         case "transcript":
             const isFinal = objDetails.isFinal;
@@ -102,25 +106,6 @@ function transcriberCallback(what, objDetails) {
     }
 }
 
-async function userStartListening() {
-    shouldKeepListening = true;
-    if (settingAdvancedSpeech.value) {
-        if (!transcriber) {
-            const modDeepgram = await importFc4i("deepgram")
-            console.log({ modDeepgram });
-            // debugger;
-            // modDeepgram.setCallBackFun(deepgramCallback);
-            // modDeepgram.setApiKey(settingDeepgramApiKey.valueS);
-            // modDeepgram.start();
-            transcriber = modDeepgram.createDeepgramTranscriber(settingDeepgramApiKey.valueS, transcriberCallback);
-            console.log({ transcriber });
-        }
-        transcriber.start();
-    } else {
-        recognition.lang = langSelect.value;
-        recognition.start();
-    }
-}
 
 // 2. STOP: Stops listening and FINISHES processing current speech
 function userStopListening() {
@@ -169,7 +154,6 @@ recognition.interimResults = true;
 recognition.addEventListener("start", () => {
     hasCommitted = false;
     finalText = "";
-    // showListening(true);
 });
 
 recognition.onresult = (event) => {
@@ -202,7 +186,7 @@ function debugOutput(txt) {
     const eltDebug = document.getElementById("debug");
     eltDebug.appendChild(elt);
 }
-debugOutput("TEST DEBUG"); debugOutput("TEST again 2");
+debugOutput("TEST DEBUG"); 
 const lifeEvents = [
     "start", "audiostart", "soundstart", "speechstart",
     "speechend", "soundend", "audioend", "end"
@@ -288,16 +272,6 @@ function displayPage() {
         showListening(false);
     });
 
-    /*
-    btnStart.addEventListener("click", evt => {
-        evt.stopPropagation();
-        UserStartListening();
-    });
-    btnStop.addEventListener("click", evt => {
-        evt.stopPropagation();
-        UserStopListening();
-    });
-    */
 
     const btnDoc = document.getElementById("doc");
     btnDoc.addEventListener("click", evt => {
@@ -398,6 +372,22 @@ function displayPage() {
         modBasicUI.displayMenu(dialogMenu, objDlgPosition);
 
     })
+    async function userStartListening() {
+        shouldKeepListening = true;
+        if (settingAdvancedSpeech.value) {
+            if (!transcriber) {
+                const modDeepgram = await importFc4i("deepgram")
+                console.log({ modDeepgram });
+                const apiKey = settingDeepgramApiKey.valuesS;
+                transcriber = modDeepgram.createDeepgramTranscriber(apiKey, transcriberCallback);
+                console.log({ transcriber });
+            }
+            transcriber.start();
+        } else {
+            recognition.lang = langSelect.value;
+            recognition.start();
+        }
+    }
 
     function showListening(on) {
         const eltMicStatus = document.getElementById("mic-status");
@@ -460,6 +450,11 @@ function displayPage() {
     inpModel.addEventListener("change", async evt => {
         console.log(inpModel.checked);
         if (inpModel.checked) {
+            document.documentElement.classList.add("websocket-model");
+        } else {
+            document.documentElement.classList.remove("websocket-model");
+        }
+        if (inpModel.checked) {
             const inpKey = settingDeepgramApiKey.getInputElement();
             inpKey.style.width = "100%";
             const keyVal = settingDeepgramApiKey.valueS;
@@ -482,7 +477,11 @@ function displayPage() {
                 eltKeyStatus.textContent = "(new key, unknown status)";
                 eltKeyStatus.style.color = "unset";
                 settingWebsocket1006.reset();
-            })
+            });
+            const aDeepgram = mkElt("a", {
+                href:"https://deepgram.com/", 
+                target: "_blank"
+            }, "Get new deepgram API key");
             const bdy = mkElt("div", undefined, [
                 // mkElt("h2", undefined, "Better speech to text"),
                 mkElt("h2", { style: "color:red" }, "Better speech to text (not ready!)"),
@@ -492,7 +491,8 @@ function displayPage() {
                 // mkElt("lbl", undefined, ["Deepgram API key: ", inpKey]),
                 mkElt("div", undefined, "Deepgram API key: "),
                 inpKey,
-                eltKeyStatus
+                eltKeyStatus,
+                mkElt("p", undefined, aDeepgram)
             ]);
             // FIX-ME:
             const checkApiKeyWasGiven = async () => {

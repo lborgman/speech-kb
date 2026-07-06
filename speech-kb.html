@@ -91,6 +91,7 @@
             display: flex;
             justify-content: space-between;
         }
+
         #the-mic {
             /* outline: 4px dotted red; */
             display: flex;
@@ -128,9 +129,9 @@
         }
 
         #debug {
-            display: none;
-            color: red;
-            outline: 2px solid red;
+            margin-top: 15px;
+            color: orange;
+            outline: 1px solid red;
             min-height: 80px;
         }
 
@@ -161,14 +162,28 @@
             background: #f4ebe1;
         }
 
-        select#speech-lang {
+        select.select-lang {
             background-color: #ccc;
             padding: 8px 8px;
             border-radius: 8px;
-            NOborder: 1px sold #ccc3;
             outline: none;
         }
-        .mic-on select#speech-lang {
+
+        .websocket-model #speech-lang-chrome {
+            display: none;
+        }
+
+        select#speech-lang-deepgram {
+            display: none;
+            background-color: blueviolet;
+        }
+
+        .websocket-model select#speech-lang-deepgram {
+            display: unset;
+        }
+
+
+        .mic-on select#speech-lang-chrome {
             outline: 4px solid #0a9b5d
         }
 
@@ -230,7 +245,7 @@
 
     <div id="inputs">
         <label>
-            <select id="speech-lang" name="speech-lang">
+            <select class="select-lang" id="speech-lang-chrome" name="speech-lang-chrome">
                 <!-- Arabic -->
                 <optgroup label="Arabic">
                     <option value="ar-EG">Arabic (Egypt)</option>
@@ -320,6 +335,74 @@
                     <option value="vi-VN">Vietnamese</option>
                 </optgroup>
             </select>
+            <select class="select-lang" name="deepgram_language" id="speech-lang-deepgram">
+                <option value="" disabled selected>Select a language...</option>
+
+                <!-- Core & English Variants -->
+                <optgroup label="English & Core Models">
+                    <option value="en" selected>English (General/Default)</option>
+                    <option value="en-US">English - United States (en-US)</option>
+                    <option value="en-GB">English - United Kingdom (en-GB)</option>
+                    <option value="en-AU">English - Australia (en-AU)</option>
+                    <option value="en-IN">English - India (en-IN)</option>
+                    <option value="multi">Multilingual Code-Switching (multi)</option>
+                </optgroup>
+
+                <!-- Core Global Languages -->
+                <optgroup label="Core Global Languages">
+                    <option value="es">Spanish (es)</option>
+                    <option value="fr">French (fr)</option>
+                    <option value="de">German (de)</option>
+                    <option value="hi">Hindi (hi)</option>
+                    <option value="it">Italian (it)</option>
+                    <option value="ja">Japanese (ja)</option>
+                    <option value="nl">Dutch (nl)</option>
+                    <option value="pt">Portuguese (pt)</option>
+                    <option value="ru">Russian (ru)</option>
+                </optgroup>
+
+                <!-- European Extensions -->
+                <optgroup label="European Extensions">
+                    <option value="be">Belarusian (be)</option>
+                    <option value="bs">Bosnian (bs)</option>
+                    <option value="bg">Bulgarian (bg)</option>
+                    <option value="ca">Catalan (ca)</option>
+                    <option value="hr">Croatian (hr)</option>
+                    <option value="cs">Czech (cs)</option>
+                    <option value="da">Danish (da)</option>
+                    <option value="et">Estonian (et)</option>
+                    <option value="fi">Finnish (fi)</option>
+                    <option value="nl-BE">Flemish (nl-BE)</option>
+                    <option value="de-CH">German - Switzerland (de-CH)</option>
+                    <option value="el">Greek (el)</option>
+                    <option value="hu">Hungarian (hu)</option>
+                    <option value="lv">Latvian (lv)</option>
+                    <option value="lt">Lithuanian (lt)</option>
+                    <option value="mk">Macedonian (mk)</option>
+                    <option value="ro">Romanian (ro)</option>
+                    <option value="sr">Serbian (sr)</option>
+                    <option value="sk">Slovak (sk)</option>
+                    <option value="sl">Slovenian (sl)</option>
+                </optgroup>
+
+                <!-- Asia-Pacific & Indic Extensions -->
+                <optgroup label="Asia-Pacific & Indic Extensions">
+                    <option value="bn">Bengali (bn)</option>
+                    <option value="zh-HK">Cantonese Traditional (zh-HK)</option>
+                    <option value="gu">Gujarati (gu)</option>
+                    <option value="id">Indonesian (id)</option>
+                    <option value="kn">Kannada (kn)</option>
+                    <option value="ms">Malay (ms)</option>
+                    <option value="zh-CN">Mandarin Simplified (zh-CN)</option>
+                    <option value="zh-TW">Mandarin Traditional (zh-TW)</option>
+                    <option value="mr">Marathi (mr)</option>
+                    <option value="tl">Tagalog (tl)</option>
+                    <option value="ta">Tamil (ta)</option>
+                    <option value="te">Telugu (te)</option>
+                    <option value="th">Thai (th)</option>
+                </optgroup>
+            </select>
+
         </label>
         <div id="on-off-buttons"></div>
         <!-- <div id="mic-status">(Not started)</div> -->
