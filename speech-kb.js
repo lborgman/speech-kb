@@ -142,7 +142,7 @@ function debugOutput(txt) {
     // elt.scrollIntoView();
     eltDebug.insertBefore(elt, eltDebug.firstElementChild);
 }
-debugOutput("TEST DEBUG");
+debugOutput("--- DEBUG ---");
 const lifeEvents = [
     "start", "audiostart", "soundstart", "speechstart",
     "speechend", "soundend", "audioend", "end"
@@ -604,6 +604,7 @@ function displayPage() {
                 }
                 break;
             default:
+                console.error(`Unknown what=="${what}"`);
                 debugger;
         }
     }

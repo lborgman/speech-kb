@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepgram Low-Bandwidth VAD Debugger</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1e293b;
+        }
+
+        .config-panel {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #475569;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-start {
+            background-color: #059669;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background-color: #057a55;
+        }
+
+        .btn-stop {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background-color: #b91c1c;
+        }
+
+        button:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+            color: #64748b;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #e2e8f0;
+        }
+
+        .status-connected {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-disconnected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .v-meter-container {
+            margin-top: 15px;
+            background: #e2e8f0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .v-meter-bar {
+            background: #3b82f6;
+            height: 100%;
+            width: 0%;
+            transition: width 0.05s ease;
+        }
+
+        .v-meter-label {
+            position: absolute;
+            top: 2px;
+            left: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: #334155;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        #document-output {
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .interim-text {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        #console-log {
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: #0f172a;
+            color: #34d399;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .log-line {
+            margin-bottom: 6px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 4px;
+        }
+
+        .log-ts {
+            color: #64748b;
+            margin-right: 5px;
+        }
+
+        .log-err {
+            color: #f87171;
+        }
+
+        .log-warn {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Deepgram Live STT VAD Framework Debugger</h2>
+
+        <div class="config-panel">
+            <div class="form-group">
+                <label for="api-key">Deepgram API Key</label>
+                <input type="text" id="api-key" placeholder="Enter your secret dg_xxxx key here...">
+            </div>
+
+            <div class="controls">
+                <button id="btn-start" class="btn-start" onclick="startStreaming()">Start AudioWorklet VAD</button>
+                <button id="btn-stop" class="btn-stop" onclick="stopStreaming()" disabled>Stop</button>
+                <span id="network-status" class="status-badge status-disconnected">Disconnected</span>
+            </div>
+
+            <div class="v-meter-container">
+                <div id="v-bar" class="v-meter-bar"></div>
+                <div class="v-meter-label">Local Hardware Stream RMS Intensity</div>
+            </div>
+        </div>
+
+        <div class="layout">
+            <div class="panel">
+                <h3>Assembled Text Document</h3>
+                <div id="document-output">Your live document layout will render here when you begin speaking...</div>
+            </div>
+            <div class="panel">
+                <h3>Low-Bandwidth WebAudio Trace</h3>
+                <div id="console-log">Ready. Logs will render here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Inline AudioWorklet Processor Source Code ---
+        // This background thread converts Float32 to Int16 and calculates local volume (RMS)
+        const workletCode = `
+        class PCMProcessor extends AudioWorkletProcessor {
+            process(inputs, outputs, parameters) {
+                const input = inputs[0];
+                if (!input || !input[0]) return true;
+                
+                const inputChannel = input[0];
+                const length = inputChannel.length;
+                
+                // 1. Calculate the Root Mean Square (RMS) volume level
+                let sum = 0;
+                for (let i = 0; i < length; i++) {
+                    sum += inputChannel[i] * inputChannel[i];
+                }
+                const rms = Math.sqrt(sum / length);
+                
+                // 2. Convert raw Float32 data array directly into standard Int16 Linear PCM layout
+                const pcmBuffer = new Int16Array(length);
+                for (let i = 0; i < length; i++) {
+                    const s = Math.max(-1, Math.min(1, inputChannel[i]));
+                    pcmBuffer[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+                
+                // 3. Emit raw conversions directly back to main UI engine thread context
+                this.port.postMessage({ pcm: pcmBuffer.buffer, rms: rms }, [pcmBuffer.buffer]);
+                return true;
+            }
+        }
+        registerProcessor('pcm-processor', PCMProcessor);
+    `;
+
+        let socket = null;
+        let mediaStream = null;
+        let audioContext = null;
+        let workletNode = null;
+        let keepAliveTimeout = null;
+
+        let documentContent = "";
+        let currentChunk = "";
+
+        // Local Voice Activity Threshold Configurations
+        const SILENCE_THRESHOLD = 0.015; // Tweak this up or down based on mic sensitivity background hum
+        const SILENCE_FRAMES_THRESHOLD = 20; // How many safety tail buffers to send after speech ends
+        let silenceFrameCount = 0;
+
+        const docOutput = document.getElementById("document-output");
+        const consoleLog = document.getElementById("console-log");
+        const netStatus = document.getElementById("network-status");
+        const btnStart = document.getElementById("btn-start");
+        const btnStop = document.getElementById("btn-stop");
+        const vBar = document.getElementById("v-bar");
+
+        function logTrace(message, statusClass = '') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const div = document.createElement("div");
+            div.className = `log-line ${statusClass}`;
+            div.innerHTML = `<span class="log-ts">[${time}]</span>${message}`;
+            consoleLog.appendChild(div);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function resetKeepAliveTimer() {
+            if (keepAliveTimeout) clearTimeout(keepAliveTimeout);
+
+            // Schedule a single textual heartbeat message if 7 seconds pass without any audio transmission
+            keepAliveTimeout = setTimeout(() => {
+                if (socket?.readyState === WebSocket.OPEN) {
+                    logTrace("⏳ Network Pipe Quiet. Sending 1 KeepAlive JSON block to hold socket open...", "log-warn");
+                    socket.send(JSON.stringify({ type: "KeepAlive" }));
+                    resetKeepAliveTimer(); // Recursively re-arm
+                }
+            }, 7000);
+        }
+
+        async function startStreaming() {
+            const apiKey = document.getElementById("api-key").value.trim();
+            if (!apiKey) {
+                alert("Please enter your Deepgram API Key.");
+                return;
+            }
+
+            logTrace("Initializing structural AudioContext graph @16kHz...");
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+
+                // Generate temporary Blob URL asset path context to load Worklet without external file dependency rules
+                const blob = new Blob([workletCode], { type: 'application/javascript' });
+                const workletUrl = URL.createObjectURL(blob);
+                await audioContext.audioWorklet.addModule(workletUrl);
+
+                const source = audioContext.createMediaStreamSource(mediaStream);
+                workletNode = new AudioWorkletNode(audioContext, 'pcm-processor');
+
+                // Construct exact streaming target configurations
+                const urlDg = new URL("wss://api.deepgram.com/v1/listen");
+                const sp = urlDg.searchParams;
+                sp.set("model", "nova-2");
+                sp.set("smart_format", "true");
+                sp.set("interim_results", "true");
+                sp.set("encoding", "linear16");   // Enforce raw binary matching
+                sp.set("sample_rate", "16000");   // Enforce explicit frequency map
+                sp.set("endpoint", "1000");       // Clear document pause tracking
+
+                logTrace(`Establishing secure connection pipeline to Deepgram server...`);
+                socket = new WebSocket(urlDg.href, ['token', apiKey]);
+
+                btnStart.disabled = true;
+                btnStop.disabled = false;
+                silenceFrameCount = 0;
+
+                socket.onopen = () => {
+                    logTrace("✅ Deepgram Socket Handshake Confirmed.");
+                    netStatus.innerText = "Connected";
+                    netStatus.className = "status-badge status-connected";
+
+                    // Initialize the debounced keep alive tracking engine instantly
+                    resetKeepAliveTimer();
+
+                    // Connect the microphone to the background processor thread engine
+                    workletNode.port.onmessage = (event) => {
+                        const { pcm, rms } = event.data;
+                        const isSpeaking = rms > SILENCE_THRESHOLD;
+
+                        // Live map visual feedback monitor line interface bar layout
+                        vBar.style.width = `${Math.min(100, rms * 400)}%`;
+
+                        if (isSpeaking) {
+                            silenceFrameCount = 0;
+                        } else {
+                            silenceFrameCount++;
+                        }
+
+                        // Only send data if active speaking is flagged, or during the safety trailing buffer phase
+                        if (isSpeaking || silenceFrameCount < SILENCE_FRAMES_THRESHOLD) {
+                            if (socket?.readyState === WebSocket.OPEN) {
+                                // 🚀 AUDIO PACKET TRANSMITTED: Automatically push keep alive requirement out another 7 seconds
+                                resetKeepAliveTimer();
+                                socket.send(pcm);
+                            }
+                        }
+                    };
+
+                    source.connect(workletNode);
+                    workletNode.connect(audioContext.destination);
+                };
+
+                socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+
+                    if (data.type === "Results" && data.channel?.alternatives?.[0]) {
+                        const alternative = data.channel.alternatives[0];
+                        const transcript = alternative.transcript;
+                        const isFinal = Boolean(data.is_final);
+                        const speechFinal = Boolean(data.speech_final);
+
+                        logTrace(`Inbound Frame | transcript: "${transcript}" | is_final: ${isFinal} | speech_final: ${speechFinal}`);
+
+                        if (transcript.trim().length > 0) {
+                            if (isFinal) {
+                                currentChunk += (currentChunk ? " " : "") + transcript;
+                            }
+                            renderDocumentView(transcript, isFinal);
+                        }
+
+                        if (speechFinal && currentChunk.trim().length > 0) {
+                            documentContent += currentChunk + "\n\n";
+                            currentChunk = "";
+                            renderDocumentView("", false);
+                        }
+                    }
+                };
+
+                socket.onerror = (err) => logTrace("❌ WebSocket Error Event registered", "log-err");
+
+                socket.onclose = (evt) => {
+                    logTrace(`🛑 Socket connection severed. Code: ${evt.code} | Reason: "${evt.reason || 'None'}"`, evt.code !== 1000 ? "log-err" : "");
+                    cleanupUI();
+                };
+
+            } catch (err) {
+                logTrace(`Fatal initialization runtime error: ${err.message}`, "log-err");
+                cleanupUI();
+            }
+        }
+
+        function renderDocumentView(liveTranscript, isFinal) {
+            if (!documentContent && !currentChunk && !liveTranscript) {
+                docOutput.innerHTML = `<span class="interim-text">Listening via AudioWorklet VAD... start speaking.</span>`;
+                return;
+            }
+
+            let html = documentContent.replace(/\n/g, "<br>");
+            if (isFinal) {
+                html += `<strong>${currentChunk}</strong>`;
+            } else if (liveTranscript) {
+                html += `<strong>${currentChunk}</strong> <span class="interim-text">${liveTranscript}</span>`;
+            } else {
+                html += `<strong>${currentChunk}</strong>`;
+            }
+            docOutput.innerHTML = html;
+        }
+
+        function stopStreaming() {
+            logTrace("Disconnect workflow processing explicitly invoked.");
+            cleanupUI();
+        }
+
+        function cleanupUI() {
+            btnStart.disabled = false;
+            btnStop.disabled = true;
+            netStatus.innerText = "Disconnected";
+            netStatus.className = "status-badge status-disconnected";
+            vBar.style.width = "0%";
+
+            if (keepAliveTimeout) clearTimeout(keepAliveTimeout);
+            if (workletNode) workletNode.disconnect();
+            if (audioContext) audioContext.close();
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close(1000, "Normal Closure");
+            }
+        }
+    </script>
+</body>
+
+</html>

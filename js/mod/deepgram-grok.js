@@ -47,8 +47,8 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
     let isStreaming = false;
     /** @type {string} */
     let finalTranscript = '';
-    /** @type {HTMLElement | null} */
-    let transcriptElement = null;
+
+    // /** @type {HTMLElement | null} */ let transcriptElement = null;
 
     // VAD Settings
     const SILENCE_THRESHOLD = 0.012;        // Adjust based on your mic/environment (0.008 - 0.025)
@@ -93,21 +93,48 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
         URL.revokeObjectURL(url);
     }
 
+
+    ////// mediaRecorder version is from Gemini
+    let mediaRecorder = null;
+
     /**
      * Start real-time transcription from the microphone
      * @param {HTMLElement} [outputElement] - Optional DOM element to display live transcript
      * @returns {Promise<void>}
      */
-    async function start(outputElement = null) {
+    async function start() {
         if (isStreaming) return;
-        transcriptElement = outputElement;
+        // transcriptElement = outputElement;
         silenceFrameCount = 0;
 
         try {
             mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            audioContext = new (window.AudioContext || window.webkitAudioContext)({
-                sampleRate: 16000
-            });
+            // #region test mic code
+            /*
+            {
+                // Add this right under your getUserMedia line to test the microphone
+                const testAudioContext = new AudioContext();
+                const testSource = testAudioContext.createMediaStreamSource(mediaStream);
+                const testAnalyser = testAudioContext.createAnalyser();
+                testSource.connect(testAnalyser);
+                const dataArray = new Uint8Array(testAnalyser.frequencyBinCount);
+
+                setInterval(() => {
+                    testAnalyser.getByteFrequencyData(dataArray);
+                    const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+                    console.log("🎤 Actual Mic Signal Volume:", volume);
+                    // If this stays at 0 while you talk, the browser is connected to a dead or muted microphone device.
+                }, 1000);
+            }
+            */
+            // #endregion test mic code
+
+
+            //////// FIX-ME: send data!
+            // #region old code
+            /*
+            // This code is probably not needed for DeepGram, see
+            // https://gemini.google.com/app/71c1425c0f0725e3
 
             await initWorklet();
 
@@ -134,51 +161,106 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
 
             source.connect(workletNode);
             // workletNode.connect(audioContext.destination); // Uncomment to hear yourself
+            */
+            // #endregion
 
-            console.log(apiKey.length, `"${apiKey}"`);
 
-            // Connect to Deepgram
-            const urlDg = new URL("wss://api.deepgram.com/v1/listen")
-            const sp = urlDg.searchParams;
-            sp.set("model", "nova-2");
-            sp.set("smart_format", "true");
-            sp.set("interim_results", "true");
-            sp.set("encoding", "linear16");
-            sp.set("sample_rate", "1600");
-            sp.set("vad_events", "true");
-            socket = new WebSocket(
-                // `wss://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&interim_results=true&encoding=linear16&sample_rate=16000&vad_events=true`,
-                urlDg.href,
-                ['token', apiKey]
-            );
+            {
+                console.log(apiKey.length, `"${apiKey}"`);
+                // Connect to Deepgram
+                const urlDg = new URL("wss://api.deepgram.com/v1/listen")
+                const sp = urlDg.searchParams;
+
+
+                //// https://gemini.google.com/app/71c1425c0f0725e3
+                sp.set("model", "nova-2");
+                sp.set("smart_format", "true");
+                sp.set("interim_results", "true");
+
+                sp.set("encoding", "linear16");
+                sp.set("sample_rate", "16000");
+
+                // sp.set("vad_events", "true");
+                sp.set("endpoint", "1000");
+                // sp.set("diarize", "true"); // Speaker detection
+                // sp.set("paragraphs", "true"); // Changes the JSON output format
+
+
+                socket = new WebSocket(
+                    urlDg.href,
+                    ['token', apiKey]
+                );
+            }
 
             socket.onopen = () => {
-                console.log('✅ Deepgram WebSocket connected (with basic VAD)');
+                // console.log('✅ Deepgram WebSocket connected (with basic VAD)');
+                console.log('✅ Deepgram WebSocket connected (MediaRecord Stream)');
                 isStreaming = true;
                 callBackToUser("websocket-open", true);
+                // 2. Initialize the MediaRecorder once the network socket is open
+                // mediaRecorder = new MediaRecorder(mediaStream);
+
+                // 🚀 CRITICAL FIX: Enforce a standard, predictable stream container
+                let options = { mimeType: 'audio/webm;codecs=opus' };
+
+                // Fallback for Safari/iOS which doesn't support WebM
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'audio/mp4' };
+                }
+
+                console.log(`Recording using mimeType: ${options.mimeType}`);
+                mediaRecorder = new MediaRecorder(mediaStream, options);
+
+                // 3. Listen for audio data chunks from the browser
+                mediaRecorder.ondataavailable = async (event) => {
+                    if (event.data.size > 0 && socket?.readyState === WebSocket.OPEN) {
+                        // 🔍 CHECK 1: Log the raw browser file type being emitted
+                        console.log(`Blob Size: ${event.data.size} bytes | MimeType: ${event.data.type}`);
+
+                        // 🔍 CHECK 2: Convert to ArrayBuffer to inspect the actual bytes
+                        const buffer = await event.data.arrayBuffer();
+                        const view = new Uint8Array(buffer);
+
+                        // Log the first 4 bytes (The Magic Number Header)
+                        const hexHeader = Array.from(view.slice(0, 4))
+                            .map(b => b.toString(16).padStart(2, '0'))
+                            .join(' ');
+                        console.log(`First 4 bytes of packet: [${hexHeader}]`);
+
+                        // Send the compressed native container blob directly
+                        socket.send(event.data);
+                    }
+                };
+
+                // 4. Start recording and emit data chunks every 250 milliseconds
+                // This continuous stream natively prevents the 1011 timeout error!
+                mediaRecorder.start(250);
             };
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                if (data.channel?.alternatives?.[0]) {
-                    const transcript = data.channel.alternatives[0].transcript;
+                console.log("socket.onmessage", { data });
+                // Core STT Fields
+                if (data.channel.alternatives[0]) {
+                    const alternative = data.channel.alternatives[0];
+                    const transcript = alternative.transcript;
                     const isFinal = Boolean(data.is_final);
+                    const speechFinal = Boolean(data.speech_final);
+                    // words = alternative.words
+                    console.log(`transcript: "${transcript}"`, isFinal, speechFinal, { alternative });
 
-                    let theTrans = transcript;
-                    if (isFinal) {
-                        finalTranscript += transcript + ' ';
-                        theTrans = finalTranscript;
+                    if (transcript.length > 0) {
+                        callBackToUser("transcript", { transcript, isFinal, speechFinal });
                     }
-
-                    // callBackToUser("transcript", { transcript: theTrans, isFinal });
-
-                    console.log(isFinal ? '[FINAL]' : '[INTERIM]', theTrans);
-                    callBackToUser("transcript", { transcript: theTrans, isFinal });
+                    if (speechFinal) {
+                        callBackToUser("endpoint", { message: "User finished speaking", isFinal, speechFinal });
+                    }
                 }
             };
 
             socket.onerror = (evt) => {
-                console.error('WebSocket error:', evt);
+                console.error('%cWebSocket error:', "color:red;font-size:20px;", evt);
+                callBackToUser("websocket-error");
             }
             socket.onclose = (evt) => {
                 isStreaming = false;
@@ -186,10 +268,16 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                 const reason = evt.reason;
                 const wasClean = evt.wasClean;
                 console.log("WebSocket closed", { evt, code, reason, wasClean });
-                callBackToUser("websocket-close", { code, reason });
+                callBackToUser("websocket-close", { code, reason, wasClean });
                 if (code === 1006) {
+                    debugger; // This should not happen now?
                     callBackToUser("websocket1006", true);
                 }
+                // Clean up recorder if it's still running natively
+                if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                    mediaRecorder.stop();
+                }
+                /*
                 switch (code) {
                     case 1000: // Normal Closure
                         break;
@@ -212,11 +300,13 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                     default:
                         console.warn(`WebSocket close, unknown or private code: ${code}`)
                 }
+                */
 
             };
 
         } catch (err) {
             console.error('Failed to start Deepgram transcription:', err);
+            debugger;
             stop();
         }
     }
@@ -244,7 +334,7 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
 
         isStreaming = false;
         finalTranscript = '';
-        transcriptElement = null;
+        // transcriptElement = null;
         silenceFrameCount = 0;
     }
 
