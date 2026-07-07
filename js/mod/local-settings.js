@@ -156,8 +156,9 @@ export class LocalSetting {
         // LocalSetting.ourSettings[this.#key] = this;
     }
     get value() { return this.#getCachedValue(); }
-    get valueS() { return /** @type {string} */ (this.#getCachedValue()); }
-    get valueB() { return /** @type {boolean} */ (this.#getCachedValue()); }
+    getValueS() { return /** @type {string} */ (this.#getCachedValue()); }
+    // get valueB() { return /** @type {boolean} */ (this.#getCachedValue()); }
+    getValueB() { return /** @type {boolean} */ (this.#getCachedValue()); }
     get valueN() { return /** @type {number} */ (this.#getCachedValue()); }
     set value(val) {
         if (this.#input) {

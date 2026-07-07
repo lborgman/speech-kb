@@ -130,9 +130,14 @@
 
         #debug {
             margin-top: 15px;
-            color: orange;
             outline: 1px solid red;
             min-height: 80px;
+            max-height: 80px;
+            overflow: auto;
+            color: orange;
+            div:first-child {
+                color: red;
+            }
         }
 
         #output-text {

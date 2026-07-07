@@ -15,6 +15,15 @@ export function setReportErrorCodeFun(fun) {
  * @returns {DeepgramTranscriber} Transcriber instance
  */
 export function createDeepgramTranscriber(apiKey, callBackToUser) {
+    const tofApiKey = typeof apiKey;
+    if (tofApiKey != "string") {
+        debugger;
+        throw Error(`tofApiKey=="${tofApiKey}"`);
+    }
+    if (apiKey.length < 10) {
+        debugger;
+        throw Error(`apiKey.length < 10`);
+    }
     const tofCallbackToCaller = typeof callBackToUser;
     if (tofCallbackToCaller != "function") {
         debugger;
@@ -126,9 +135,20 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
             source.connect(workletNode);
             // workletNode.connect(audioContext.destination); // Uncomment to hear yourself
 
+            console.log(apiKey.length, `"${apiKey}"`);
+
             // Connect to Deepgram
+            const urlDg = new URL("wss://api.deepgram.com/v1/listen")
+            const sp = urlDg.searchParams;
+            sp.set("model", "nova-2");
+            sp.set("smart_format", "true");
+            sp.set("interim_results", "true");
+            sp.set("encoding", "linear16");
+            sp.set("sample_rate", "1600");
+            sp.set("vad_events", "true");
             socket = new WebSocket(
-                `wss://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&interim_results=true&encoding=linear16&sample_rate=16000&vad_events=true`,
+                // `wss://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&interim_results=true&encoding=linear16&sample_rate=16000&vad_events=true`,
+                urlDg.href,
                 ['token', apiKey]
             );
 
@@ -144,29 +164,16 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                     const transcript = data.channel.alternatives[0].transcript;
                     const isFinal = Boolean(data.is_final);
 
+                    let theTrans = transcript;
                     if (isFinal) {
                         finalTranscript += transcript + ' ';
+                        theTrans = finalTranscript;
                     }
 
-                    // Call user callback if provided
-                    if (typeof callBackToUser === 'function') {
-                        callBackToUser("transcript", { transcript, isFinal });
-                    }
+                    // callBackToUser("transcript", { transcript: theTrans, isFinal });
 
-                    if (transcriptElement) {
-                        transcriptElement.innerHTML = `
-              <strong>Final:</strong> ${finalTranscript}<br>
-              <span style="color: #666; font-style: italic;">
-                ${isFinal ? '' : transcript + '...'}
-              </span>
-            `;
-                    } else {
-                        console.log(isFinal ? '[FINAL]' : '[INTERIM]', transcript);
-                        callBackToUser("transcript", {
-                            transcript,
-                            isFinal
-                        });
-                    }
+                    console.log(isFinal ? '[FINAL]' : '[INTERIM]', theTrans);
+                    callBackToUser("transcript", { transcript: theTrans, isFinal });
                 }
             };
 
@@ -179,8 +186,9 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                 const reason = evt.reason;
                 const wasClean = evt.wasClean;
                 console.log("WebSocket closed", { evt, code, reason, wasClean });
+                callBackToUser("websocket-close", { code, reason });
                 if (code === 1006) {
-                    callBackToUser( "websocket1006", true);
+                    callBackToUser("websocket1006", true);
                 }
                 switch (code) {
                     case 1000: // Normal Closure

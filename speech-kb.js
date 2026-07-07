@@ -61,59 +61,9 @@ recognition.lang = 'en-US';
 
 // 1. START: Turns on microphone, begins listening
 let transcriber;
-function transcriberCallback(what, objDetails) {
-    const tofWhat = typeof what;
-    if (tofWhat != "string") {
-        debugger;
-        throw Error(`tofWhat=="${tofWhat}"`);
-    }
-
-    // eltOutputText
-    console.warn("deepgramCallback: ", objDetails);
-    switch (what) {
-        case "websocket-open":
-            showListening(true);
-            break;
-        case "websocket1006":
-            debugger;
-            settingWebsocket1006.value = objDetails;
-            debugOutput("1006");
-            break;
-        case "transcript":
-            const isFinal = objDetails.isFinal;
-            const tofIsFinal = typeof isFinal;
-            if (tofIsFinal != "boolean") {
-                debugger;
-                throw Error(`tofIsFinal=="${tofIsFinal}"`);
-            }
-            const transcript = objDetails.transcript;
-            const tofTranscript = typeof transcript;
-            if (tofTranscript != "string") {
-                debugger;
-                throw Error(`tofTranscript=="${tofTranscript}"`);
-            }
-            // console.log({transcript});
-            if (isFinal) {
-                const text = transcript;
-                const eltOut = mkElt("div", undefined, text);
-                eltOut.dataset.orig = text;
-                eltOut.classList.add("final-out");
-                eltOutputText.appendChild(eltOut);
-            }
-            break;
-        default:
-            debugger;
-    }
-}
 
 
 // 2. STOP: Stops listening and FINISHES processing current speech
-function userStopListening() {
-    shouldKeepListening = false;
-    recognition.stop();
-    const elt = document.getElementById("mic-status");
-    // tellTapMic(elt);
-}
 function tellTapMic(eltMicSts) {
     eltMicSts.textContent = "↫ Tap mic to speak";
 }
@@ -184,9 +134,15 @@ recognition.onresult = (event) => {
 function debugOutput(txt) {
     const elt = mkElt("div", undefined, txt);
     const eltDebug = document.getElementById("debug");
-    eltDebug.appendChild(elt);
+    if (!eltDebug) {
+        debugger;
+        throw Error('Did not find element "debug"');
+    }
+    // eltDebug.appendChild(elt);
+    // elt.scrollIntoView();
+    eltDebug.insertBefore(elt, eltDebug.firstElementChild);
 }
-debugOutput("TEST DEBUG"); 
+debugOutput("TEST DEBUG");
 const lifeEvents = [
     "start", "audiostart", "soundstart", "speechstart",
     "speechend", "soundend", "audioend", "end"
@@ -374,11 +330,12 @@ function displayPage() {
     })
     async function userStartListening() {
         shouldKeepListening = true;
-        if (settingAdvancedSpeech.value) {
+        if (settingAdvancedSpeech.getValueB()) {
             if (!transcriber) {
                 const modDeepgram = await importFc4i("deepgram")
                 console.log({ modDeepgram });
-                const apiKey = settingDeepgramApiKey.valuesS;
+                // const apiKey = settingDeepgramApiKey.valueS;
+                const apiKey = settingDeepgramApiKey.getValueS();
                 transcriber = modDeepgram.createDeepgramTranscriber(apiKey, transcriberCallback);
                 console.log({ transcriber });
             }
@@ -388,6 +345,19 @@ function displayPage() {
             recognition.start();
         }
     }
+    function userStopListening() {
+        shouldKeepListening = false;
+        if (settingAdvancedSpeech.getValueB()) {
+            if (transcriber) {
+                transcriber.stop();
+            }
+        } else {
+            recognition.stop();
+        }
+        // const elt = document.getElementById("mic-status");
+        // tellTapMic(elt);
+    }
+
 
     function showListening(on) {
         const eltMicStatus = document.getElementById("mic-status");
@@ -457,7 +427,7 @@ function displayPage() {
         if (inpModel.checked) {
             const inpKey = settingDeepgramApiKey.getInputElement();
             inpKey.style.width = "100%";
-            const keyVal = settingDeepgramApiKey.valueS;
+            const keyVal = settingDeepgramApiKey.getValueS();
             const sts1006 = settingWebsocket1006.value;
             const eltKeyStatus = mkElt("div");
             eltKeyStatus.style.padding = "4px";
@@ -479,7 +449,7 @@ function displayPage() {
                 settingWebsocket1006.reset();
             });
             const aDeepgram = mkElt("a", {
-                href:"https://deepgram.com/", 
+                href: "https://deepgram.com/",
                 target: "_blank"
             }, "Get new deepgram API key");
             const bdy = mkElt("div", undefined, [
@@ -584,6 +554,60 @@ function displayPage() {
         const eltLast = eltOutputText.querySelector(":last-child");
         return eltLast;
     }
+
+
+    function transcriberCallback(what, objDetails) {
+        const tofWhat = typeof what;
+        if (tofWhat != "string") {
+            debugger;
+            throw Error(`tofWhat=="${tofWhat}"`);
+        }
+
+        // eltOutputText
+        console.warn("deepgramCallback: ", objDetails);
+        switch (what) {
+            case "websocket-open":
+                debugOutput(what);
+                showListening(true);
+                break;
+            case "websocket-close":
+                debugOutput(what);
+                showListening(false);
+                break;
+            case "websocket1006":
+                debugOutput(what);
+                debugger;
+                settingWebsocket1006.value = objDetails;
+                break;
+            case "transcript":
+                const isFinal = objDetails.isFinal;
+                const tofIsFinal = typeof isFinal;
+                if (tofIsFinal != "boolean") {
+                    debugger;
+                    throw Error(`tofIsFinal=="${tofIsFinal}"`);
+                }
+                const transcript = objDetails.transcript;
+                const tofTranscript = typeof transcript;
+                if (tofTranscript != "string") {
+                    debugger;
+                    throw Error(`tofTranscript=="${tofTranscript}"`);
+                }
+                debugOutput(`${what}:${isFinal}, transcript:"${transcript}"`);
+                // console.log({transcript});
+                if (isFinal) {
+                    const text = transcript;
+                    console.log("%cfinal", "color:red", text);
+                    const eltOut = mkElt("div", undefined, text);
+                    eltOut.dataset.orig = text;
+                    eltOut.classList.add("final-out");
+                    eltOutputText.appendChild(eltOut);
+                }
+                break;
+            default:
+                debugger;
+        }
+    }
+
 }
 
 
@@ -719,7 +743,7 @@ function handleDomChanges(mutations) {
     debugger;
 }
 async function saveOutputTextToOPFS(mutations) {
-    const fileName = settingCurrentDoc.valueS;
+    const fileName = settingCurrentDoc.getValueS();
     // const targetElement = document.getElementById("output-text");
     const contentToSave = eltOutputText.innerHTML;
     return modOPFS.saveTextAsBlob(fileName, contentToSave)
@@ -822,7 +846,7 @@ async function loadDoc(docName) {
 }
 
 async function doTheDocLoading(docName) {
-    userStopListening();
+    // userStopListening();
     await loadDoc(docName);
     displayDocInfo();
     checkEditButtonsState();
