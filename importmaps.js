@@ -133,7 +133,7 @@ const cacheImportFc4i = new Map();
         "canvas-fontsize": "../js/mod/canvas-fontsize.js",
 
         // "deepgram": "../js/mod/deepgram.js",
-        "deepgram": "../js/mod/deepgram-grok.js",
+        "deepgram": "./js/mod/deepgram-grok.js",
 
         // "flashcards": "./src/js/mod/flashcards.js",
         // "idb-common": "./js/mod/idb-common.js",
