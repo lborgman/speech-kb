@@ -202,8 +202,71 @@ function yourAppHandleResult(text) {
     eltOut.dataset.orig = text;
     UpperFirstCharPlusPunctuation(eltOut, ".");
     eltOut.classList.add("final-out");
+
     eltOutputText.appendChild(eltOut);
+    eltOut.scrollIntoView({ block: "end", behavoir: "auto" });
+
+    // Claude:
+    eltOutputText.appendChild(eltOut);
+
+    const cs = getComputedStyle(eltOutputText);
+    console.log('overflow-y:', cs.overflowY, 'height:', cs.height, 'max-height:', cs.maxHeight);
+    console.log('scrollTop:', eltOutputText.scrollTop,
+        'scrollHeight:', eltOutputText.scrollHeight,
+        'clientHeight:', eltOutputText.clientHeight);
+
     eltOut.scrollIntoView();
+
+    console.log('AFTER scrollIntoView scrollTop:', eltOutputText.scrollTop);
+
+    eltOutputText.scrollTop = eltOutputText.scrollHeight;
+    console.log('AFTER manual scrollTop set:', eltOutputText.scrollTop);
+
+
+
+
+    // Handle the rendering race:
+    // setTimeout(() => { eltOut.scrollIntoView(); }, 0);
+    // setTimeout(() => { eltOut.scrollIntoView(); }, 1000);
+    // Force the parent container scrollbar to match its maximum height
+    // requestAnimationFrame(() => { eltOutputText.scrollTop = eltOutputText.scrollHeight; });
+    // Wait a tiny fraction for layout engine synchronization
+    setTimeout(() => { eltOutputText.scrollTop = eltOutputText.scrollHeight; }, 10);
+    // The Fix: Force an impossibly high fallback value (like 9999999) 
+    // setTimeout(() => { eltOutputText.scrollTop = 9e9 }, 10);
+
+    // Force an instant layout jump, bypassing CSS transitions
+    /*
+    eltOutputText.style.scrollBehavior = 'auto';
+    eltOutputText.scrollTop = eltOutputText.scrollHeight;
+
+    // Put the smooth transition back for normal user scrolling
+    requestAnimationFrame(() => {
+        eltOutputText.style.scrollBehavior = 'smooth';
+    });
+    */
+
+    // A simple function to cleanly separate your logic across browser event ticks
+    /*
+    const waitForRender = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    async function appendAndScroll() {
+        eltOutputText.appendChild(eltOut);
+
+        // Pause execution entirely until the browser flushes the layout queue
+        await waitForRender();
+
+        // Directly execute the scrolling movement
+        eltOutputText.scrollTo({
+            top: eltOutputText.scrollHeight,
+            behavior: 'auto' // 'auto' ensures immediate jumping, bypassing transition freezes
+        });
+    }
+
+    appendAndScroll();
+    */
+
+
     const eltEditButtons = document.getElementById("edit-buttons");
     eltEditButtons.inert = false;
 }
@@ -564,7 +627,7 @@ function displayPage() {
         }
 
         // eltOutputText
-        console.warn("deepgramCallback: ", objDetails);
+        // console.warn("deepgramCallback: ", objDetails);
         switch (what) {
             case "websocket-open":
                 debugOutput(what);
@@ -601,7 +664,11 @@ function displayPage() {
                     eltOut.dataset.orig = text;
                     eltOut.classList.add("final-out");
                     eltOutputText.appendChild(eltOut);
+                    eltOut.scrollIntoView();
                 }
+                break;
+            case "endpoint":
+                // FIX-ME: what to do here??
                 break;
             default:
                 console.error(`Unknown what=="${what}"`);

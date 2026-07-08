@@ -2,6 +2,13 @@
  * Deepgram Real-time Speech-to-Text Client (ESM Module)
  * Uses AudioWorklet for modern browser compatibility + basic VAD.
  */
+// @ts-check
+const DEEPGRAM_grok_VER = "0.0.01";
+// ts-ignore
+// logConsole(`here is deepgram.js, module,${DEEPGRAM_VER}`);
+console.log(`here is deepgram.js, module,${DEEPGRAM_grok_VER}`);
+if (document.currentScript) throw Error("import .currentScript"); // is module
+
 
 let reportErrorCodeFun;
 export function setReportErrorCodeFun(fun) {
@@ -95,7 +102,9 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
 
 
     ////// mediaRecorder version is from Gemini
+    /** @type {MediaRecorder|null} */
     let mediaRecorder = null;
+    let chunkInterval = null;
 
     /**
      * Start real-time transcription from the microphone
@@ -108,7 +117,13 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
         silenceFrameCount = 0;
 
         try {
-            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaStream = await navigator.mediaDevices.getUserMedia({
+                // audio: true
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            });
             // #region test mic code
             /*
             {
@@ -177,8 +192,8 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                 sp.set("smart_format", "true");
                 sp.set("interim_results", "true");
 
-                sp.set("encoding", "linear16");
-                sp.set("sample_rate", "16000");
+                // sp.set("encoding", "linear16");
+                // sp.set("sample_rate", "16000");
 
                 // sp.set("vad_events", "true");
                 sp.set("endpoint", "1000");
@@ -214,8 +229,9 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                 // 3. Listen for audio data chunks from the browser
                 mediaRecorder.ondataavailable = async (event) => {
                     if (event.data.size > 0 && socket?.readyState === WebSocket.OPEN) {
+                        /*
                         // 🔍 CHECK 1: Log the raw browser file type being emitted
-                        console.log(`Blob Size: ${event.data.size} bytes | MimeType: ${event.data.type}`);
+                        // console.log(`Blob Size: ${event.data.size} bytes | MimeType: ${event.data.type}`);
 
                         // 🔍 CHECK 2: Convert to ArrayBuffer to inspect the actual bytes
                         const buffer = await event.data.arrayBuffer();
@@ -225,7 +241,8 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                         const hexHeader = Array.from(view.slice(0, 4))
                             .map(b => b.toString(16).padStart(2, '0'))
                             .join(' ');
-                        console.log(`First 4 bytes of packet: [${hexHeader}]`);
+                        // console.log(`First 4 bytes of packet: [${hexHeader}]`);
+                        */
 
                         // Send the compressed native container blob directly
                         socket.send(event.data);
@@ -234,12 +251,22 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
 
                 // 4. Start recording and emit data chunks every 250 milliseconds
                 // This continuous stream natively prevents the 1011 timeout error!
-                mediaRecorder.start(250);
+                // mediaRecorder.start(250);
+                mediaRecorder.start();
+                chunkInterval = setInterval(() => {
+                    if (mediaRecorder == null) {
+                        debugger;
+                        throw Error(`mediaRecorder==null`);
+                    }
+                    if (mediaRecorder.state === "recording") {
+                        mediaRecorder.requestData();
+                    }
+                }, 1000);
             };
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                console.log("socket.onmessage", { data });
+                // console.log("socket.onmessage", { data });
                 // Core STT Fields
                 if (data.channel.alternatives[0]) {
                     const alternative = data.channel.alternatives[0];
@@ -247,7 +274,7 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
                     const isFinal = Boolean(data.is_final);
                     const speechFinal = Boolean(data.speech_final);
                     // words = alternative.words
-                    console.log(`transcript: "${transcript}"`, isFinal, speechFinal, { alternative });
+                    // console.log(`onmessage, transcript: "${transcript}"`, isFinal, speechFinal, { alternative });
 
                     if (transcript.length > 0) {
                         callBackToUser("transcript", { transcript, isFinal, speechFinal });

@@ -274,7 +274,10 @@
             logTrace("Initializing microphone input device...");
             try {
                 mediaStream = await navigator.mediaDevices.getUserMedia({
-                    audio: { echoCancellation: true, noiseSuppression: true }
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    }
                 });
 
                 // Start Local Mic Hardware Volume Tester Loop
