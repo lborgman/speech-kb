@@ -465,7 +465,7 @@ function displayPage() {
         if (on) {
             // btnStart.inert = true;
             // btnStop.inert = false;
-            document.documentElement.classList.add("mic-on");
+            document.documentElement.classList.add("mic-is-on");
             eltMicStatus.textContent = "Microphone is on";
         } else {
             // btnStart.inert = false;
@@ -475,10 +475,11 @@ function displayPage() {
                 // eltMicStatus.textContent = "";
                 tellTapMic(eltMicStatus);
             }
-            document.documentElement.classList.remove("mic-on");
+            document.documentElement.classList.remove("mic-is-on");
         }
     }
 
+    /*
     const eltMic = mkElt("div");
     eltMic.title = "- Turn mic on/off";
     eltMic.classList.add("mic-btn");
@@ -492,12 +493,30 @@ function displayPage() {
             `;
     eltMic.addEventListener("click", evt => {
         evt.stopPropagation();
-        const isOn = document.documentElement.classList.contains("mic-on");
+        const isOn = document.documentElement.classList.contains("mic-is-on");
         if (isOn) {
             userStopListening();
         } else {
             userStartListening();
         }
+    });
+    */
+    const eltMicOff = mkElt("div");
+    eltMicOff.id = "mic-off";
+    eltMicOff.classList.add("mic-btn");
+    eltMicOff.style.backgroundImage = "url(./img/gmic-gray.svg)";
+    eltMicOff.addEventListener("click", evt => {
+        evt.stopPropagation();
+        userStartListening();
+    });
+
+    const eltMicOn = mkElt("div");
+    eltMicOn.id = "mic-on";
+    eltMicOn.classList.add("mic-btn");
+    eltMicOn.style.backgroundImage = "url(./img/gmic-greenyellow.svg)";
+    eltMicOn.addEventListener("click", evt => {
+        evt.stopPropagation();
+        userStopListening();
     });
 
     // const eltMicStatus = mkElt("div", { id: "mic-status" }, "↫ Tap mic to speak");
@@ -512,7 +531,8 @@ function displayPage() {
 
     const divOnOffButtons = document.getElementById("on-off-buttons");
     // divOnOffButtons.append(btnStart, btnStop, eltMic);
-    const eltTheMic = mkElt("span", { id: "the-mic" }, [eltMic, eltMicStatus]);
+    const eltBothMics = mkElt("div", undefined, [eltMicOff, eltMicOn])
+    const eltTheMic = mkElt("span", { id: "the-mic" }, [eltBothMics, eltMicStatus]);
     const inpModel = settingAdvancedSpeech.getInputElement();
     const lblModel = mkElt("label", undefined, [
         "More accurate: ",

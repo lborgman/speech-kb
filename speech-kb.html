@@ -135,6 +135,7 @@
             max-height: 80px;
             overflow: auto;
             color: orange;
+
             div:first-child {
                 color: red;
             }
@@ -188,20 +189,39 @@
         }
 
 
-        .mic-on select#speech-lang-chrome {
-            outline: 4px solid #0a9b5d
-        }
 
-        .mic-on .mic-btn {
-            /* Inverts light grey to a dark baseline, then pumps up saturation into emerald green */
-            filter: invert(56%) sepia(82%) saturate(497%) hue-rotate(103deg) brightness(87%) contrast(92%);
-        }
-
-        /* .mic-off */
         .mic-btn {
-            /* Inverts the light grey to a deep base and shifts the hue into a cool, professional slate grey */
-            filter: invert(34%) sepia(16%) saturate(697%) hue-rotate(176deg) brightness(91%) contrast(87%);
+            background-size: contain;
+            NOoutline: 1px dotted red;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
         }
+
+        #mic-on {
+            display: none;
+        }
+
+        .mic-is-on {
+            #mic-on {
+                display: block;
+            }
+
+            #mic-off {
+                display: none;
+            }
+        }
+
+        /*
+        :not(.mic-is-on #mic-off) {
+            display: block;
+        }
+        #mic-off:not(.mic-is-on) {
+            display: block;
+        }
+        */
+
+
 
         #doc-name {
             color: red;
@@ -260,7 +280,7 @@
 
                 <!-- Chinese -->
                 <optgroup label="Chinese">
-                    <option value="zh-CN" >Chinese (Mandarin Simplified)</option>
+                    <option value="zh-CN">Chinese (Mandarin Simplified)</option>
                     <option value="zh-TW">Chinese (Taiwanese Mandarin)</option>
                     <option value="zh-HK">Chinese (Hong Kong Cantonese)</option>
                 </optgroup>
