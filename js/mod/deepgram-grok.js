@@ -18,10 +18,11 @@ export function setReportErrorCodeFun(fun) {
  * Creates a Deepgram real-time transcriber instance.
  *
  * @param {string} apiKey - Deepgram API key
+ * @param {string} language - BCP-47 language specifier
  * @param {Function} [callBackToUser] - Optional callback for transcripts (transcript, isFinal)
  * @returns {DeepgramTranscriber} Transcriber instance
  */
-export function createDeepgramTranscriber(apiKey, callBackToUser) {
+export function createDeepgramTranscriber(apiKey, language, callBackToUser) {
     const tofApiKey = typeof apiKey;
     if (tofApiKey != "string") {
         debugger;
@@ -189,6 +190,7 @@ export function createDeepgramTranscriber(apiKey, callBackToUser) {
 
                 //// https://gemini.google.com/app/71c1425c0f0725e3
                 sp.set("model", "nova-2");
+                sp.set("language", language);
                 sp.set("smart_format", "true");
                 sp.set("interim_results", "true");
 

@@ -27,6 +27,33 @@ class OurLocalSetting extends modLocalSettings.LocalSetting {
     }
 
 }
+
+class SettingSelect {
+    constructor(storingPrefix, eltSelect, defaultValue) {
+        this.eltSelect = eltSelect;
+        const id = eltSelect.id;
+        if (!id || id.length == 0) {
+            const msg = "eltSelect has no id";
+            console.error(msg, eltSelect);
+            debugger;
+            throw Error(msg);
+        }
+        this.storingPrefix = storingPrefix;
+        const strDefault = defaultValue || eltSelect.value;
+        const tofDefault = typeof strDefault;
+        if (tofDefault != "string") {
+            debugger;
+            throw Error("strDefault is not a string");
+        }
+        const storer = new modLocalSettings.LocalSetting(storingPrefix, id, strDefault);
+        this.storer = storer;
+        eltSelect.value = storer.value;
+        eltSelect.addEventListener("input", () => {
+            debugger;
+            storer.value = eltSelect.value;
+        })
+    }
+}
 const strNoDoc = "(no document)";
 const settingCurrentDoc = new OurLocalSetting("current-doc", strNoDoc);
 const settingAdvancedSpeech = new OurLocalSetting("advanced-speech", false);
@@ -45,10 +72,15 @@ function getElementOutputText() {
 const eltOutputText = document.getElementById("output-text");
 if (!eltOutputText) throw Error("Did not find output-text");
 
-// debugger;
 const eltMicStatus = document.getElementById("mic-status");
-const langSelect = document.getElementById('speech-lang-chrome');
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const langSelectChrome = document.getElementById('speech-lang-chrome');
+new SettingSelect(STORING_PREFIX, langSelectChrome);
+const langSelectDeepgram = document.getElementById('speech-lang-deepgram');
+new SettingSelect(STORING_PREFIX, langSelectDeepgram);
+
+// const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SpeechRecognition = window.SpeechRecognition;
 const recognition = new SpeechRecognition();
 
 // CRITICAL: Set to true so the microphone stays open 
@@ -399,12 +431,18 @@ function displayPage() {
                 console.log({ modDeepgram });
                 // const apiKey = settingDeepgramApiKey.valueS;
                 const apiKey = settingDeepgramApiKey.getValueS();
-                transcriber = modDeepgram.createDeepgramTranscriber(apiKey, transcriberCallback);
+                const langSelect = document.getElementById("speech-lang-deepgram");
+                if (!(langSelect instanceof HTMLSelectElement)) {
+                    debugger;
+                    throw Error("Did not find speech-lang-deepgram");
+                }
+                const lang = langSelect.value;
+                transcriber = modDeepgram.createDeepgramTranscriber(apiKey, lang, transcriberCallback);
                 console.log({ transcriber });
             }
             transcriber.start();
         } else {
-            recognition.lang = langSelect.value;
+            recognition.lang = langSelectChrome.value;
             recognition.start();
         }
     }
