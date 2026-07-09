@@ -250,6 +250,42 @@
                 color: green;
             }
         }
+
+        select.select-lang:disabled {
+            outline: 4px solid greenyellow;
+            background: wheat;
+            color: black;
+        }
+
+        select.select-lang {
+            position: relative;
+        }
+
+        select.select-lang:disabled::after {
+            content: "locked";
+            color: red;
+            position: absolute;
+            top: 0;
+            left: 0;
+            outline: 2px dotted red;
+        }
+
+
+        div.select-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        div.select-container:has(select:disabled)::after {
+            content: '✔';
+            position: absolute;
+            font-size: 16px;
+            color: greenyellow;
+            transform: translate(-13px, -32%);
+            outline: 3px solid;
+            background: black;
+            padding: 2px;
+        }
     </style>
     <script src="./init-error-new.js"></script>
     <script src="./importmaps.js"></script>
@@ -270,96 +306,98 @@
 
     <div id="inputs">
         <label>
-            <select class="select-lang" id="speech-lang-chrome" name="speech-lang-chrome">
-                <!-- Arabic -->
-                <optgroup label="Arabic">
-                    <option value="ar-EG">Arabic (Egypt)</option>
-                    <option value="ar-SA">Arabic (Saudi Arabia)</option>
-                    <option value="ar-AE">Arabic (UAE)</option>
-                </optgroup>
+            <div class="select-container">
+                <select class="select-lang" id="speech-lang-chrome" name="speech-lang-chrome">
+                    <!-- Arabic -->
+                    <optgroup label="Arabic">
+                        <option value="ar-EG">Arabic (Egypt)</option>
+                        <option value="ar-SA">Arabic (Saudi Arabia)</option>
+                        <option value="ar-AE">Arabic (UAE)</option>
+                    </optgroup>
 
-                <!-- Chinese -->
-                <optgroup label="Chinese">
-                    <option value="zh-CN">Chinese (Mandarin Simplified)</option>
-                    <option value="zh-TW">Chinese (Taiwanese Mandarin)</option>
-                    <option value="zh-HK">Chinese (Hong Kong Cantonese)</option>
-                </optgroup>
+                    <!-- Chinese -->
+                    <optgroup label="Chinese">
+                        <option value="zh-CN">Chinese (Mandarin Simplified)</option>
+                        <option value="zh-TW">Chinese (Taiwanese Mandarin)</option>
+                        <option value="zh-HK">Chinese (Hong Kong Cantonese)</option>
+                    </optgroup>
 
-                <!-- English -->
-                <optgroup label="English">
-                    <option value="en-US" selected>English (United States)</option>
-                    <option value="en-GB">English (United Kingdom)</option>
-                    <option value="en-AU">English (Australia)</option>
-                    <option value="en-CA">English (Canada)</option>
-                    <option value="en-IN">English (India)</option>
-                    <option value="en-NZ">English (New Zealand)</option>
-                    <option value="en-ZA">English (South Africa)</option>
-                </optgroup>
+                    <!-- English -->
+                    <optgroup label="English">
+                        <option value="en-US" selected>English (United States)</option>
+                        <option value="en-GB">English (United Kingdom)</option>
+                        <option value="en-AU">English (Australia)</option>
+                        <option value="en-CA">English (Canada)</option>
+                        <option value="en-IN">English (India)</option>
+                        <option value="en-NZ">English (New Zealand)</option>
+                        <option value="en-ZA">English (South Africa)</option>
+                    </optgroup>
 
-                <!-- French -->
-                <optgroup label="French">
-                    <option value="fr-FR">French (France)</option>
-                    <option value="fr-CA">French (Canada)</option>
-                    <option value="fr-CH">French (Switzerland)</option>
-                </optgroup>
+                    <!-- French -->
+                    <optgroup label="French">
+                        <option value="fr-FR">French (France)</option>
+                        <option value="fr-CA">French (Canada)</option>
+                        <option value="fr-CH">French (Switzerland)</option>
+                    </optgroup>
 
-                <!-- German -->
-                <optgroup label="German">
-                    <option value="de-DE">German (Germany)</option>
-                    <option value="de-AT">German (Austria)</option>
-                    <option value="de-CH">German (Switzerland)</option>
-                </optgroup>
+                    <!-- German -->
+                    <optgroup label="German">
+                        <option value="de-DE">German (Germany)</option>
+                        <option value="de-AT">German (Austria)</option>
+                        <option value="de-CH">German (Switzerland)</option>
+                    </optgroup>
 
-                <!-- Italian -->
-                <optgroup label="Italian">
-                    <option value="it-IT">Italian (Italy)</option>
-                    <option value="it-CH">Italian (Switzerland)</option>
-                </optgroup>
+                    <!-- Italian -->
+                    <optgroup label="Italian">
+                        <option value="it-IT">Italian (Italy)</option>
+                        <option value="it-CH">Italian (Switzerland)</option>
+                    </optgroup>
 
-                <!-- Japanese & Korean -->
-                <optgroup label="East Asian">
-                    <option value="ja-JP">Japanese</option>
-                    <option value="ko-KR">Korean</option>
-                </optgroup>
+                    <!-- Japanese & Korean -->
+                    <optgroup label="East Asian">
+                        <option value="ja-JP">Japanese</option>
+                        <option value="ko-KR">Korean</option>
+                    </optgroup>
 
-                <!-- Portuguese -->
-                <optgroup label="Portuguese">
-                    <option value="pt-BR">Portuguese (Brazil)</option>
-                    <option value="pt-PT">Portuguese (Portugal)</option>
-                </optgroup>
+                    <!-- Portuguese -->
+                    <optgroup label="Portuguese">
+                        <option value="pt-BR">Portuguese (Brazil)</option>
+                        <option value="pt-PT">Portuguese (Portugal)</option>
+                    </optgroup>
 
-                <!-- Spanish -->
-                <optgroup label="Spanish">
-                    <option value="es-ES">Spanish (Spain)</option>
-                    <option value="es-MX">Spanish (Mexico)</option>
-                    <option value="es-US">Spanish (United States)</option>
-                    <option value="es-AR">Spanish (Argentina)</option>
-                    <option value="es-CO">Spanish (Colombia)</option>
-                </optgroup>
+                    <!-- Spanish -->
+                    <optgroup label="Spanish">
+                        <option value="es-ES">Spanish (Spain)</option>
+                        <option value="es-MX">Spanish (Mexico)</option>
+                        <option value="es-US">Spanish (United States)</option>
+                        <option value="es-AR">Spanish (Argentina)</option>
+                        <option value="es-CO">Spanish (Colombia)</option>
+                    </optgroup>
 
-                <!-- Other Languages -->
-                <optgroup label="Other Major Languages">
-                    <option value="ca-ES">Catalan</option>
-                    <option value="cs-CZ">Czech</option>
-                    <option value="da-DK">Danish</option>
-                    <option value="nl-NL">Dutch (Netherlands)</option>
-                    <option value="fi-FI">Finnish</option>
-                    <option value="el-GR">Greek</option>
-                    <option value="he-IL">Hebrew</option>
-                    <option value="hi-IN">Hindi</option>
-                    <option value="hu-HU">Hungarian</option>
-                    <option value="id-ID">Indonesian</option>
-                    <option value="no-NO">Norwegian</option>
-                    <option value="pl-PL">Polish</option>
-                    <option value="ro-RO">Romanian</option>
-                    <option value="ru-RU">Russian</option>
-                    <option value="sv-SE">Swedish</option>
-                    <option value="th-TH">Thai</option>
-                    <option value="tr-TR">Turkish</option>
-                    <option value="uk-UA">Ukrainian</option>
-                    <option value="vi-VN">Vietnamese</option>
-                </optgroup>
-            </select>
+                    <!-- Other Languages -->
+                    <optgroup label="Other Major Languages">
+                        <option value="ca-ES">Catalan</option>
+                        <option value="cs-CZ">Czech</option>
+                        <option value="da-DK">Danish</option>
+                        <option value="nl-NL">Dutch (Netherlands)</option>
+                        <option value="fi-FI">Finnish</option>
+                        <option value="el-GR">Greek</option>
+                        <option value="he-IL">Hebrew</option>
+                        <option value="hi-IN">Hindi</option>
+                        <option value="hu-HU">Hungarian</option>
+                        <option value="id-ID">Indonesian</option>
+                        <option value="no-NO">Norwegian</option>
+                        <option value="pl-PL">Polish</option>
+                        <option value="ro-RO">Romanian</option>
+                        <option value="ru-RU">Russian</option>
+                        <option value="sv-SE">Swedish</option>
+                        <option value="th-TH">Thai</option>
+                        <option value="tr-TR">Turkish</option>
+                        <option value="uk-UA">Ukrainian</option>
+                        <option value="vi-VN">Vietnamese</option>
+                    </optgroup>
+                </select>
+            </div>
             <select class="select-lang" name="deepgram_language" id="speech-lang-deepgram">
                 <option value="" disabled selected>Select a language...</option>
 
