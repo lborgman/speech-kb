@@ -518,6 +518,9 @@ function displayPage() {
         "More accurate: ",
         inpModel
     ]);
+    if (inpModel.checked) {
+        document.documentElement.classList.add("websocket-model");
+    }
     inpModel.addEventListener("change", async evt => {
         console.log(inpModel.checked);
         if (inpModel.checked) {
