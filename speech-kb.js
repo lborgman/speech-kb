@@ -250,10 +250,10 @@ function yourAppHandleResult(text) {
 
     eltOut.scrollIntoView();
 
-    console.log('AFTER scrollIntoView scrollTop:', eltOutputText.scrollTop);
+    // console.log('AFTER scrollIntoView scrollTop:', eltOutputText.scrollTop);
 
     eltOutputText.scrollTop = eltOutputText.scrollHeight;
-    console.log('AFTER manual scrollTop set:', eltOutputText.scrollTop);
+    // console.log('AFTER manual scrollTop set:', eltOutputText.scrollTop);
 
 
 
@@ -524,6 +524,7 @@ function displayPage() {
                 display: flex;
                 align-content: center;
                 flex-wrap: wrap;
+                display: none;
             `;
 
     const divOnOffButtons = document.getElementById("on-off-buttons");
@@ -532,7 +533,7 @@ function displayPage() {
     const eltTheMic = mkElt("span", { id: "the-mic" }, [eltBothMics, eltMicStatus]);
     const inpModel = settingAdvancedSpeech.getInputElement();
     const lblModel = mkElt("label", undefined, [
-        "More accurate: ",
+        "Advanced: ",
         inpModel
     ]);
     if (inpModel.checked) {
@@ -598,7 +599,15 @@ function displayPage() {
             }
         }
     });
-    const eltModel = mkElt("span", { id: "the-model" }, lblModel);
+    const btnKey = modBasicUI.mkIconButton("🔑");
+    btnKey.id = "btn-key";
+    const eltKey = mkElt("span", undefined, btnKey)
+    const eltModel = mkElt("span", { id: "the-model" }, [lblModel, eltKey]);
+    eltModel.style = `
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    `;
     divOnOffButtons.append(eltTheMic, eltModel);
 
 

@@ -90,6 +90,8 @@
         #on-off-buttons {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
         }
 
         #the-mic {
@@ -127,6 +129,18 @@
             gap: 10px;
             margin-left: 20px;
         }
+
+        #btn-key {
+            background-color: blueviolet;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            visibility: hidden;
+        }
+        .websocket-model #btn-key {
+            visibility: visible;
+        }
+
 
         #debug {
             margin-top: 15px;
