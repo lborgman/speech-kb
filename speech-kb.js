@@ -229,7 +229,7 @@ recognition.addEventListener("end", () => {
 
 // Example: Replace with your app's function
 function yourAppHandleResult(text) {
-    console.log("Reporting to app:", text);
+    // console.log("Reporting to app:", text);
     // Your app logic here (e.g., update a textarea, send to server, etc.)
     const eltOut = mkElt("div", undefined, text);
     eltOut.dataset.orig = text;
@@ -243,10 +243,12 @@ function yourAppHandleResult(text) {
     eltOutputText.appendChild(eltOut);
 
     const cs = getComputedStyle(eltOutputText);
+    /*
     console.log('overflow-y:', cs.overflowY, 'height:', cs.height, 'max-height:', cs.maxHeight);
     console.log('scrollTop:', eltOutputText.scrollTop,
         'scrollHeight:', eltOutputText.scrollHeight,
         'clientHeight:', eltOutputText.clientHeight);
+    */
 
     eltOut.scrollIntoView();
 
@@ -936,9 +938,8 @@ const config = {
     characterData: true
 };
 
+/*
 function startMonitoringOutputText() {
-    // const targetElement = document.getElementById("output-text");
-    // observerOutputText.observe(targetElement, config);
     observerOutputText.observe(eltOutputText, config);
     console.log("Observer activated.");
 }
@@ -946,13 +947,12 @@ function stopMonitoringOutputText() {
     observerOutputText.disconnect();
     console.log("Observer stopped.");
 }
+*/
 
 {
     displayDocInfo();
     let theDocName = settingCurrentDoc.valueS;
     if (theDocName != strNoDoc) {
-        // loadDoc(theDocName);
-        // checkEditButtonsState();
         doTheDocLoading(theDocName);
     }
 }
@@ -999,5 +999,5 @@ function checkEditButtonsState() {
     eltEditButtons.inert = !!!eltOut;
 }
 
-startMonitoringOutputText();
+// startMonitoringOutputText();
 
