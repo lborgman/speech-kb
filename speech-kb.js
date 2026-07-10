@@ -982,17 +982,18 @@ async function deepGramDialog() {
     inpKey.style.width = "100%";
     const keyVal = settingDeepgramApiKey.getValueS();
     const sts1006 = settingWebsocket1006.value;
-    const eltKeyStatus = mkElt("div");
-    eltKeyStatus.style.padding = "4px";
+    const eltKeyStatus = mkElt("div", { id: "elt-advanced-key-status" });
+    // eltKeyStatus.style.padding = "4px";
     if (keyVal.length == 0) {
         eltKeyStatus.textContent = "(no saved key found)";
         eltKeyStatus.style.opacity = "0.5";
     } else {
         if (sts1006) {
-            eltKeyStatus.textContent = "Your current key might be invalid";
-            eltKeyStatus.style.color = "red";
+            eltKeyStatus.style.color = "darkred";
+            eltKeyStatus.textContent = "Your current key might be invalid!";
         } else {
-            eltKeyStatus.textContent = "As far as we know this key is ok";
+            eltKeyStatus.style.color = "currentColor";
+            eltKeyStatus.textContent = "As far as we know this key is ok.";
         }
     }
     inpKey.addEventListener("input", evt => {
@@ -1012,10 +1013,9 @@ async function deepGramDialog() {
         mkElt("p", undefined, [
             `You need a valid API key for Deepgram for this!`
         ]),
-        // mkElt("lbl", undefined, ["Deepgram API key: ", inpKey]),
-        mkElt("div", undefined, "Deepgram API key: "),
-        inpKey,
         eltKeyStatus,
+        mkElt("div", { style: "margin-bottom: 4px;" }, "Deepgram API key: "),
+        inpKey,
         mkElt("p", undefined, aDeepgram)
     ]);
     // FIX-ME:
