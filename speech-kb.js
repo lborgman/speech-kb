@@ -534,6 +534,9 @@ function displayPage() {
     const eltBothMics = mkElt("div", undefined, [eltMicOff, eltMicOn])
     const eltTheMic = mkElt("span", { id: "the-mic" }, [eltBothMics, eltMicStatus]);
     const inpModel = settingAdvancedSpeech.getInputElement();
+    inpModel.style.backgroundColor = "var(--color-for-advanced)";
+    inpModel.style.borderColor = "var(--color-for-advanced)";
+    inpModel.style.color = "var(--color-text-for-advanced)";
     const lblModel = mkElt("label", undefined, [
         "Advanced: ",
         inpModel
@@ -601,7 +604,8 @@ function displayPage() {
             }
         }
     });
-    const btnKey = modBasicUI.mkIconButton("🔑");
+    // const btnKey = modBasicUI.mkIconButton("⚿");
+    const btnKey = modBasicUI.mkIconButton("⚲");
     btnKey.id = "btn-key";
     const eltKey = mkElt("span", undefined, btnKey)
     const eltModel = mkElt("span", { id: "the-model" }, [lblModel, eltKey]);
@@ -1000,4 +1004,3 @@ function checkEditButtonsState() {
 }
 
 // startMonitoringOutputText();
-

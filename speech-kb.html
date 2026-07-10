@@ -11,6 +11,9 @@
             --color-for-edit: orange;
             --color-for-edit: lightblue;
             --color-for-edit: yellow;
+            --color-for-advanced: blueviolet;
+            --color-for-advanced: #b27de3;
+            --color-text-for-advanced: black;
             background-color: black;
             background-color: #130b0b;
             color: white;
@@ -132,6 +135,8 @@
 
         #btn-key {
             background-color: blueviolet;
+            background-color: var(--color-for-advanced);
+            color: var(--color-text-for-advanced);
             display: flex;
             align-items: center;
             font-size: 16px;
@@ -196,6 +201,8 @@
         select#speech-lang-deepgram {
             display: none;
             background-color: blueviolet;
+            background-color: var(--color-for-advanced);
+            color: var(--color-text-for-advanced);
         }
 
         .websocket-model select#speech-lang-deepgram {
