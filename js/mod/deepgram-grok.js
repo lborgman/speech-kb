@@ -198,7 +198,7 @@ export function createDeepgramTranscriber(apiKey, language, callBackToUser) {
                 // sp.set("sample_rate", "16000");
 
                 // sp.set("vad_events", "true");
-                sp.set("endpoint", "1000");
+                sp.set("endpointing", "1000");
                 // sp.set("diarize", "true"); // Speaker detection
                 // sp.set("paragraphs", "true"); // Changes the JSON output format
 
