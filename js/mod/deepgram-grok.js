@@ -189,7 +189,8 @@ export function createDeepgramTranscriber(apiKey, language, callBackToUser) {
 
 
                 //// https://gemini.google.com/app/71c1425c0f0725e3
-                sp.set("model", "nova-2");
+                // sp.set("model", "nova-2");
+                sp.set("model", "nova-3");
                 sp.set("language", language);
                 sp.set("smart_format", "true");
                 sp.set("interim_results", "true");
