@@ -551,6 +551,7 @@ function displayPage() {
         } else {
             document.documentElement.classList.remove("websocket-model");
         }
+        return;
         if (inpModel.checked) {
             // deepGramDialog();
             checkDeepGram();
@@ -565,11 +566,13 @@ function displayPage() {
     })
     const eltKey = mkElt("span", undefined, btnKey)
     const eltModel = mkElt("span", { id: "the-model" }, [lblModel, eltKey]);
+    /*
     eltModel.style = `
         display: flex;
         gap: 10px;
         align-items: center;
     `;
+    */
     divOnOffButtons.append(eltTheMic, eltModel);
 
 
