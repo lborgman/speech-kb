@@ -422,7 +422,8 @@ function displayPage() {
         }
         modBasicUI.displayMenu(dialogMenu, objDlgPosition);
 
-    })
+    });
+    let seenWebSocketError;
     async function userStartListening() {
         shouldKeepListening = true;
         if (settingAdvancedSpeech.getValueB()) {
@@ -431,6 +432,21 @@ function displayPage() {
                 console.log({ modDeepgram });
                 // const apiKey = settingDeepgramApiKey.valueS;
                 const apiKey = settingDeepgramApiKey.getValueS();
+                debugger;
+                if (apiKey.length == 0) {
+                    shouldKeepListening = false;
+                    const bdy = mkElt("div", undefined, [
+                        mkElt("h2", undefined, "No API key"),
+                        mkElt("p", undefined, "You need an API key for Deepgram."),
+                        mkElt("p", { style: "font-style:italic;" }, `
+                            Tip: You can turn off Advanced mode.
+                            The basic mode is totally free and does not require an API key.
+                            `)
+
+                    ]);
+                    modBasicUI.showDialog(bdy);
+                    return;
+                }
                 const langSelect = document.getElementById("speech-lang-deepgram");
                 if (!(langSelect instanceof HTMLSelectElement)) {
                     debugger;
@@ -440,6 +456,7 @@ function displayPage() {
                 transcriber = modDeepgram.createDeepgramTranscriber(apiKey, lang, transcriberCallback);
                 console.log({ transcriber });
             }
+            seenWebSocketError = false;
             transcriber.start();
         } else {
             recognition.lang = langSelectChrome.value;
@@ -545,7 +562,7 @@ function displayPage() {
         document.documentElement.classList.add("websocket-model");
     }
     inpModel.addEventListener("change", async evt => {
-        console.log(inpModel.checked);
+        // console.log(inpModel.checked);
         if (inpModel.checked) {
             document.documentElement.classList.add("websocket-model");
         } else {
@@ -674,8 +691,21 @@ function displayPage() {
                 break;
             case "websocket1006":
                 debugOutput(what);
-                debugger;
+                // debugger;
                 settingWebsocket1006.value = objDetails;
+                {
+                    // debugger;
+                    const bdy = mkElt("div", undefined, [
+                        mkElt("h2", { style: "color:red;" }, "Could not connect"),
+                        mkElt("p", { style: "font-weight:bold;" }, "Your API key for Deepgram might be invalid."),
+                        mkElt("p", { style: "font-style:italic;" }, `
+                            Tip: You can turn off Advanced mode.
+                            The basic mode is totally free and does not require an API key.
+                            `)
+                    ]);
+                    modBasicUI.showDialog(bdy);
+                }
+
                 break;
             case "transcript":
                 const isFinal = objDetails.isFinal;
@@ -706,8 +736,8 @@ function displayPage() {
                 // FIX-ME: what to do here??
                 break;
             case "websocket-error":
-                settingAdvancedSpeech.value = false;
-                alert(what);
+                // settingAdvancedSpeech.value = false;
+                seenWebSocketError = true;
                 break;
             default:
                 console.error(`Unknown what=="${what}"`);
@@ -975,7 +1005,7 @@ async function checkDeepGram() {
     }
     const sts1006 = settingWebsocket1006.getValueB();
     if (sts1006) {
-        settingAdvancedSpeech.value = false;
+        // settingAdvancedSpeech.value = false;
         deepGramDialog();
         return;
     }

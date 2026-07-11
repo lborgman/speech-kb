@@ -299,7 +299,7 @@ export function createDeepgramTranscriber(apiKey, language, callBackToUser) {
                 console.log("WebSocket closed", { evt, code, reason, wasClean });
                 callBackToUser("websocket-close", { code, reason, wasClean });
                 if (code === 1006) {
-                    debugger; // This should not happen now?
+                    // debugger; // This should not happen now?
                     callBackToUser("websocket1006", true);
                 }
                 // Clean up recorder if it's still running natively
