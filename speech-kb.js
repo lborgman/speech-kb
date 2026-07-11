@@ -430,13 +430,12 @@ function displayPage() {
             if (!transcriber) {
                 const modDeepgram = await importFc4i("deepgram")
                 console.log({ modDeepgram });
-                // const apiKey = settingDeepgramApiKey.valueS;
                 const apiKey = settingDeepgramApiKey.getValueS();
-                debugger;
+                // debugger;
                 if (apiKey.length == 0) {
                     shouldKeepListening = false;
                     const bdy = mkElt("div", undefined, [
-                        mkElt("h2", undefined, "No API key"),
+                        mkElt("h2", { style: "color:red;" }, "No API key"),
                         mkElt("p", undefined, "You need an API key for Deepgram."),
                         mkElt("p", { style: "font-style:italic;" }, `
                             Tip: You can turn off Advanced mode.
