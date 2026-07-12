@@ -676,12 +676,16 @@ function displayPage() {
         // Attach the same listener to both scroll and resize for total accuracy
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', handleViewportChange);
+            window.visualViewport.addEventListener('scroll', handleViewportChange);
             // window.visualViewport.addEventListener('scroll', handleViewportChange); // Necessary for mobile pinch-zooming
         }
 
         const ans = await modBasicUI.showDialogConfirm(bdy, "Save");
         console.log({ ans });
-        window.visualViewport.removeEventListener('resize', handleViewportChange);
+        if (window.visualViewport) {
+            window.visualViewport.removeEventListener('resize', handleViewportChange);
+            window.visualViewport.removeEventListener('scroll', handleViewportChange);
+        }
         if (!ans) {
             modBasicUI.snackbar("Aborted", 2);
             return;
