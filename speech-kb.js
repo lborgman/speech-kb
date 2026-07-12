@@ -636,7 +636,8 @@ function displayPage() {
     });
     btnEdit.addEventListener("click", async evt => {
         evt.stopPropagation();
-        console.log({ modBasicUI });
+        userStopListening();
+        // console.log({ modBasicUI });
         // debugger;
         const ta = mkElt("textarea", { id: "textarea-edit" }, eltOutputText.textContent);
         const bdy = mkElt("div", undefined, [

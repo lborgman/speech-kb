@@ -827,6 +827,7 @@ export function displayMenu(dialogMenu, objDialogPosition) {
 // Global Mobile Viewport & Virtual Keyboard Handler
 function monitorVisualViewPort() {
   console.log("monitorVisualViewPort");
+  snackbar("monitorVisualViewPort", 8);
   if (window.visualViewport) {
     let isPending = false;
 
@@ -837,6 +838,8 @@ function monitorVisualViewPort() {
 
       requestAnimationFrame(() => {
         isPending = false;
+
+        console.log("setting height variables");
 
         const visualHeight = window.visualViewport.height;
         const totalHeight = window.innerHeight;
