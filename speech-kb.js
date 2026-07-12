@@ -634,8 +634,30 @@ function displayPage() {
         evt.stopPropagation();
         alert("not ready paragraph");
     });
-    btnEdit.addEventListener("click", evt => {
+    btnEdit.addEventListener("click", async evt => {
         evt.stopPropagation();
+        console.log({modBasicUI});
+        // debugger;
+        const ta = mkElt("textarea", undefined, eltOutputText.textContent);
+        ta.style.width = "80vw";
+        ta.style.height = "50vh";
+        const bdy = mkElt("div", undefined, [
+            mkElt("div", undefined, "Edit"),
+            ta
+        ]);
+        const ans = await modBasicUI.showDialogConfirm(bdy);
+        console.log({ans});
+        if (!ans) {
+            modBasicUI.snackbar("Aborted", 2);
+            return;
+        }
+        debugger;
+        const arrEltFinalOut = docStringToHtml(ta.value);
+        eltOutputText.textContent = "";
+        eltOutputText.append(...arrEltFinalOut);
+        // arrEltFinalOut.forEach()
+        return;
+
         const eltToEdit = getLastFinalOut();
         eltToEdit.setAttribute("contenteditable", true);
         eltToEdit.focus();
@@ -1058,4 +1080,21 @@ async function deepGramDialog() {
     }
     await modBasicUI.showDialog(bdy, checkApiKeyWasGiven);
     // debugger;
+}
+
+
+
+////// Edit
+function docStringToHtml(str) {
+    const arrStr = str.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
+    const arrHtml = arrStr.map(text => {
+        const eltOut = mkElt("div", undefined, text);
+        eltOut.dataset.orig = text;
+        eltOut.classList.add("final-out");
+        return eltOut;
+    });
+    return arrHtml;
+}
+function docHtmlToString(eltHtml) {
+    return eltHtml.textContent;
 }
