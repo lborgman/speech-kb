@@ -638,14 +638,21 @@ function displayPage() {
         evt.stopPropagation();
         console.log({modBasicUI});
         // debugger;
-        const ta = mkElt("textarea", undefined, eltOutputText.textContent);
-        ta.style.width = "80vw";
-        ta.style.height = "50vh";
+        const ta = mkElt("textarea", {id:"textarea-edit"}, eltOutputText.textContent);
         const bdy = mkElt("div", undefined, [
-            mkElt("div", undefined, "Edit"),
+            // mkElt("div", undefined, "Edit"),
             ta
         ]);
-        const ans = await modBasicUI.showDialogConfirm(bdy);
+        setTimeout(() => {
+            // console.log({ta});
+            // debugger;
+            const s = ta.parentElement.nextElementSibling;
+            const s1 = s.firstElementChild;
+            const eltInfo = mkElt("span", undefined, "Keyboard");
+            eltInfo.style.paddingRight = "20px";
+            s.insertBefore(mkElt("span", undefined, eltInfo), s1);
+        }, 200);
+        const ans = await modBasicUI.showDialogConfirm(bdy, "Save");
         console.log({ans});
         if (!ans) {
             modBasicUI.snackbar("Aborted", 2);
