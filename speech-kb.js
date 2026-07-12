@@ -636,9 +636,9 @@ function displayPage() {
     });
     btnEdit.addEventListener("click", async evt => {
         evt.stopPropagation();
-        console.log({modBasicUI});
+        console.log({ modBasicUI });
         // debugger;
-        const ta = mkElt("textarea", {id:"textarea-edit"}, eltOutputText.textContent);
+        const ta = mkElt("textarea", { id: "textarea-edit" }, eltOutputText.textContent);
         const bdy = mkElt("div", undefined, [
             // mkElt("div", undefined, "Edit"),
             ta
@@ -652,8 +652,36 @@ function displayPage() {
             eltInfo.style.paddingRight = "20px";
             s.insertBefore(mkElt("span", undefined, eltInfo), s1);
         }, 200);
+        let isPending = false;
+
+        function handleViewportChange() {
+            if (isPending) return;
+            isPending = true;
+
+            // Syncs your UI update directly with the browser's next screen repaint
+            requestAnimationFrame(() => {
+                isPending = false;
+
+                // Your heavy layout calculations go here
+                // const { height, width, scale } = window.visualViewport;
+                // console.log(`Viewport: ${width}x${height} at scale ${scale}`);
+
+                // Get the exact physical pixel height currently visible to the human eye
+                const currentVisualHeight = window.visualViewport.height;
+                // Feed this raw number straight into your CSS variable
+                document.documentElement.style.setProperty('--visible-height', `${currentVisualHeight}px`)
+            });
+        }
+
+        // Attach the same listener to both scroll and resize for total accuracy
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleViewportChange);
+            // window.visualViewport.addEventListener('scroll', handleViewportChange); // Necessary for mobile pinch-zooming
+        }
+
         const ans = await modBasicUI.showDialogConfirm(bdy, "Save");
-        console.log({ans});
+        console.log({ ans });
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
         if (!ans) {
             modBasicUI.snackbar("Aborted", 2);
             return;
