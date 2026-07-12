@@ -652,6 +652,7 @@ function displayPage() {
             eltInfo.style.paddingRight = "20px";
             s.insertBefore(mkElt("span", undefined, eltInfo), s1);
         }, 200);
+        /*
         let isPending = false;
 
         function handleViewportChange() {
@@ -679,13 +680,16 @@ function displayPage() {
             window.visualViewport.addEventListener('scroll', handleViewportChange);
             // window.visualViewport.addEventListener('scroll', handleViewportChange); // Necessary for mobile pinch-zooming
         }
+        */
 
         const ans = await modBasicUI.showDialogConfirm(bdy, "Save");
         console.log({ ans });
+        /*
         if (window.visualViewport) {
             window.visualViewport.removeEventListener('resize', handleViewportChange);
             window.visualViewport.removeEventListener('scroll', handleViewportChange);
         }
+        */
         if (!ans) {
             modBasicUI.snackbar("Aborted", 2);
             return;

@@ -779,8 +779,8 @@ export function addMenuAlt(dialogMenu, txt, fun) {
         evt.stopPropagation();
       });
       */
-     btn.disabled = true;
-     btn.style.color = "currentColor";
+      btn.disabled = true;
+      btn.style.color = "currentColor";
     }
     return btn;
   }
@@ -822,3 +822,50 @@ export function displayMenu(dialogMenu, objDialogPosition) {
   document.body.appendChild(dialogMenu);
   dialogMenu.showModal();
 }
+
+
+// Global Mobile Viewport & Virtual Keyboard Handler
+function monitorVisualViewPort() {
+  console.log("monitorVisualViewPort");
+  if (window.visualViewport) {
+    let isPending = false;
+
+    // 1. The Core Measuring Function
+    const globalSyncViewport = () => {
+      if (isPending) return;
+      isPending = true;
+
+      requestAnimationFrame(() => {
+        isPending = false;
+
+        const visualHeight = window.visualViewport.height;
+        const totalHeight = window.innerHeight;
+        const keyboardHeight = Math.max(0, totalHeight - visualHeight);
+
+        // Write values globally to the root <html> element
+        document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
+        document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+      });
+    };
+
+    // 2. Continuous Listeners (Handles orientation flips, zooming, and standard keyboards)
+    window.visualViewport.addEventListener('resize', globalSyncViewport);
+    window.visualViewport.addEventListener('scroll', globalSyncViewport);
+
+    // Initialize the values immediately on page load
+    globalSyncViewport();
+
+    // 3. Global Fallback for GBoard / Stuck Focus Bugs
+    // Captures taps on any input or editable field globally
+    document.addEventListener('pointerup', (event) => {
+      const el = event.target;
+      const isInput = el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable;
+
+      if (isInput) {
+        // Short delay lets GBoard finish sliding out before measuring
+        setTimeout(globalSyncViewport, 150);
+      }
+    });
+  }
+}
+monitorVisualViewPort();
