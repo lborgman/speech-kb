@@ -871,4 +871,4 @@ function monitorVisualViewPort() {
     });
   }
 }
-monitorVisualViewPort();
+// monitorVisualViewPort();
