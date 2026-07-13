@@ -653,6 +653,8 @@ function displayPage() {
             eltInfo.style.paddingRight = "20px";
             s.insertBefore(mkElt("span", undefined, eltInfo), s1);
         }, 200);
+
+        /*
         let isPending = false;
 
         function handleViewportChange() {
@@ -680,7 +682,6 @@ function displayPage() {
             window.visualViewport.addEventListener('scroll', handleViewportChange);
             // window.visualViewport.addEventListener('scroll', handleViewportChange); // Necessary for mobile pinch-zooming
         }
-        /*
         */
 
         const ans = await modBasicUI.showDialogConfirm(bdy, "Save");
