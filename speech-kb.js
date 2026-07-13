@@ -637,13 +637,9 @@ function displayPage() {
     btnEdit.addEventListener("click", async evt => {
         evt.stopPropagation();
         userStopListening();
-        // console.log({ modBasicUI });
-        // debugger;
         const ta = mkElt("textarea", { id: "textarea-edit" }, eltOutputText.textContent);
-        const bdy = mkElt("div", undefined, [
-            // mkElt("div", undefined, "Edit"),
-            ta
-        ]);
+        const bdy = mkElt("div", undefined, [ ta ]);
+        /*
         setTimeout(() => {
             // console.log({ta});
             // debugger;
@@ -653,6 +649,7 @@ function displayPage() {
             eltInfo.style.paddingRight = "20px";
             s.insertBefore(mkElt("span", undefined, eltInfo), s1);
         }, 200);
+        */
 
         /*
         let isPending = false;
@@ -686,12 +683,6 @@ function displayPage() {
 
         const ans = await modBasicUI.showDialogConfirm(bdy, "Save");
         console.log({ ans });
-        /*
-        if (window.visualViewport) {
-            window.visualViewport.removeEventListener('resize', handleViewportChange);
-            window.visualViewport.removeEventListener('scroll', handleViewportChange);
-        }
-        */
         if (!ans) {
             modBasicUI.snackbar("Aborted", 2);
             return;

@@ -101,6 +101,50 @@ export function mkIconButton(icon, title) {
   return btn;
 }
 
+
+
+// Modify your dialog opening function to include this viewport verification check:
+function openModalAndEnsureKeyboard(bdy) {
+  const dlg = document.createElement("dialog");
+  dlg.appendChild(bdy);
+  document.documentElement.appendChild(dlg);
+
+  // 1. Open the modal normally (browser will focus the Save button)
+  dlg.showModal();
+
+  // 2. Wait a split second for the mobile browser to process the focus change
+  setTimeout(() => {
+    if (!window.visualViewport) return;
+
+    const visualHeight = window.visualViewport.height;
+    const totalHeight = window.innerHeight;
+
+    // 3. The Visual Viewport Check: 
+    // If the difference is negligible, the keyboard DID NOT open.
+    const keyboardIsOpen = (totalHeight - visualHeight) > 15;
+
+    if (!keyboardIsOpen) {
+      console.log("Viewport unchanged. Forcing focus to bring up keyboard.");
+
+      // Look exclusively inside this dialog for the text element
+      const textInput = dlg.querySelector(
+        'textarea, input:not([type="button"]):not([type="submit"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), [contenteditable="true"]'
+      );
+      if (!(textInput instanceof HTMLElement)) {
+        debugger;
+        throw Error("textInput is not HTMLElement");
+      }
+
+      if (textInput) {
+        textInput.focus();
+        textInput.click();
+      }
+    }
+  }, 150); // 150ms gives the mobile OS time to trigger the viewport resize if it was going to
+}
+
+
+
 /**
  * 
  * @param {HTMLDivElement} bdy 
@@ -148,8 +192,12 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
     dlg.appendChild(eltButtons);
   }
   addXclose(dlg);
+
+
+
   document.documentElement.appendChild(dlg);
-  dlg.showModal();
+  // dlg.showModal();
+  openModalAndEnsureKeyboard(bdy);
 
   if (!valFun) return;
   const promClose = new Promise(resolve => {
