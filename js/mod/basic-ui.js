@@ -830,7 +830,7 @@ export function displayMenu(dialogMenu, objDialogPosition) {
 
 
 // Global Mobile Viewport & Virtual Keyboard Handler
-function monitorVisualViewPort() {
+function OLDmonitorVisualViewPort() {
   console.log("monitorVisualViewPort");
   snackbar("monitorVisualViewPort", 8);
   if (window.visualViewport) {
@@ -876,4 +876,49 @@ function monitorVisualViewPort() {
     });
   }
 }
-monitorVisualViewPort();
+// OLDmonitorVisualViewPort();
+
+function monitorVisualViewport() {
+  if (!window.visualViewport) return;
+
+  let resizeTimeout;
+
+  const syncViewport = () => {
+    // Clear any pending debounced checks
+    if (resizeTimeout) clearTimeout(resizeTimeout);
+
+    const visualHeight = window.visualViewport.height;
+    const totalHeight = window.innerHeight;
+
+    // We add a tiny buffer (like 15px) because zoom or subpixel rendering 
+    // can make innerHeight and visualViewport.height differ slightly even without a keyboard.
+    const keyboardHeight = (totalHeight - visualHeight > 15) ? (totalHeight - visualHeight) : 0;
+
+    document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
+    document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+  };
+
+  // 1. Listen to the native viewport events
+  window.visualViewport.addEventListener('resize', () => {
+    syncViewport();
+
+    // Safety Net: Keyboards on mobile (especially iOS & GBoard) often report 
+    // intermediate sizes mid-animation. This ensures we catch the absolute final state.
+    if (resizeTimeout) clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(syncViewport, 100);
+  });
+
+  window.visualViewport.addEventListener('scroll', syncViewport);
+
+  // 2. Catch focus loss / keyboard dismissal
+  // Tapping outside an input or pressing "done" needs to trigger a recalculation
+  document.addEventListener('focusout', () => {
+    // Small timeout gives the keyboard time to begin collapsing
+    setTimeout(syncViewport, 100);
+  });
+
+  // Initial calculation
+  syncViewport();
+}
+
+monitorVisualViewport();
