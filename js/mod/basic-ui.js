@@ -125,6 +125,11 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
     }
   }
   if (typeof bdy == "string") { bdy = mkElt("div", undefined, bdy); }
+  if (!(bdy instanceof HTMLDivElement)) {
+    debugger;
+    throw Error("bdy is not <div>");
+  }
+  bdy.classList.add("modal-scroll-body");
   const dlg = mkElt("dialog", undefined, bdy);
   if (dialogClass) dlg.classList.add(dialogClass);
   dlg.addEventListener("close", evt => { console.log("%%%%% dlg close"); });

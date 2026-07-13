@@ -165,6 +165,20 @@ dialog {
     /* transition-delay: 2s; */
 }
 
+dialog:modal {
+    /* CRITICAL FIX: Overrides the browser's native 'display: block' rule */
+    display: flex !important;
+    flex-direction: column;
+}
+
+dialog:modal .modal-scroll-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+
+    /* CRITICAL: Smooth out mobile touch scroll physics */
+    /* -webkit-overflow-scrolling: touch; */
+}
+
 dialog[open] {
     opacity: 1;
 }
