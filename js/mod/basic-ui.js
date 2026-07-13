@@ -878,6 +878,8 @@ function OLDmonitorVisualViewPort() {
 }
 // OLDmonitorVisualViewPort();
 
+
+// Suggested by Gemini:
 function monitorVisualViewport() {
   if (!window.visualViewport) return;
 
