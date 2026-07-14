@@ -28,7 +28,9 @@ export function mkXclose(funClose) {
 export function addXclose(dialog) {
   const btnClose = dialog.querySelector("button[class=x-close]");
   if (btnClose) { return; }
-  dialog.appendChild(mkXclose());
+  const elt = mkXclose();
+  dialog.appendChild(elt);
+  return elt;
 }
 
 document.documentElement.addEventListener("click", evt => {
@@ -191,7 +193,7 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
     });
     dlg.appendChild(eltButtons);
   }
-  addXclose(dlg);
+  const eltX = addXclose(dlg);
 
   // Look exclusively inside this dialog for the text element
   const textInput = dlg.querySelector(
@@ -202,13 +204,15 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
     throw Error("textInput is not HTMLElement");
   }
   if (textInput) {
-    const eltScroll = mkElt("div", {style: "height: 0px; padding: 0; margin:0;"});
-    bdy.appendChild(eltScroll);
+    // const eltScroll = mkElt("div", {style: "height: 0px; padding: 0; margin:0;"});
+    // bdy.appendChild(eltScroll);
+    // bdy.insertBefore(eltScroll);
     setTimeout(() => {
       console.log("using textInput");
       textInput.focus();
       // syncViewport();
-      eltScroll.scrollIntoView();
+      // eltScroll.scrollIntoView();
+      eltX.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 300);
   }
 
