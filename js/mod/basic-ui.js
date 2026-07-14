@@ -137,7 +137,7 @@ function openModalAndEnsureKeyboard(bdy) {
 
       if (textInput) {
         textInput.focus();
-        textInput.click();
+        // textInput.click();
       }
     }
   }, 150); // 150ms gives the mobile OS time to trigger the viewport resize if it was going to
@@ -196,8 +196,9 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
 
 
   document.documentElement.appendChild(dlg);
-  // dlg.showModal();
-  openModalAndEnsureKeyboard(bdy);
+  dlg.showModal();
+  syncViewport();
+  // openModalAndEnsureKeyboard(bdy);
 
   if (!valFun) return;
   const promClose = new Promise(resolve => {
@@ -927,13 +928,30 @@ function OLDmonitorVisualViewPort() {
 // OLDmonitorVisualViewPort();
 
 
+let resizeTimeout;
+function syncViewport() {
+  // Clear any pending debounced checks
+  if (resizeTimeout) clearTimeout(resizeTimeout);
+
+  const visualHeight = window.visualViewport.height;
+  const totalHeight = window.innerHeight;
+
+  // We add a tiny buffer (like 15px) because zoom or subpixel rendering 
+  // can make innerHeight and visualViewport.height differ slightly even without a keyboard.
+  const keyboardHeight = (totalHeight - visualHeight > 15) ? (totalHeight - visualHeight) : 0;
+
+  document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
+  document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+};
+
+
 // Suggested by Gemini:
 function monitorVisualViewport() {
   if (!window.visualViewport) return;
 
-  let resizeTimeout;
+  // let resizeTimeout;
 
-  const syncViewport = () => {
+  const OLDsyncViewport = () => {
     // Clear any pending debounced checks
     if (resizeTimeout) clearTimeout(resizeTimeout);
 
