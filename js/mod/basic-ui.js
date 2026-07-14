@@ -193,6 +193,19 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
   }
   addXclose(dlg);
 
+  // Look exclusively inside this dialog for the text element
+  const textInput = dlg.querySelector(
+    'textarea, input:not([type="button"]):not([type="submit"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), [contenteditable="true"]'
+  );
+  if (textInput && !(textInput instanceof HTMLElement)) {
+    debugger;
+    throw Error("textInput is not HTMLElement");
+  }
+  if (textInput) {
+    setTimeout(() => {
+      textInput.focus();
+    }, 300);
+  }
 
 
   document.documentElement.appendChild(dlg);
@@ -968,8 +981,7 @@ function monitorVisualViewport() {
 
   // 1. Listen to the native viewport events
   window.visualViewport.addEventListener('resize', () => {
-    syncViewport();
-
+    // syncViewport();
     // Safety Net: Keyboards on mobile (especially iOS & GBoard) often report 
     // intermediate sizes mid-animation. This ensures we catch the absolute final state.
     if (resizeTimeout) clearTimeout(resizeTimeout);
@@ -986,7 +998,8 @@ function monitorVisualViewport() {
   });
 
   // Initial calculation
-  syncViewport();
+  // syncViewport();
+  setTimeout(syncViewport, 500);
 }
 
 monitorVisualViewport();
