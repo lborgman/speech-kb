@@ -204,15 +204,15 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
     throw Error("textInput is not HTMLElement");
   }
   if (textInput) {
-    // const eltScroll = mkElt("div", {style: "height: 0px; padding: 0; margin:0;"});
-    // bdy.appendChild(eltScroll);
+    const eltScroll = mkElt("div", {style: "height: 2px; background: red; padding: 0; margin:0;"});
+    dlg.insertBefore(eltScroll, dlg.firstElementChild);
     // bdy.insertBefore(eltScroll);
     setTimeout(() => {
       console.log("using textInput");
       textInput.focus();
       // syncViewport();
-      // eltScroll.scrollIntoView();
-      eltX.scrollIntoView({ behavior: "smooth", block: "start" });
+      eltScroll.scrollIntoView({ behavior: "smooth", block: "start" });
+      // eltX.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 300);
   }
 
