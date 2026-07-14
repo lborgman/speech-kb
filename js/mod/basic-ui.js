@@ -173,7 +173,7 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
     debugger;
     throw Error("bdy is not <div>");
   }
-  bdy.classList.add("modal-scroll-body");
+  // bdy.classList.add("modal-scroll-body");
   const dlg = mkElt("dialog", undefined, bdy);
   if (dialogClass) dlg.classList.add(dialogClass);
   dlg.addEventListener("close", evt => { console.log("%%%%% dlg close"); });
@@ -202,9 +202,13 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
     throw Error("textInput is not HTMLElement");
   }
   if (textInput) {
+    const eltScroll = mkElt("div", {style: "height: 0px; padding: 0; margin:0;"});
+    bdy.appendChild(eltScroll);
     setTimeout(() => {
+      console.log("using textInput");
       textInput.focus();
-      syncViewport();
+      // syncViewport();
+      eltScroll.scrollIntoView();
     }, 300);
   }
 
