@@ -216,23 +216,6 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
   }
   scrollForTextInput(dlg);
 
-  /**
-   * @param {HTMLDialogElement} dlg
-   * @throws
-   */
-  function scrollForTextInput(dlg) {
-    if (!(dlg instanceof HTMLDialogElement)) throw Error("not dialog elment");
-    // if (!dlg.classList.contains("has-text-input")) return;
-    setTimeout(() => {
-      console.log("using textInput");
-      const eltScroll = dlg.querySelector("div.scroll-for-text-input");
-      if (!eltScroll) throw Error("!eltScroll");
-      if (!(eltScroll instanceof HTMLDivElement)) throw Error("eltScroll is not div");
-      // syncViewport();
-      eltScroll.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 300);
-  }
-
 
   document.documentElement.appendChild(dlg);
   dlg.showModal();
@@ -919,8 +902,8 @@ export function displayMenu(dialogMenu, objDialogPosition) {
 
 // Global Mobile Viewport & Virtual Keyboard Handler
 function OLDmonitorVisualViewPort() {
-  console.log("monitorVisualViewPort");
-  snackbar("monitorVisualViewPort", 8);
+  console.log("OLDmonitorVisualViewPort");
+  snackbar("OLDmonitorVisualViewPort", 8);
   if (window.visualViewport) {
     let isPending = false;
 
@@ -1011,10 +994,19 @@ function monitorVisualViewport() {
     // Safety Net: Keyboards on mobile (especially iOS & GBoard) often report 
     // intermediate sizes mid-animation. This ensures we catch the absolute final state.
     if (resizeTimeout) clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(syncViewport, 100);
+    resizeTimeout = setTimeout(() => {
+      syncViewport();
+      const eltScroll = document.querySelector("dialog div.scroll-for-text-input");
+      if (!eltScroll) return;
+      const dlg = eltScroll.closest("dialog")
+      if (!dlg) {
+        debugger;
+      }
+      scrollForTextInput(dlg);
+    }, 100);
   });
 
-  window.visualViewport.addEventListener('scroll', syncViewport);
+  // window.visualViewport.addEventListener('scroll', syncViewport);
 
   // 2. Catch focus loss / keyboard dismissal
   // Tapping outside an input or pressing "done" needs to trigger a recalculation
@@ -1027,5 +1019,25 @@ function monitorVisualViewport() {
   // syncViewport();
   setTimeout(syncViewport, 500);
 }
+
+
+
+/**
+ * @param {HTMLDialogElement} dlg
+ * @throws
+ */
+function scrollForTextInput(dlg) {
+  if (!(dlg instanceof HTMLDialogElement)) throw Error("not dialog elment");
+  // if (!dlg.classList.contains("has-text-input")) return;
+  setTimeout(() => {
+    console.log("using textInput");
+    const eltScroll = dlg.querySelector("div.scroll-for-text-input");
+    if (!eltScroll) throw Error("!eltScroll");
+    if (!(eltScroll instanceof HTMLDivElement)) throw Error("eltScroll is not div");
+    // syncViewport();
+    eltScroll.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 300);
+}
+
 
 monitorVisualViewport();
