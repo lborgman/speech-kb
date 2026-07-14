@@ -204,6 +204,7 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
   if (textInput) {
     setTimeout(() => {
       textInput.focus();
+      syncViewport();
     }, 300);
   }
 
