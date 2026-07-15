@@ -1002,7 +1002,7 @@ function monitorVisualViewport() {
       if (!dlg) {
         debugger;
       }
-      scrollForTextInput(dlg);
+      scrollForTextInput(dlg, 999);
     }, 100);
   });
 
@@ -1024,9 +1024,10 @@ function monitorVisualViewport() {
 
 /**
  * @param {HTMLDialogElement} dlg
+ * @param {number} msTimeout
  * @throws
  */
-function scrollForTextInput(dlg) {
+function scrollForTextInput(dlg, msTimeout = 300) {
   if (!(dlg instanceof HTMLDialogElement)) throw Error("not dialog elment");
   // if (!dlg.classList.contains("has-text-input")) return;
   setTimeout(() => {
@@ -1036,7 +1037,7 @@ function scrollForTextInput(dlg) {
     if (!(eltScroll instanceof HTMLDivElement)) throw Error("eltScroll is not div");
     // syncViewport();
     eltScroll.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 300);
+  }, msTimeout);
 }
 
 
