@@ -1035,7 +1035,7 @@ function scrollForTextInput(dlg, msTimeout = 300) {
     const eltScroll = dlg.querySelector("div.scroll-for-text-input");
     if (!eltScroll) throw Error("!eltScroll");
     if (!(eltScroll instanceof HTMLDivElement)) throw Error("eltScroll is not div");
-    // syncViewport();
+    syncViewport();
     eltScroll.scrollIntoView({ behavior: "smooth", block: "start" });
   }, msTimeout);
 }
