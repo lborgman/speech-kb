@@ -601,6 +601,16 @@ function displayPage() {
     const btnDelete = mkElt("button", undefined, "⌫");
     const btnRevert = mkElt("button", undefined, "⟲");
 
+    const btnDebug = mkElt("button", undefined, "🐞");
+    btnDebug.style = `
+        background-color: lightblue;
+        outline: 3px dotted red;
+    `;
+    btnDebug.addEventListener("click", evt => {
+        evt.stopPropagation();
+        document.documentElement.classList.toggle("show-debug");
+    })
+
     // const divEditButtons = document.getElementById("edit-buttons");
     const divMinorEditButtons = document.getElementById("minor-edit-buttons");
     divMinorEditButtons.append(
@@ -614,6 +624,7 @@ function displayPage() {
         btnDelete,
         btnRevert,
         btnEdit,
+        btnDebug,
     );
     btnDot.addEventListener("click", evt => {
         evt.stopPropagation();

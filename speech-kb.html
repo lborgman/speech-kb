@@ -156,6 +156,7 @@
             max-height: 120px;
             overflow: auto;
             display: flex;
+            display: none;
             flex-direction: row;
             /* gap: 5px; */
             flex-wrap: wrap;
@@ -168,6 +169,10 @@
             div:first-child {
                 color: red;
             }
+        }
+
+        .show-debug #debug {
+            display: flex;
         }
 
         #output-text {
@@ -184,8 +189,9 @@
         #output-text {
             width: 100%;
             min-height: 80px;
+            /* max-height: 80px; */
+            max-height: calc(100dvh - 280px);
             padding: 10px;
-            max-height: 80px;
             overflow-y: auto;
             border-radius: 4px;
             color: black;
@@ -393,7 +399,7 @@
     <header>
         <span id="logo" aria-label="Logo"></span>
         <div id="beside-logo">
-            <h1>Speech Writer 0.82</h1>
+            <h1>Speech Writer 0.83</h1>
             <button id="doc">
                 <span id="doc-name" title="- Handle documents"></span>
                 <span style="margin-left:20px;">⋮</span>
