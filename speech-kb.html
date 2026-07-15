@@ -348,8 +348,14 @@
             visibility: hidden;
         }
 
+        dialog:has(#textarea-edit) {
+            width: 95dvw;
+            max-width: unset;
+        }
+
         #textarea-edit {
-            width: 80dvw;
+            width: 100%;
+            NOmax-width: 80dvw;
             NOheight: 80dvh;
             height: calc(80dvh - 50px);
             border: none !important;
@@ -387,7 +393,7 @@
     <header>
         <span id="logo" aria-label="Logo"></span>
         <div id="beside-logo">
-            <h1>Speech Writer 0.81</h1>
+            <h1>Speech Writer 0.82</h1>
             <button id="doc">
                 <span id="doc-name" title="- Handle documents"></span>
                 <span style="margin-left:20px;">⋮</span>
