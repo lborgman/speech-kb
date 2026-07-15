@@ -256,7 +256,11 @@ dialog:not([open])::backdrop {
     background-color: red;
 }
 
-
+dialog:has(div.no-x-close-button) {
+    .x-close {
+        display: none;
+    }
+}
 
 /* min-* from Gemini, no other AI found it... */
 .fab-button {

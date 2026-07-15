@@ -148,6 +148,9 @@ function openModalAndEnsureKeyboard(bdy) {
 
 
 /**
+ * Show a dialog.
+ * To remove the upper right X close button
+ * add CSS class "no-x-close-button" to bdy.
  * 
  * @param {HTMLDivElement} bdy 
  * @param {function|undefined} [retValFun]
@@ -242,6 +245,7 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
  * @param {string} [cancel]
  */
 export async function showDialogConfirm(bdy, ok, cancel, funOkButton) {
+  bdy.classList.add("no-x-close-button"); // Remove the upper right X close button
   ok = ok || "OK";
   cancel = cancel || "Cancel";
   const btnTrue = mkElt("button", { class: "button-ok" }, ok);
