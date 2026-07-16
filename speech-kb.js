@@ -83,6 +83,8 @@ new SettingSelect(STORING_PREFIX, langSelectDeepgram);
 // const SpeechRecognition = window.SpeechRecognition;
 // @ts-ignore
 const recognition = new SpeechRecognition();
+let msRecognitionStart = -1;
+
 
 // CRITICAL: Set to true so the microphone stays open 
 // even when you pause between words.
@@ -176,11 +178,11 @@ recognition.onresult = (event) => {
     // Walk only new results this event delivered
     for (let i = event.resultIndex; i < event.results.length; i++) {
         const r = event.results[i];
-        
+
         if (r.isFinal) {
             // Safer extraction: explicitly check index 0 of the result alternative
             const utterance = r[0] ? r[0].transcript.trim() : "";
-            
+
             if (utterance) {
                 if (isAndroid) {
                     // On Android, always grab the absolute latest state of the string
@@ -272,11 +274,23 @@ recognition.addEventListener("end", () => {
     //  - Android: required after every utterance (continuous is ignored)
     //  - Windows: only restarts if the engine itself stopped (silence timeout, error)
     if (shouldKeepListening) {
+        const msSinceStart = Date.now() - msRecognitionStart;
+        // debugger;
+        console.log("end, shouldKeepListening", msSinceStart);
+        debugOutput(`end,skl,${msSinceStart}`);
+        if (msSinceStart > 10 * 1000) {
+            console.log("end, shouldKeepListening > 10");
+            debugOutput(`end,skl,>10`);
+            return;
+        }
         try {
             recognition.lang = langSelectChrome.value;
+            // msRecognitionStart = Date.now();
             recognition.start();
         } catch (_) {
             // already starting — ignore
+            console.log("end, already starting — ignore");
+            debugOutput("end,as");
         }
     }
 });
@@ -523,6 +537,7 @@ function displayPage() {
             transcriber.start();
         } else {
             recognition.lang = langSelectChrome.value;
+            msRecognitionStart = Date.now();
             recognition.start();
         }
     }
@@ -540,7 +555,11 @@ function displayPage() {
     }
 
 
+    /**
+     * @param {boolean} on 
+     */
     function showListening(on) {
+        console.warn("showListening", on);
         const eltMicStatus = document.getElementById("mic-status");
         if (!eltMicStatus) {
             throw Error(`Did not find "mic-status"`);
