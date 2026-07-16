@@ -80,14 +80,23 @@ const langSelectDeepgram = document.getElementById('speech-lang-deepgram');
 new SettingSelect(STORING_PREFIX, langSelectDeepgram);
 
 // const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const SpeechRecognition = window.SpeechRecognition;
+// const SpeechRecognition = window.SpeechRecognition;
+// @ts-ignore
 const recognition = new SpeechRecognition();
 
 // CRITICAL: Set to true so the microphone stays open 
 // even when you pause between words.
 recognition.continuous = true;
 recognition.interimResults = true; // Show results live as you speak
-recognition.lang = 'en-US';
+// recognition.lang = 'en-US';
+{
+    const sel = document.getElementById("speech-lang-chrome");
+    const val = sel.value;
+    console.log(sel, val);
+    // debugger;
+    recognition.lang = val;
+}
+
 
 // --- CONTROLS ---
 
@@ -138,7 +147,7 @@ recognition.addEventListener("start", () => {
     finalText = "";
 });
 
-recognition.onresult = (event) => {
+recognition.OLDonresult = (event) => {
     // Walk only new results this event delivered
     for (let i = event.resultIndex; i < event.results.length; i++) {
         const r = event.results[i];
@@ -161,10 +170,60 @@ recognition.onresult = (event) => {
         yourAppHandleResult(finalText);
     }
 };
+recognition.onresult = (event) => {
+    let currentAndroidUtterance = "";
+
+    // Walk only new results this event delivered
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const r = event.results[i];
+        
+        if (r.isFinal) {
+            // Safer extraction: explicitly check index 0 of the result alternative
+            const utterance = r[0] ? r[0].transcript.trim() : "";
+            
+            if (utterance) {
+                if (isAndroid) {
+                    // On Android, always grab the absolute latest state of the string
+                    currentAndroidUtterance = utterance;
+                } else {
+                    // Desktop: Immediately execute processing for this specific chunk
+                    yourAppHandleResult(utterance);
+                }
+            }
+        }
+    }
+
+    // Android Handling: Only commit if we found a valid, non-empty final string
+    if (isAndroid && currentAndroidUtterance) {
+        yourAppHandleResult(currentAndroidUtterance);
+    }
+};
 
 
 function debugOutput(txt) {
+
+    // Filter:
+    if (txt.match("transcript:")) { return; }
+    if (txt == "result") { return; }
+    // if (txt == "start") { return; }
+    if (txt == "audiostart") { return; }
+    if (txt == "audioend") { return; }
+    if (txt == "soundstart") { return; }
+    if (txt == "soundend") { return; }
+    if (txt == "speechstart") { return; }
+    if (txt == "speechend") { return; }
+
     const elt = mkElt("div", undefined, txt);
+
+    if (txt.match("start")) { elt.style.color = "greenyellow"; }
+    if (txt.match("websocket-open")) { elt.style.color = "greenyellow"; }
+    if (txt.match("end")) { elt.style.color = "red"; }
+    if (txt.match("websocket-close")) { elt.style.color = "red"; }
+    if (txt.match("onerror:")) {
+        elt.style.color = "red";
+        elt.style.fontStyle = "italic";
+    }
+
     const eltDebug = document.getElementById("debug");
     if (!eltDebug) {
         debugger;
@@ -173,12 +232,16 @@ function debugOutput(txt) {
     // eltDebug.appendChild(elt);
     // elt.scrollIntoView();
     eltDebug.insertBefore(elt, eltDebug.firstElementChild);
+    const eltEditButtons = document.getElementById("edit-buttons");
+    if (!eltEditButtons) { throw Error(`Did not find "edit-buttons"`); }
+    eltEditButtons.inert = false;
 }
-debugOutput("--- DEBUG ---");
+debugOutput("-DEBUG-");
 const lifeEvents = [
     "start", "audiostart", "soundstart", "speechstart",
-    "speechend", "soundend", "audioend", "end"
+    "speechend", "soundend", "audioend", "end", "result"
 ];
+// debugger;
 lifeEvents.forEach(evtName => {
     recognition.addEventListener(evtName, evt => {
         debugOutput(evtName)
@@ -188,11 +251,12 @@ lifeEvents.forEach(evtName => {
 
 // recognition.onerror = (e) => {
 recognition.addEventListener("error", (e) => {
-    debugOutput(`onerror: ${e.error}`);
+    debugOutput(`onerror:${e.error}`);
 
     // no-speech / aborted are normal between phrases on Android
     if (e.error !== "no-speech" && e.error !== "aborted") {
         shouldKeepListening = false;
+        // mic-is-on
     }
     hasCommitted = true; // block stale commit in onend
 });
@@ -720,13 +784,6 @@ function displayPage() {
         console.log({ eltToEdit });
         eltToEdit.remove();
         checkEditButtonsState();
-        /*
-        const eltOut = eltOutputText.querySelector(".final-out");
-        if (!eltOut) {
-            const eltEditButtons = document.getElementById("edit-buttons");
-            eltEditButtons.inert = true;
-        }
-        */
     });
     btnRevert.addEventListener("click", evt => {
         evt.stopPropagation();
