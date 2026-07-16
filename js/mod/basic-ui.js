@@ -282,6 +282,31 @@ export function closeMyDialog(elt) {
   dlg.close();
 }
 
+/**
+ * Resolves after the browser completes its next layout and paint cycle.
+ * 
+ * @param {function} fun 
+ * @returns 
+ */
+export function nextPaint(fun) {
+  const tofFun = typeof fun;
+  if (tofFun != "function") throw Error(`nextPaint, typeof fun == "${tofFun}"`);
+  const lenFun = fun.length;
+  if (lenFun != 0) throw Error(`nextPaint, fun.length == "${lenFun}"`);
+
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      queueMicrotask(
+        () => {
+          fun();
+          requestAnimationFrame(resolve);
+        }
+      );
+    });
+  });
+}
+
+
 
 // Module-level variable to track the active timer
 let tmrSnackbar = null;
@@ -1044,5 +1069,48 @@ function scrollForTextInput(dlg, msTimeout = 300) {
   }, msTimeout);
 }
 
+
+/**
+* Waits for a list of elements to settle their layouts.
+* @param {HTMLElement|HTMLElement[]|NodeList} elements - Single element or list of elements.
+* @returns {Promise<WeakMap<HTMLElement, ResizeObserverEntry>>} Resolves with a WeakMap mapping elements to their final entries.
+*/
+export function waitForLayoutSilence(elements) {
+  return new Promise((resolve) => {
+    // Normalize input to an array so we can safely loop over it
+    const targets = elements instanceof NodeList || Array.isArray(elements)
+      ? Array.from(elements)
+      : [elements];
+
+    let rafId = null;
+
+    // Create the WeakMap that will be passed back to the user
+    const latestEntries = new WeakMap();
+
+    const observer = new ResizeObserver((entries) => {
+      // 1. Map the element directly to its latest resize data
+      for (let entry of entries) {
+        // latestEntries.set(entry.target, entry.contentRect);
+        latestEntries.set(entry.target, entry.target.getBoundingClientRect());
+      }
+
+      // 2. Clear previous frame schedule if layout is still moving
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+
+      // 3. Wait for one full frame of silence
+      rafId = requestAnimationFrame(() => {
+        observer.disconnect();
+
+        // 4. Resolve the Promise directly with the WeakMap
+        resolve(latestEntries);
+      });
+    });
+
+    // Start observing all targeted elements
+    targets.forEach(el => observer.observe(el));
+  });
+}
 
 monitorVisualViewport();

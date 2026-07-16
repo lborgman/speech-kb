@@ -190,9 +190,11 @@
         #output-text {
             width: 100%;
             /* min-height: 80px; */
-            min-height: calc(100dvh - 280px);
+            /* min-height: calc(100dvh - 280px); */
+            min-height: calc(100dvh - var(--output-text-extra));
             /* max-height: 80px; */
-            max-height: calc(100dvh - 280px);
+            /* max-height: calc(100dvh - 280px); */
+            max-height: calc(100dvh - var(--output-text-extra));
             padding: 10px;
             overflow-y: auto;
             border-radius: 4px;
@@ -211,8 +213,11 @@
         }
 
         .show-debug #output-text {
-            min-height: calc(100dvh - 280px - var(--debug-height));
-            max-height: calc(100dvh - 280px - var(--debug-height));
+            /* var(--output-text-extra) */
+            /* min-height: calc(100dvh - 280px - var(--debug-height)); */
+            min-height: calc(100dvh - var(--output-text-extra) - var(--debug-height));
+            /* max-height: calc(100dvh - 280px - var(--debug-height)); */
+            max-height: calc(100dvh - var(--output-text-extra) - var(--debug-height));
         }
 
         select.select-lang {
@@ -406,7 +411,7 @@
     <header>
         <span id="logo" aria-label="Logo"></span>
         <div id="beside-logo">
-            <h1>Speech Writer 0.84</h1>
+            <h1>Speech Writer 0.85</h1>
             <button id="doc">
                 <span id="doc-name" title="- Handle documents"></span>
                 <span style="margin-left:20px;">⋮</span>

@@ -649,7 +649,7 @@ function displayPage() {
         evt.stopPropagation();
         userStopListening();
         const ta = mkElt("textarea", { id: "textarea-edit" }, eltOutputText.textContent);
-        const bdy = mkElt("div", undefined, [ ta ]);
+        const bdy = mkElt("div", undefined, [ta]);
         /*
         setTimeout(() => {
             // console.log({ta});
@@ -691,6 +691,7 @@ function displayPage() {
             // window.visualViewport.addEventListener('scroll', handleViewportChange); // Necessary for mobile pinch-zooming
         }
         */
+
 
         const ans = await modBasicUI.showDialogConfirm(bdy, "Save");
         console.log({ ans });
@@ -1145,3 +1146,19 @@ function docStringToHtml(str) {
 function docHtmlToString(eltHtml) {
     return eltHtml.textContent;
 }
+
+async function getSizesForOutputText() {
+    const eltOutputText = document.getElementById("output-text");
+    const eltButtons = document.getElementById("edit-buttons");
+    const sizes = await modBasicUI.waitForLayoutSilence([
+        eltOutputText,
+        eltButtons,
+    ]);
+    console.log({ sizes });
+    const top = (sizes.get(eltOutputText)).top;
+    const height = (sizes.get(eltButtons)).height;
+    console.log({ top, height });
+    const need = top + height;
+    document.documentElement.style.setProperty('--output-text-extra', `${need}px`);
+}
+getSizesForOutputText();
