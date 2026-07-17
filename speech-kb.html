@@ -121,6 +121,13 @@
                 font-size: 18px;
                 font-weight: bold;
             }
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        .has-text #edit-buttons {
+            visibility: visible;
+            opacity: 1;
         }
 
         #minor-edit-buttons {
@@ -184,9 +191,7 @@
                 display: inline;
                 padding-right: 9px;
             }
-        }
 
-        #output-text {
             width: 100%;
             /* min-height: 80px; */
             /* min-height: calc(100dvh - 280px); */
@@ -410,7 +415,7 @@
     <header>
         <span id="logo" aria-label="Logo"></span>
         <div id="beside-logo">
-            <h1>Speech Writer 0.89</h1>
+            <h1>Speech Writer 0.90</h1>
             <button id="doc">
                 <span id="doc-name" title="- Handle documents"></span>
                 <span style="margin-left:20px;">⋮</span>
@@ -590,7 +595,7 @@
     </div>
     <p id="result-log"> RESULT LOG: </p>
     <div id="output-text"> </div>
-    <div id="edit-buttons" inert>
+    <div id="edit-buttons">
         <div id="minor-edit-buttons"></div>
         <div id="major-edit-buttons"></div>
     </div>

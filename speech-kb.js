@@ -252,9 +252,11 @@ function debugOutput(txt) {
     // eltDebug.appendChild(elt);
     // elt.scrollIntoView();
     eltDebug.insertBefore(elt, eltDebug.firstElementChild);
-    const eltEditButtons = document.getElementById("edit-buttons");
-    if (!eltEditButtons) { throw Error(`Did not find "edit-buttons"`); }
-    eltEditButtons.inert = false;
+
+    // const eltEditButtons = document.getElementById("edit-buttons");
+    // if (!eltEditButtons) { throw Error(`Did not find "edit-buttons"`); }
+    // eltEditButtons.inert = false;
+    checkEditButtonsState();
 }
 debugOutput("-DEBUG-");
 const lifeEvents = [
@@ -363,54 +365,11 @@ function yourAppHandleResult(text) {
 
     eltOutputText.scrollTop = eltOutputText.scrollHeight;
     // console.log('AFTER manual scrollTop set:', eltOutputText.scrollTop);
-
-
-
-
-    // Handle the rendering race:
-    // setTimeout(() => { eltOut.scrollIntoView(); }, 0);
-    // setTimeout(() => { eltOut.scrollIntoView(); }, 1000);
-    // Force the parent container scrollbar to match its maximum height
-    // requestAnimationFrame(() => { eltOutputText.scrollTop = eltOutputText.scrollHeight; });
-    // Wait a tiny fraction for layout engine synchronization
     setTimeout(() => { eltOutputText.scrollTop = eltOutputText.scrollHeight; }, 10);
-    // The Fix: Force an impossibly high fallback value (like 9999999) 
-    // setTimeout(() => { eltOutputText.scrollTop = 9e9 }, 10);
 
-    // Force an instant layout jump, bypassing CSS transitions
-    /*
-    eltOutputText.style.scrollBehavior = 'auto';
-    eltOutputText.scrollTop = eltOutputText.scrollHeight;
-
-    // Put the smooth transition back for normal user scrolling
-    requestAnimationFrame(() => {
-        eltOutputText.style.scrollBehavior = 'smooth';
-    });
-    */
-
-    // A simple function to cleanly separate your logic across browser event ticks
-    /*
-    const waitForRender = () => new Promise(resolve => setTimeout(resolve, 0));
-
-    async function appendAndScroll() {
-        eltOutputText.appendChild(eltOut);
-
-        // Pause execution entirely until the browser flushes the layout queue
-        await waitForRender();
-
-        // Directly execute the scrolling movement
-        eltOutputText.scrollTo({
-            top: eltOutputText.scrollHeight,
-            behavior: 'auto' // 'auto' ensures immediate jumping, bypassing transition freezes
-        });
-    }
-
-    appendAndScroll();
-    */
-
-
-    const eltEditButtons = document.getElementById("edit-buttons");
-    eltEditButtons.inert = false;
+    // const eltEditButtons = document.getElementById("edit-buttons");
+    // eltEditButtons.inert = false;
+    checkEditButtonsState();
 }
 // Fires when the engine completely disconnects
 /*
@@ -1163,7 +1122,12 @@ async function doTheDocLoading(docName) {
 function checkEditButtonsState() {
     const eltEditButtons = document.getElementById("edit-buttons");
     const eltOut = eltOutputText.querySelector(".final-out");
-    eltEditButtons.inert = !!!eltOut;
+    const foundEltOut = !!eltOut;
+    console.log({foundEltOut, eltOut});
+    // eltEditButtons.inert = !foundEltOut;
+    document.documentElement.classList.remove("has-text");
+    if (!foundEltOut) return;
+    document.documentElement.classList.add("has-text");
 }
 
 // startMonitoringOutputText();
