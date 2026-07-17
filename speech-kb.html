@@ -185,10 +185,18 @@
             display: flex;
         }
 
-        #output-text {
+        #output-text:not(:has(.selected)) {
             .final-out:last-child {
                 background-color: var(--color-for-edit);
             }
+        }
+
+        #output-text {
+            /*
+            .final-out:last-child {
+                background-color: var(--color-for-edit);
+            }
+            */
 
             .final-out {
                 display: inline;

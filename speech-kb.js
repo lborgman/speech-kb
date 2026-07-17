@@ -709,23 +709,23 @@ function displayPage() {
     );
     btnDot.addEventListener("click", evt => {
         evt.stopPropagation();
-        const eltToEdit = getLastFinalOut();
+        const eltToEdit = getElementForOp();
         UpperFirstCharPlusPunctuation(eltToEdit, ".");
     });
     btnExclamation.addEventListener("click", evt => {
         evt.stopPropagation();
-        const eltToEdit = getLastFinalOut();
+        const eltToEdit = getElementForOp();
         UpperFirstCharPlusPunctuation(eltToEdit, "!");
     });
     btnQuestion.addEventListener("click", evt => {
         evt.stopPropagation();
-        const eltToEdit = getLastFinalOut();
+        const eltToEdit = getElementForOp();
         UpperFirstCharPlusPunctuation(eltToEdit, "?");
     });
     btnParagraph.addEventListener("click", evt => {
         evt.stopPropagation();
         // alert("not ready paragraph");
-        const eltToEdit = getLastFinalOut();
+        const eltToEdit = getElementForOp();
         if (!eltToEdit) { throw Error("Did not find elt to edit"); }
         const hadNewParagraph = eltToEdit.classList.contains("new-paragraph");
         const txt = eltToEdit.textContent;
@@ -797,7 +797,7 @@ function displayPage() {
         // arrEltFinalOut.forEach()
         return;
 
-        const eltToEdit = getLastFinalOut();
+        const eltToEdit = getElementForOp();
         eltToEdit.setAttribute("contenteditable", true);
         eltToEdit.focus();
         // setTimeout(() => { eltToEdit.focus(); }, 200);
@@ -807,14 +807,14 @@ function displayPage() {
     });
     btnDelete.addEventListener("click", evt => {
         evt.stopPropagation();
-        const eltToEdit = getLastFinalOut();
+        const eltToEdit = getElementForOp();
         console.log({ eltToEdit });
         eltToEdit.remove();
         checkEditButtonsState();
     });
     btnRevert.addEventListener("click", evt => {
         evt.stopPropagation();
-        const eltToEdit = getLastFinalOut();
+        const eltToEdit = getElementForOp();
         eltToEdit.textContent = eltToEdit.dataset.orig;
     });
     btnCopyToClipboard.addEventListener("click", async evt => {
@@ -835,8 +835,21 @@ function displayPage() {
             alert(`error copying to clipboard, ${err}`);
         }
     });
-    function getLastFinalOut() {
-        // const eltOutputText = document.getElementById("output-text");
+    function getElementForOp() {
+        if (!eltOutputText) {
+            debugger;
+            throw Error("!eltOutputText");
+        }
+        const eltOp = eltOutputText.querySelector(".selected")
+            ||
+            eltOutputText.querySelector(":last-child");
+        if (!eltOp) {
+            debugger;
+            throw Error("!eltOp");
+        }
+        return eltOp;
+    }
+    function OLDgetLastFinalOut() {
         const eltLast = eltOutputText.querySelector(":last-child");
         return eltLast;
     }
