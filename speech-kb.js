@@ -83,7 +83,7 @@ new SettingSelect(STORING_PREFIX, langSelectDeepgram);
 // const SpeechRecognition = window.SpeechRecognition;
 // @ts-ignore
 const recognition = new SpeechRecognition();
-let msRecognitionStart = -1;
+let msRecognitionSpeechEnd = -1;
 
 
 // CRITICAL: Set to true so the microphone stays open 
@@ -217,9 +217,15 @@ function debugOutput(txt) {
 
     const elt = mkElt("div", undefined, txt);
 
-    if (txt.match("start")) { elt.style.color = "greenyellow"; }
+    if (txt.match("start")) {
+        elt.textContent = "S";
+        elt.style.color = "greenyellow";
+    }
     if (txt.match("websocket-open")) { elt.style.color = "greenyellow"; }
-    if (txt.match("end")) { elt.style.color = "red"; }
+    if (txt.match("end")) {
+        elt.textContent = "E";
+        elt.style.color = "red";
+    }
     if (txt.match("websocket-close")) { elt.style.color = "red"; }
     if (txt.match("onerror:")) {
         elt.style.color = "red";
@@ -274,7 +280,7 @@ recognition.addEventListener("end", () => {
     //  - Android: required after every utterance (continuous is ignored)
     //  - Windows: only restarts if the engine itself stopped (silence timeout, error)
     if (shouldKeepListening) {
-        const msSinceStart = Date.now() - msRecognitionStart;
+        const msSinceStart = Date.now() - msRecognitionSpeechEnd;
         // debugger;
         console.log("end, shouldKeepListening", msSinceStart);
         debugOutput(`end,skl,${msSinceStart}`);
@@ -537,7 +543,7 @@ function displayPage() {
             transcriber.start();
         } else {
             recognition.lang = langSelectChrome.value;
-            msRecognitionStart = Date.now();
+            msRecognitionSpeechEnd = Date.now();
             recognition.start();
         }
     }
