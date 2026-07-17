@@ -1269,3 +1269,30 @@ async function getSizesForOutputText() {
     document.documentElement.style.setProperty('--output-text-extra', `${need}px`);
 }
 getSizesForOutputText();
+
+function setupForSelectSentence() {
+    const eltOutputText = document.getElementById("output-text");
+    eltOutputText?.addEventListener("click", evt => {
+        evt.stopPropagation();
+        const target = evt.target;
+        // debugger;
+        if (!(target instanceof HTMLDivElement)) { return; }
+        // if (target.tagName !="DIV") { return; }
+        if (!target.classList.contains("final-out")) { return; }
+        console.log({ target });
+        if (target.classList.contains("selected")) {
+            target.classList.remove("selected");
+            return;
+        }
+        const eltsSelected = [...eltOutputText.querySelectorAll("div.selected")];
+        if (eltsSelected.length > 1) {
+            debugger;
+            throw Error("More than one was selected");
+        }
+        if (eltsSelected.length == 1) {
+            eltsSelected[0].classList.remove("selected");
+        }
+        target.classList.add("selected");
+    });
+}
+setupForSelectSentence();
