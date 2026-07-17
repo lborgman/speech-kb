@@ -724,7 +724,17 @@ function displayPage() {
     });
     btnParagraph.addEventListener("click", evt => {
         evt.stopPropagation();
-        alert("not ready paragraph");
+        // alert("not ready paragraph");
+        const eltToEdit = getLastFinalOut();
+        if (!eltToEdit) { throw Error("Did not find elt to edit"); }
+        const hadNewParagraph = eltToEdit.classList.contains("new-paragraph");
+        const txt = eltToEdit.textContent;
+        if (hadNewParagraph) {
+            eltToEdit.textContent = txt.slice(2);
+        } else {
+            eltToEdit.textContent = `\n\n${txt}`;
+        }
+        eltToEdit.classList.toggle("new-paragraph");
     });
     btnEdit.addEventListener("click", async evt => {
         evt.stopPropagation();
