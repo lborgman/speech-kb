@@ -471,8 +471,13 @@ function displayPage() {
             ]);
             // const list = await modOPFS.listOPFS(await modOPFS.getMyOpfsRoot());
             const list = await modOPFS.listOPFS();
-            list.forEach(element => {
-                divList.appendChild(mkElt("div", undefined, element));
+            list.forEach(lineText => {
+                const txt = lineText.trimLeft();
+                const numSpaces = lineText.length - txt.length;
+                // console.log({lineText, numSpaces});
+                const eltLine = mkElt("div", undefined, txt);
+                eltLine.style.paddingLeft = `${numSpaces * 8}px`;
+                divList.appendChild(eltLine);
             });
             modBasicUI.showDialog(divList);
             return;

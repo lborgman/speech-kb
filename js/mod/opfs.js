@@ -426,6 +426,7 @@ export async function listDirectoryContents(directoryHandle) {
  * @param {string} indent 
  * @return {Promise<string[]>}
  */
+// FIX-ME: make recursive, collect lines
 export async function listOPFS(dirHandle, indent = "") {
     const tofIndent = typeof indent;
     if (tofIndent != "string") {
@@ -435,7 +436,7 @@ export async function listOPFS(dirHandle, indent = "") {
     }
     /** @type {string[]} */
     const lines = []
-    const addToElt = (txt) => {
+    const addToLines = (txt) => {
         const tofTxt = typeof txt;
         if (tofTxt != "string") {
             debugger;
@@ -449,22 +450,27 @@ export async function listOPFS(dirHandle, indent = "") {
         // console.log("📂 [OPFS Root]");
         const txt = "📂 [OPFS Root]";
         console.log(txt);
-        addToElt(txt);
+        addToLines(txt);
     }
 
-    for await (const [name, handle] of dirHandle.entries()) {
-        if (handle.kind === "directory") {
-            // console.log(`${indent}📁 ${name}/`);
-            const txt = `${indent}📁 ${name}/`;
-            console.log(txt);
-            addToElt(txt);
-            // Recursively list the contents of the subfolder
-            await listOPFS(handle, indent + "  ");
-        } else {
-            // console.log(`${indent}📄 ${name}`);
-            const txt = `${indent}📄 ${name}`;
-            console.log(txt);
-            addToElt(txt);
+    // await listOPFS(handle, indent + "  ");
+    await listInner(dirHandle, "");
+    async function listInner(dirHandle, indent) {
+        for await (const [name, handle] of dirHandle.entries()) {
+            if (handle.kind === "directory") {
+                // console.log(`${indent}📁 ${name}/`);
+                const txt = `${indent}📁 ${name}/`;
+                console.log(txt);
+                addToLines(txt);
+                // Recursively list the contents of the subfolder
+                // await listOPFS(handle, indent + "  ");
+                await listInner(handle, indent + "  ");
+            } else {
+                // console.log(`${indent}📄 ${name}`);
+                const txt = `${indent}📄 ${name}`;
+                console.log(txt);
+                addToLines(txt);
+            }
         }
     }
     return lines;

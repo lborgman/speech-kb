@@ -216,8 +216,8 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
       class: "scroll-for-text-input"
     });
     dlg.insertBefore(eltScroll, dlg.firstElementChild);
+    scrollForTextInput(dlg);
   }
-  scrollForTextInput(dlg);
 
 
   document.documentElement.appendChild(dlg);
@@ -925,6 +925,14 @@ export function displayMenu(dialogMenu, objDialogPosition) {
   }
 
   document.body.appendChild(dialogMenu);
+  const bcr = dialogMenu.getBoundingClientRect();
+  console.log("displayMenu:", { bcr }, dialogMenu);
+  if (bcr.x < 0) {
+    const right = dialogMenu.style.right;
+    // debugger;
+    const distanceFromRightEdge = window.innerWidth - bcrParent.right + bcr.x;
+    dialogMenu.style.right = `${distanceFromRightEdge}px`;
+  }
   dialogMenu.showModal();
 }
 
