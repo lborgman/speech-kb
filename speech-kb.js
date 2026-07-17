@@ -665,12 +665,21 @@ function displayPage() {
 
     /************** EDIT ***********/
     const btnDot = mkElt("button", undefined, ".");
+    btnDot.title = "- punctuation dot";
     const btnExclamation = mkElt("button", undefined, "!");
+    btnExclamation.title = "- punctuation exclamation";
     const btnQuestion = mkElt("button", undefined, "?");
+    btnQuestion.title = "- punctuation question";
     const btnParagraph = mkElt("button", undefined, "¶");
+    btnParagraph.title = "- add paragraph space";
     const btnEdit = mkElt("button", undefined, "✎");
+    btnEdit.title = "- keyboard editing";
     const btnDelete = mkElt("button", undefined, "⌫");
+    btnDelete.title = "- delete last sentence";
     const btnRevert = mkElt("button", undefined, "⟲");
+    btnRevert.title = "- revert last sentence";
+    const btnCopyToClipboard = mkElt("button", undefined, "❑")
+    btnCopyToClipboard.title = "- copy to clipboard";
 
     const btnDebug = mkElt("button", undefined, "🐞");
     btnDebug.style = `
@@ -695,6 +704,7 @@ function displayPage() {
         btnDelete,
         btnRevert,
         btnEdit,
+        btnCopyToClipboard,
         btnDebug,
     );
     btnDot.addEventListener("click", evt => {
@@ -796,6 +806,24 @@ function displayPage() {
         evt.stopPropagation();
         const eltToEdit = getLastFinalOut();
         eltToEdit.textContent = eltToEdit.dataset.orig;
+    });
+    btnCopyToClipboard.addEventListener("click", async evt => {
+        evt.stopPropagation();
+        // alert("not fully implement yet");
+        const text = eltOutputText.textContent;
+        // 4. Write to the clipboard via the modern API
+        try {
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    // 'text/html': htmlBlob,
+                    'text/plain': text
+                })
+            ]);
+            modBasicUI.snackbar("Copied to clipboard");
+        } catch (err) {
+            debugger;
+            alert(`error copying to clipboard, ${err}`);
+        }
     });
     function getLastFinalOut() {
         // const eltOutputText = document.getElementById("output-text");
@@ -1123,7 +1151,7 @@ function checkEditButtonsState() {
     const eltEditButtons = document.getElementById("edit-buttons");
     const eltOut = eltOutputText.querySelector(".final-out");
     const foundEltOut = !!eltOut;
-    console.log({foundEltOut, eltOut});
+    console.log({ foundEltOut, eltOut });
     // eltEditButtons.inert = !foundEltOut;
     document.documentElement.classList.remove("has-text");
     if (!foundEltOut) return;
