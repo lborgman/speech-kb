@@ -136,12 +136,24 @@ function cancelListening() {
 // Testing Lovable:
 
 const isAndroid = /android/i.test(navigator.userAgent);
+const isLocalhost = Boolean(
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '[::1]' || // IPv6
+    window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/) // IPv4 127.0.0.1/8
+);
+
+if (isLocalhost) {
+    // debugger;
+    console.log('Running on localhost');
+}
 
 let shouldKeepListening = false;
 let hasCommitted = false;
 let finalText = "";
 
+// This does not seem to work any more 2026-07-17
 recognition.continuous = !isAndroid;   // true on Windows, false on Android
+
 recognition.interimResults = true;
 
 recognition.addEventListener("start", () => {
@@ -279,8 +291,8 @@ recognition.addEventListener("end", () => {
     // Auto-restart:
     //  - Android: required after every utterance (continuous is ignored)
     //  - Windows: only restarts if the engine itself stopped (silence timeout, error)
+    debugOutput(`SKL:${shouldKeepListening}`);
     if (shouldKeepListening) {
-        debugOutput(`SKL`);
         const msSinceStart = Date.now() - msRecognitionSpeechEnd;
         // debugger;
         console.log("E,shouldKeepListening", msSinceStart);
@@ -302,6 +314,14 @@ recognition.addEventListener("end", () => {
     } else {
         debugOutput(`NOT-SKL`);
     }
+});
+recognition.addEventListener("speechstart", () => {
+    console.log("----- speechstart 2");
+    msRecognitionSpeechEnd = Date.now();
+});
+recognition.addEventListener("speechend 2", () => {
+    console.log("----- speechend");
+    msRecognitionSpeechEnd = Date.now();
 });
 
 
