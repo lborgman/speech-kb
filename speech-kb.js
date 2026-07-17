@@ -280,13 +280,14 @@ recognition.addEventListener("end", () => {
     //  - Android: required after every utterance (continuous is ignored)
     //  - Windows: only restarts if the engine itself stopped (silence timeout, error)
     if (shouldKeepListening) {
+        debugOutput(`SKL`);
         const msSinceStart = Date.now() - msRecognitionSpeechEnd;
         // debugger;
-        console.log("end, shouldKeepListening", msSinceStart);
-        debugOutput(`end,skl,${msSinceStart}`);
+        console.log("E,shouldKeepListening", msSinceStart);
+        debugOutput(`E,skl,${msSinceStart}`);
         if (msSinceStart > 10 * 1000) {
-            console.log("end, shouldKeepListening > 10");
-            debugOutput(`end,skl,>10`);
+            console.log("E,shouldKeepListening > 10");
+            debugOutput(`E,skl,>10`);
             return;
         }
         try {
@@ -295,9 +296,11 @@ recognition.addEventListener("end", () => {
             recognition.start();
         } catch (_) {
             // already starting — ignore
-            console.log("end, already starting — ignore");
-            debugOutput("end,as");
+            console.log("E,already starting — ignore");
+            debugOutput("E,as");
         }
+    } else {
+        debugOutput(`NOT-SKL`);
     }
 });
 
