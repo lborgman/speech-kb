@@ -311,8 +311,18 @@ export function nextPaint(fun) {
 // Module-level variable to track the active timer
 let tmrSnackbar = null;
 
-export function snackbar(bdy, sec) {
-  createSnackbarDiv(bdy, sec);
+/**
+ * @param {HTMLDivElement|string} bdy 
+ * @param {number} sec 
+ * @param {Object} [colors={}] - Colors
+ * @param {string} [colors.bg]
+ * @param {string} [colors.clr]
+ *
+ * @returns {void}
+ */
+export function snackbar(bdy, sec = 10, colors = {}) {
+  createSnackbarDiv(bdy, sec, false, {}, colors);
+
   return;
   // Default to 10 seconds if not provided or if 0 is passed mistakenly
   sec = sec === undefined ? 10 : sec;
@@ -382,6 +392,7 @@ export function snackbar(bdy, sec) {
 }
 
 setTimeout(() => { snackbar("Hi, welcome!", 3) }, 500);
+// setTimeout(() => { snackbar("Hi, welcome!", 3, { bg: "red", clr: "yellow" }) }, 500);
 
 
 
@@ -704,6 +715,7 @@ function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false) {
   snackbar.append(message);
 
   const dismiss = () => {
+    return;
     snackbar.hidePopover();
     snackbar.remove();
   };
@@ -742,8 +754,11 @@ function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false) {
  * @param {string} [coords.left] - CSS left coordinate.
  * @param {string} [coords.right] - CSS right coordinate.
  * @param {string} [coords.width] - CSS width constraint.
+ * @param {Object} [colors={}]
+ * @param {string} [colors.bg]
+ * @param {string} [colors.clr]
  */
-function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}) {
+function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}, colors = {}) {
   // Validate conflicting coordinate properties
   if (coords.top !== undefined && coords.bottom !== undefined) {
     console.warn("Snackbar Conflict: Both 'top' and 'bottom' provided. 'top' will take priority.");
@@ -754,11 +769,18 @@ function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}
 
   const snackbar = document.createElement('div');
   snackbar.id = "snackbar";
+  if (colors.bg) {
+    snackbar.style.setProperty("--snack-bg", colors.bg);
+  }
+  if (colors.clr) {
+    snackbar.style.color = colors.clr;
+  }
 
   snackbar.textContent = "";
   snackbar.append(message);
 
   const dismiss = () => {
+    // return;
     snackbar.style.opacity = '0';
     snackbar.addEventListener('transitionend', () => {
       snackbar.hidePopover();

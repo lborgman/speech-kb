@@ -133,7 +133,7 @@ export async function selectFile(mediaTypes, title) {
 }
 
 /**
- * @param {object} pickerOptions
+ * @param {Object} pickerOptions
  * @returns {Promise<FileSystemFileHandle|undefined>} Returns null if aborted
  */
 export async function selectFileAdvanced(pickerOptions) {

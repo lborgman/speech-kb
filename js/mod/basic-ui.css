@@ -10,6 +10,8 @@
 :root {
     font-size: 16px;
     font-family: Arial, Helvetica, sans-serif;
+    --snack-bg: lightblue;
+    /* --snack-bg: red; */
 }
 
 :root {
@@ -342,11 +344,13 @@ dialog:has(div.no-x-close-button) {
     margin: 0;
     padding: 4px;
     color: black;
-    background-color: lightblue;
+    /* background-color: lightblue; */
+    background-color: var(--snack-bg);
     outline: none;
     border: none;
     border-radius: 4px;
-    box-shadow: 0px 0px 20px 4px lightblue;
+    /* box-shadow: 0px 0px 20px 4px lightblue; */
+    box-shadow: 0px 0px 20px 4px var(--snack-bg);
     overflow-x: clip;
 }
 

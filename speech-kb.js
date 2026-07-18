@@ -397,6 +397,12 @@ function displayPage() {
 
         modBasicUI.addMenuAlt(dialogMenu, "New document", async () => {
             const newName = prompt("New doc name:", "");
+            if (newName == null) {
+                // modBasicUI.snackbar("Aborted");
+                const elt = mkElt("div", { style: "background:black; color:white;" }, "Aborted");
+                modBasicUI.snackbar(elt, 1.2, { bg: "black", clr: "white" });
+                return;
+            }
             if (newName == strNoDoc) {
                 debugger;
                 throw Error(`invalid doc name: ${newName}`)
