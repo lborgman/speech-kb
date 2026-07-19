@@ -459,6 +459,13 @@ function displayPage() {
 
         modBasicUI.addMenuDivider(dialogMenu);
 
+        modBasicUI.addMenuAlt(dialogMenu, "Copy to clipboard", () => {
+            if (!eltOutputText) throw Error("!eltOutputText");
+            const text = eltOutputText?.textContent;
+            copyTextToClipboard(text);
+        });
+        modBasicUI.addMenuDivider(dialogMenu);
+
         const eltDebugTitle = mkElt("span", { style: "background-color:red;padding:8px;" }, "DEBUGGING");
         modBasicUI.addMenuAlt(dialogMenu, eltDebugTitle);
 
@@ -688,8 +695,6 @@ function displayPage() {
     btnDelete.title = "- delete last sentence";
     const btnRevert = mkElt("button", undefined, "⟲");
     btnRevert.title = "- revert last sentence";
-    const btnCopyToClipboard = mkElt("button", undefined, "❑")
-    btnCopyToClipboard.title = "- copy to clipboard";
 
     const btnDebug = mkElt("button", undefined, "🐞");
     btnDebug.style = `
@@ -701,8 +706,8 @@ function displayPage() {
         document.documentElement.classList.toggle("show-debug");
     })
 
-    // const divEditButtons = document.getElementById("edit-buttons");
     const divMinorEditButtons = document.getElementById("minor-edit-buttons");
+    if (!divMinorEditButtons) throw Error("!divMinorEditButtons");
     divMinorEditButtons.append(
         btnDot,
         btnExclamation,
@@ -710,11 +715,11 @@ function displayPage() {
         btnParagraph,
     );
     const divMajorEditButtons = document.getElementById("major-edit-buttons");
+    if (!divMajorEditButtons) throw Error("!divMajorEditButtons");
     divMajorEditButtons.append(
         btnDelete,
         btnRevert,
         btnEdit,
-        btnCopyToClipboard,
         btnDebug,
     );
     btnDot.addEventListener("click", evt => {
@@ -826,24 +831,6 @@ function displayPage() {
         evt.stopPropagation();
         const eltToEdit = getElementForOp();
         eltToEdit.textContent = eltToEdit.dataset.orig;
-    });
-    btnCopyToClipboard.addEventListener("click", async evt => {
-        evt.stopPropagation();
-        // alert("not fully implement yet");
-        const text = eltOutputText.textContent;
-        // 4. Write to the clipboard via the modern API
-        try {
-            await navigator.clipboard.write([
-                new ClipboardItem({
-                    // 'text/html': htmlBlob,
-                    'text/plain': text
-                })
-            ]);
-            modBasicUI.snackbar("Copied to clipboard");
-        } catch (err) {
-            debugger;
-            alert(`error copying to clipboard, ${err}`);
-        }
     });
     function getElementForOp() {
         if (!eltOutputText) {
@@ -1082,10 +1069,12 @@ async function saveOutputTextToOPFS() {
     }
     if (!eltOutputText) {
         debugger;
+        throw Error("!eltOutputText");
     }
     // const targetElement = document.getElementById("output-text");
     // const contentToSave = eltOutputText.innerHTML;
-    const contentToSave = eltOutputText.textContent;
+    // const contentToSave = eltOutputText.textContent;
+    const contentToSave = eltOutputText.innerHTML;
     return modOPFS.saveTextAsBlob(fileName, contentToSave)
 
     /*
@@ -1330,3 +1319,21 @@ function setupForSelectSentence() {
     });
 }
 setupForSelectSentence();
+
+/**
+ * @param {string} text
+ */
+async function copyTextToClipboard(text) {
+    try {
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                // 'text/html': htmlBlob,
+                'text/plain': text
+            })
+        ]);
+        modBasicUI.snackbar("Copied to clipboard");
+    } catch (err) {
+        debugger;
+        alert(`error copying to clipboard, ${err}`);
+    }
+}
