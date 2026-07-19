@@ -559,6 +559,21 @@ function displayPage() {
         } else {
             recognition.lang = langSelectChrome.value;
             msRecognitionSpeechEnd = Date.now();
+
+            // https://github.com/WebAudio/web-speech-api/blob/main/explainers/on-device-speech-recognition.md
+            debugger;
+            try {
+                const options = { langs: ['en-US'], processLocally: true };
+                await recognition.available(options);
+                alert("recognition locally");
+            } catch (err) {
+                alert("NO recognition locally");
+            }
+
+            recognition.options = {
+                langs: ['en-US'],
+                processLocally: true
+            };
             recognition.start();
         }
     }
