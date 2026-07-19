@@ -54,7 +54,7 @@ class SettingSelect {
         })
     }
 }
-const strNoDoc = "(no document)";
+const strNoDoc = "(Default doc, never saved)";
 const settingCurrentDoc = new OurLocalSetting("current-doc", strNoDoc);
 const settingAdvancedSpeech = new OurLocalSetting("advanced-speech", false);
 const settingDeepgramApiKey = new OurLocalSetting("deepgram-api-key", "");
@@ -411,9 +411,8 @@ function displayPage() {
             displayDocInfo();
             eltOutputText.textContent = "";
         });
-        modBasicUI.addMenuAlt(dialogMenu, "Open document", async () => {
+        modBasicUI.addMenuAlt(dialogMenu, "Documents", async () => {
             console.log({ modOPFS });
-            // const list = await modOPFS.listDirectoryContents();
             const list = await modOPFS.listMyDirectoryContents();
             const files = list.files;
             console.log({ list, files });
@@ -431,7 +430,14 @@ function displayPage() {
                 eltFiles.textContent = "No documents";
             } else {
                 files.forEach(f => {
-                    const eltFile = mkOpenButton(f);
+                    const btnOpen = mkOpenButton(f);
+                    const btnDelete = mkDeleteButton(f);
+                    const eltFile = mkElt("div", undefined, [btnOpen, btnDelete]);
+                    eltFile.style = `
+                        display: flex;
+                        gap: 20px;
+                        justify-content: space-between;
+                    `;
                     eltFiles.appendChild(eltFile);
                 });
             }
@@ -441,15 +447,25 @@ function displayPage() {
                 }
                 const btn = mkElt("button", { class: "open-doc-button" }, fileName);
                 btn.addEventListener("click", evt => {
-                    // evt.stopPropagation();
-                    // debugger;
                     settingCurrentDoc.value = fileName;
-                    // userStopListening();
-                    // displayDocInfo();
-                    // loadDoc(fileName);
                     doTheDocLoading(fileName);
                     const dlg = btn.closest("dialog");
                     dlg.close();
+                })
+                return btn;
+            }
+            function mkDeleteButton(fileName) {
+                const btn = mkElt("button", { class: "delete-doc-button" }, "DEL");
+                btn.addEventListener("click", async evt => {
+                    debugger;
+                    await modOPFS.deleteSavedFileBlob(fileName);
+                    btn.style.visibility = "hidden";
+                    const parent = btn.parentElement;
+                    parent.style.textDecoration = "line-through";
+                    if (settingCurrentDoc.getValueS() == fileName) {
+                        settingCurrentDoc.reset();
+                        doTheDocLoading(settingCurrentDoc.getValueS());
+                    }
                 })
                 return btn;
             }
@@ -1337,3 +1353,12 @@ async function copyTextToClipboard(text) {
         alert(`error copying to clipboard, ${err}`);
     }
 }
+
+const eltLogo = document.getElementById("logo");
+if (!eltLogo) throw ("!eltLogo");
+eltLogo.addEventListener("click", evt => {
+    const aInfo = mkElt("a", {
+        href: "https://lborgman.github.io/speech-kb/",
+        target: "_blank"
+    })
+})

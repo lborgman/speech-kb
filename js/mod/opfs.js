@@ -253,6 +253,14 @@ export async function getSavedFileBlob(savedName) {
     const b = await getBlobFromOPFS(savedName);
     return b;
 }
+/**
+ * @param {string} savedName 
+ */
+export async function deleteSavedFileBlob(savedName) {
+    const fileHandle = await getHandleFromOPFS(savedName);
+    if (!fileHandle) throw Error(`Did not find "${savedName}"`);
+    await fileHandle.remove();
+}
 
 async function getOurDatabase() {
     debugger;
