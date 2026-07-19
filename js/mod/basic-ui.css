@@ -342,15 +342,13 @@ dialog:has(div.no-x-close-button) {
     left: 20vw;
     width: 60vw;
     margin: 0;
-    padding: 4px;
+    padding: 6px;
     color: black;
-    /* background-color: lightblue; */
     background-color: var(--snack-bg);
+    box-shadow: 0px 0px 20px 4px var(--snack-bg);
     outline: none;
     border: none;
     border-radius: 4px;
-    /* box-shadow: 0px 0px 20px 4px lightblue; */
-    box-shadow: 0px 0px 20px 4px var(--snack-bg);
     overflow-x: clip;
 }
 

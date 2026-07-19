@@ -10,9 +10,17 @@ const mkElt = window["mkElt"];
 
 /** @type {undefined|string} */
 let myOpfsSubDirName;
+/* @type {undefined|FileSystemDirectoryHandle} */
+/*
+let myOpfsSubDirHandle;
+async function getMyOpfsDirHandle() {
+    const opfsRoot = await navigator.storage.getDirectory();
+}
+*/
+
 /**
  * If the web page uses arbitrary file names it should have its own
- * sub directory.
+ * sub directory. Just under the main directory.
  *
  * @param {string} subDirName
  */
@@ -25,11 +33,13 @@ export function setMyOpfsDirectory(subDirName) {
 }
 
 /**
+ * Get a handle to the dir corresponding to setMyOpfsDirectory.
  * @returns {Promise<FileSystemDirectoryHandle>}
  */
-export async function getMyOpfsRoot() {
+async function getMyOpfsRoot() {
     const opfsRoot = await navigator.storage.getDirectory();
     if (myOpfsSubDirName == undefined) {
+        debugger;
         return opfsRoot;
     }
     const mySubdir = opfsRoot.getDirectoryHandle(myOpfsSubDirName, { create: true });
@@ -395,13 +405,32 @@ export async function OLDlistDirectoryContents(directoryHandle, depth) {
     }
     return filesNames;
 }
-export async function listDirectoryContents(directoryHandle) {
+export async function listMyDirectoryContents() {
+    const myRoot = await getMyOpfsRoot();
+    console.log({ myRoot });
+    const list = await listDirectoryContents(myRoot);
+    return list;
+}
+async function listDirectoryContents(directoryHandle) {
     // Fallback to Origin Private File System if no handle is passed
     const dir = directoryHandle || await navigator.storage.getDirectory();
+
+    // FIX-ME:
+    // const dv = await dir.values();
+    // debugger;
+    // const arrTemp = [...dv];
+    // debugger;
+
+    /** @type {FileSystemHandle[]} */
+    const arrTemp = await Array.fromAsync(dir.values());
+
+    /** @type {string[]} */
     const fileNames = [];
+    /** @type {string[]} */
     const dirNames = [];
 
-    for await (const entry of dir.values()) {
+    // for await (const entry of dir.values()) {
+    arrTemp.forEach(entry => {
         const isDir = entry.kind === 'directory';
 
         // Log directories with a trailing slash, files normally
@@ -412,7 +441,7 @@ export async function listDirectoryContents(directoryHandle) {
         } else {
             dirNames.push(entry.name)
         }
-    }
+    });
     // return fileNames;
     return {
         files: fileNames.sort(),
@@ -421,9 +450,8 @@ export async function listDirectoryContents(directoryHandle) {
 }
 
 /**
- * 
- * @param {FileSystemDirectoryHandle|null} dirHandle 
- * @param {string} indent 
+ * @param {FileSystemDirectoryHandle|null} [dirHandle]
+ * @param {string} indent
  * @return {Promise<string[]>}
  */
 // FIX-ME: make recursive, collect lines
@@ -477,4 +505,27 @@ export async function listOPFS(dirHandle, indent = "") {
 }
 
 // Run the function
+console.log("BEFORE listOPFS");
 await listOPFS();
+console.log("AFTER listOPFS");
+
+// await listDirectoryContents(dirHandle) {
+// console.log("AFTER listDirectoryContents");
+
+async function newListDirectoryContents(dirHandle) {
+    console.log("-------- listDirectoryContents");
+    // Loop asynchronously through the directory entries
+    for await (const [name, handle] of dirHandle.entries()) {
+        if (handle.kind === 'file') {
+            console.log(`📄 File: ${name}`);
+        } else if (handle.kind === 'directory') {
+            console.log(`📁 Directory: ${name}`);
+        }
+    }
+}
+
+
+
+// console.log("BEFORE listMyDirectoryContents");
+// const ldcMy = await listMyDirectoryContents();
+// console.log("AFTER listMyDirectoryContents", ldcMy);

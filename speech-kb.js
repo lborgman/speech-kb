@@ -398,9 +398,7 @@ function displayPage() {
         modBasicUI.addMenuAlt(dialogMenu, "New document", async () => {
             const newName = prompt("New doc name:", "");
             if (newName == null) {
-                // modBasicUI.snackbar("Aborted");
-                const elt = mkElt("div", { style: "background:black; color:white;" }, "Aborted");
-                modBasicUI.snackbar(elt, 1.2, { bg: "black", clr: "white" });
+                modBasicUI.snackbar("Aborted...", 1.2, { bg: "black", clr: "white" });
                 return;
             }
             if (newName == strNoDoc) {
@@ -415,7 +413,8 @@ function displayPage() {
         });
         modBasicUI.addMenuAlt(dialogMenu, "Open document", async () => {
             console.log({ modOPFS });
-            const list = await modOPFS.listDirectoryContents();
+            // const list = await modOPFS.listDirectoryContents();
+            const list = await modOPFS.listMyDirectoryContents();
             const files = list.files;
             console.log({ list, files });
             const eltFiles = mkElt("div", { id: "elt-docs" });
@@ -437,7 +436,7 @@ function displayPage() {
                 });
             }
             function mkOpenButton(fileName) {
-                if (fileName == settingCurrentDoc.valueS) {
+                if (fileName == settingCurrentDoc.getValueS()) {
                     return mkElt("div", undefined, `${fileName} - current`);
                 }
                 const btn = mkElt("button", { class: "open-doc-button" }, fileName);
@@ -471,7 +470,7 @@ function displayPage() {
             eltOutputText.innerText = "";
             displayDocInfo();
         });
-        modBasicUI.addMenuAlt(dialogMenu, "List OPFS to console (debugging tool)", async () => {
+        modBasicUI.addMenuAlt(dialogMenu, "List OPFS (debugging)", async () => {
             const divList = mkElt("div", undefined, [
                 mkElt("h2", undefined, "OPFS list"),
             ]);
@@ -958,6 +957,7 @@ function UpperFirstCharPlusPunctuation(eltToEdit, punctuation) {
     const uFirst = first.toLocaleUpperCase();
     const fixed = uFirst.concat(tail, punctuation);
     eltToEdit.textContent = fixed;
+    requestSave();
 }
 
 
@@ -1074,10 +1074,18 @@ function handleDomChanges(mutations) {
     console.log({ modOPFS });
     debugger;
 }
-async function saveOutputTextToOPFS(mutations) {
+async function saveOutputTextToOPFS() {
+    console.log("%c================= saveOutputTextToOPFS", "color:red;font-size:20px;");
     const fileName = settingCurrentDoc.getValueS();
+    if (!fileName) {
+        debugger;
+    }
+    if (!eltOutputText) {
+        debugger;
+    }
     // const targetElement = document.getElementById("output-text");
-    const contentToSave = eltOutputText.innerHTML;
+    // const contentToSave = eltOutputText.innerHTML;
+    const contentToSave = eltOutputText.textContent;
     return modOPFS.saveTextAsBlob(fileName, contentToSave)
 
     /*
@@ -1110,9 +1118,10 @@ async function saveOutputTextToOPFS(mutations) {
 
 // 4. Wrap your task function with debounce (e.g., wait 500ms of silence)
 // const debouncedProcess = debounce(handleDomChanges, 3000);
-const debouncedProcess = debounce(saveOutputTextToOPFS, 3000);
+const requestSave = debounce(saveOutputTextToOPFS, 3000);
 
 // 5. Create the observer and pass the debounced function as the callback
+/*
 const observerOutputText = new MutationObserver((mutationsList) => {
     // Pass the accumulated mutations list to your debounced handler
     debouncedProcess(mutationsList);
@@ -1125,6 +1134,7 @@ const config = {
     subtree: true,
     characterData: true
 };
+*/
 
 /*
 function startMonitoringOutputText() {
@@ -1139,7 +1149,7 @@ function stopMonitoringOutputText() {
 
 {
     displayDocInfo();
-    let theDocName = settingCurrentDoc.valueS;
+    let theDocName = settingCurrentDoc.getValueS();
     if (theDocName != strNoDoc) {
         doTheDocLoading(theDocName);
     }
@@ -1148,7 +1158,7 @@ function stopMonitoringOutputText() {
 
 
 function displayDocInfo() {
-    const docName = settingCurrentDoc.valueS;
+    const docName = settingCurrentDoc.getValueS();
     if (docName != strNoDoc) {
         document.documentElement.classList.add("has-doc");
     } else {
