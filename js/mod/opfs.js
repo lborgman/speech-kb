@@ -287,11 +287,13 @@ async function getBlobUrlFromOPFS(fileName) {
  * @returns {Promise<FileSystemHandle|undefined}
  */
 async function getHandleFromOPFS(fileName) {
-    const opfsRoot = await navigator.storage.getDirectory();
+    // const opfsRoot = await navigator.storage.getDirectory();
+    const opfsMyRoot = await getMyOpfsRoot();
 
     // 1. Get the private handle for the file
     try {
-        const fileHandle = await opfsRoot.getFileHandle(fileName);
+        // const fileHandle = await opfsRoot.getFileHandle(fileName);
+        const fileHandle = await opfsMyRoot.getFileHandle(fileName);
         return fileHandle;
     } catch (err) {
         if (!(err instanceof Error)) throw Error("err is not Error");
