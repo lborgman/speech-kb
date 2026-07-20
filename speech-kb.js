@@ -563,38 +563,53 @@ function displayPage() {
             // https://github.com/WebAudio/web-speech-api/blob/main/explainers/on-device-speech-recognition.md
             let status;
             // SettingSelect
+
             const lang = langSelectChrome.value;
             const options = { langs: [lang], processLocally: true };
+            // const options = { langs: ['en-US'], processLocally: true };
+
             try {
-                // const options = { langs: ['en-US'], processLocally: true };
                 status = await SpeechRecognition.available(options);
                 alert(`recognition locally for ${lang}: ${status}`);
             } catch (err) {
                 alert(`NO recognition locally for ${lang}: ${status}: ${err.name} - ${err.message}`);
             }
-            if (status == "downloadable") {
-                if (confirm(`${lang} can be recognized locally. Download this language?`)) {
-                    try {
-                        console.log(`Starting model ${lang} download... This may take a minute.`);
+            switch (status) {
+                case "downloadable": {
+                    if (status == "downloadable") {
+                        if (confirm(`${lang} can be recognized locally. Download this language?`)) {
+                            try {
+                                console.log(`Starting model ${lang} download... This may take a minute.`);
 
-                        // This triggers the browser's native permission/download prompt
-                        const success = await SpeechRecognition.install(options);
+                                // This triggers the browser's native permission/download prompt
+                                const success = await SpeechRecognition.install(options);
 
-                        if (success) {
-                            alert(`Model downloaded successfully! You can now use offline for ${lang}.`);
-                        } else {
-                            alert("The download was cancelled or failed.");
+                                if (success) {
+                                    alert(`Model downloaded successfully! You can now use offline for ${lang}.`);
+                                } else {
+                                    alert("The download was cancelled or failed.");
+                                }
+                            } catch (err) {
+                                alert(`Installation error: ${err.name} - ${err.message}`);
+                            }
                         }
-                    } catch (err) {
-                        alert(`Installation error: ${err.name} - ${err.message}`);
                     }
+                    break;
                 }
+                case "unavailable":
+                    debugger;
+                    break;
+                case "available":
+                    debugger;
+                    recognition.options = {
+                        langs: ['en-US'],
+                        processLocally: true
+                    };
+                    break;
+                default:
+                    throw Error(`status == "${status}`);
             }
 
-            recognition.options = {
-                langs: ['en-US'],
-                processLocally: true
-            };
             recognition.start();
         }
     }
@@ -822,26 +837,26 @@ function displayPage() {
 
         /*
         let isPending = false;
-
+    
         function handleViewportChange() {
             if (isPending) return;
             isPending = true;
-
+    
             // Syncs your UI update directly with the browser's next screen repaint
             requestAnimationFrame(() => {
                 isPending = false;
-
+    
                 // Your heavy layout calculations go here
                 // const { height, width, scale } = window.visualViewport;
                 // console.log(`Viewport: ${width}x${height} at scale ${scale}`);
-
+    
                 // Get the exact physical pixel height currently visible to the human eye
                 const currentVisualHeight = window.visualViewport.height;
                 // Feed this raw number straight into your CSS variable
                 document.documentElement.style.setProperty('--visible-height', `${currentVisualHeight}px`)
             });
         }
-
+    
         // Attach the same listener to both scroll and resize for total accuracy
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', handleViewportChange);
