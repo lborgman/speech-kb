@@ -570,7 +570,7 @@ function displayPage() {
                 status = await SpeechRecognition.available(options);
                 alert(`recognition locally for ${lang}: ${status}`);
             } catch (err) {
-                alert("NO recognition locally");
+                alert(`NO recognition locally for ${lang}: ${status}`);
             }
             if (status == "downloadable") {
                 if (confirm(`${lang} can be recognized locally. Download this language?`)) {
@@ -581,7 +581,7 @@ function displayPage() {
                         const success = await SpeechRecognition.install(options);
 
                         if (success) {
-                            alert("Model downloaded successfully! You can now use offline speech recognition.");
+                            alert(`Model downloaded success! You can now use offline speech rec ${lang}.`);
                         } else {
                             alert("The download was cancelled or failed.");
                         }
