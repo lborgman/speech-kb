@@ -49,7 +49,7 @@ class SettingSelect {
         this.storer = storer;
         eltSelect.value = storer.value;
         eltSelect.addEventListener("input", () => {
-            debugger;
+            // debugger;
             storer.value = eltSelect.value;
         })
     }
@@ -561,13 +561,34 @@ function displayPage() {
             msRecognitionSpeechEnd = Date.now();
 
             // https://github.com/WebAudio/web-speech-api/blob/main/explainers/on-device-speech-recognition.md
-            debugger;
+            let status;
+            // SettingSelect
+            const lang = langSelectChrome.value;
+            const options = { langs: [lang], processLocally: true };
             try {
-                const options = { langs: ['en-US'], processLocally: true };
-                await recognition.available(options);
-                alert("recognition locally");
+                // const options = { langs: ['en-US'], processLocally: true };
+                status = await SpeechRecognition.available(options);
+                alert(`recognition locally for ${lang}: ${status}`);
             } catch (err) {
                 alert("NO recognition locally");
+            }
+            if (status == "downloadable") {
+                if (confirm(`${lang} can be recognized locally. Download this language?`)) {
+                    try {
+                        console.log("Starting model download... This may take a minute.");
+
+                        // This triggers the browser's native permission/download prompt
+                        const success = await SpeechRecognition.install(options);
+
+                        if (success) {
+                            alert("Model downloaded successfully! You can now use offline speech recognition.");
+                        } else {
+                            alert("The download was cancelled or failed.");
+                        }
+                    } catch (err) {
+                        alert(`Installation error: ${err.name} - ${err.message}`);
+                    }
+                }
             }
 
             recognition.options = {
