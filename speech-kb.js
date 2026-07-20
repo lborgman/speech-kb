@@ -570,18 +570,18 @@ function displayPage() {
                 status = await SpeechRecognition.available(options);
                 alert(`recognition locally for ${lang}: ${status}`);
             } catch (err) {
-                alert(`NO recognition locally for ${lang}: ${status}`);
+                alert(`NO recognition locally for ${lang}: ${status}: ${err.name} - ${err.message}`);
             }
             if (status == "downloadable") {
                 if (confirm(`${lang} can be recognized locally. Download this language?`)) {
                     try {
-                        console.log("Starting model download... This may take a minute.");
+                        console.log(`Starting model ${lang} download... This may take a minute.`);
 
                         // This triggers the browser's native permission/download prompt
                         const success = await SpeechRecognition.install(options);
 
                         if (success) {
-                            alert(`Model downloaded success! You can now use offline speech rec ${lang}.`);
+                            alert(`Model downloaded successfully! You can now use offline for ${lang}.`);
                         } else {
                             alert("The download was cancelled or failed.");
                         }
