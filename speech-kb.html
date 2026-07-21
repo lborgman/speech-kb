@@ -301,29 +301,42 @@
             The four availability statuses:
             available, downloadable, downloading, unavailable
         */
+        /* div.recogn-loc-sym { display: none; } */
+
         div.recogn-loc-sym {
             background-size: contain;
-            NOdisplay: none;
             width: 20px;
             height: 20px;
-            display: inline;
-            display: block;
         }
 
-        #recogn-loc-available {
-            div.recogn-loc-sym {
-                background-image: url(./img/offline_pin.svg);
+        #recogn-loc-available,
+        #recogn-loc-unavailable,
+        #recogn-loc-downloadable,
+        #recogn-loc-downloading {
+            display: none;
+        }
+
+        .mic-is-on {
+
+            #recogn-loc-available {
+                display: block;
+
+                div.recogn-loc-sym {
+                    background-image: url(./img/offline_pin.svg);
+                }
             }
-        }
 
-        #recogn-loc-available::after {
-            content: "transcribe offline";
-            color: greenyellow;
-        }
+            #recogn-loc-available::after {
+                content: "transcribe offline";
+                color: greenyellow;
+            }
 
-        #recogn-loc-unavailable {
-            div.recogn-loc-sym {
-                background-image: url(./img/offline_pin_off.svg);
+            #recogn-loc-unavailable {
+                display: block;
+
+                div.recogn-loc-sym {
+                    background-image: url(./img/offline_pin_off.svg);
+                }
             }
         }
 
@@ -332,18 +345,38 @@
             color: red;
             color: #ff0206;
             color: #ff2c2c;
+            /*
+                Pixel 10 color system is completely flawed. 
+                Instead of simple red this might work on a black background???
+            */
+            color: #f55;
+            color: #f33;
         }
 
+        .recogn-loc-unavailable {
+            #recogn-loc-unavailable {
+                display: block;
+            }
 
-        #recogn-loc-downloadable {
             div.recogn-loc-sym {
-                background-image: url(./img/download_for_offline.svg);
+                background-image: url(./img/offline_pin_off.svg);
             }
         }
 
-        #recogn-loc-downloadable::after {
-            content: "transcribe downloadable";
-            color: yellow;
+        .recogn-loc-downloadable {
+
+            #recogn-loc-downloadable {
+                display: block;
+
+                div.recogn-loc-sym {
+                    background-image: url(./img/download_for_offline.svg);
+                }
+            }
+
+            #recogn-loc-downloadable::after {
+                content: "transcribe downloadable";
+                color: yellow;
+            }
         }
 
         #recogn-loc-downloading {

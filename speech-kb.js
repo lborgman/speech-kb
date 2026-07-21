@@ -78,6 +78,10 @@ const langSelectChrome = document.getElementById('speech-lang-chrome');
 new SettingSelect(STORING_PREFIX, langSelectChrome);
 const langSelectDeepgram = document.getElementById('speech-lang-deepgram');
 new SettingSelect(STORING_PREFIX, langSelectDeepgram);
+langSelectChrome?.addEventListener("input", _evt => {
+    console.log("input langSelectChrome");
+    getRecognStatus();
+});
 
 // const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 // const SpeechRecognition = window.SpeechRecognition;
@@ -563,59 +567,10 @@ function displayPage() {
             // https://github.com/WebAudio/web-speech-api/blob/main/explainers/on-device-speech-recognition.md
             //// Not available on Android yet:
             // https://chromestatus.com/feature/6090916291674112
-            let status;
             // SettingSelect
 
-            const lang = langSelectChrome.value;
-            const options = { langs: [lang], processLocally: true };
-            // const options = { langs: ['en-US'], processLocally: true };
-            try {
-                status = await SpeechRecognition.available(options);
-                alert(`recognition locally for ${lang}: ${status}`);
-            } catch (err) {
-                alert(`NO recognition locally for ${lang}: ${status}: ${err.name} - ${err.message}`);
-            }
-            switch (status) {
-                case "downloadable": {
-                    if (status == "downloadable") {
-                        if (confirm(`${lang} can be recognized locally. Download this language?`)) {
-                            try {
-                                console.log(`Starting model ${lang} download... This may take a minute.`);
-
-                                // This triggers the browser's native permission/download prompt
-                                const success = await SpeechRecognition.install(options);
-
-                                if (success) {
-                                    alert(`Model downloaded successfully! You can now use offline for ${lang}.`);
-                                } else {
-                                    alert("The download was cancelled or failed.");
-                                }
-                            } catch (err) {
-                                alert(`Installation error: ${err.name} - ${err.message}`);
-                            }
-                        }
-                    }
-                    break;
-                }
-                case "unavailable":
-                    debugger;
-                    recognition.options = {
-                        langs: [lang],
-                        processLocally: false
-                    };
-                    document.documentElement.classList.remove("recogn-locally");
-                    break;
-                case "available":
-                    debugger;
-                    recognition.options = {
-                        langs: [lang],
-                        processLocally: true
-                    };
-                    document.documentElement.classList.add("recogn-locally");
-                    break;
-                default:
-                    throw Error(`status == "${status}`);
-            }
+            /* @type {string} */
+            // const status = await getRecognStatus();
 
             recognition.start();
         }
@@ -1453,3 +1408,66 @@ eltLogo.addEventListener("click", evt => {
         target: "_blank"
     })
 })
+
+async function getRecognStatus() {
+    const lang = langSelectChrome.value;
+    recognition.lang = lang;
+    const options = { langs: [lang], processLocally: true };
+    // const options = { langs: ['en-US'], processLocally: true };
+    let status;
+    try {
+        status = await SpeechRecognition.available(options);
+        alert(`recognition locally for ${lang}: ${status}`);
+    } catch (err) {
+        // alert(`NO recognition locally for ${lang}: ${status}: ${err.name} - ${err.message}`);
+        throw Error(`NO recognition locally for ${lang}: ${status}: ${err.name} - ${err.message}`);
+    }
+    document.documentElement.classList.remove(`recogn-loc-downloadable`);
+    document.documentElement.classList.remove(`recogn-loc-downloading`);
+    document.documentElement.classList.remove(`recogn-loc-available`);
+    document.documentElement.classList.remove(`recogn-loc-unavailable`);
+    document.documentElement.classList.add(`recogn-loc-${status}`);
+    switch (status) {
+        case "downloadable": {
+            if (status == "downloadable") {
+                // if (confirm(`${lang} can be recognized locally. Download this language?`)) {
+                if (false) {
+                    try {
+                        console.log(`Starting model ${lang} download... This may take a minute.`);
+
+                        // This triggers the browser's native permission/download prompt
+                        const success = await SpeechRecognition.install(options);
+
+                        if (success) {
+                            alert(`Model downloaded successfully! You can now use offline for ${lang}.`);
+                        } else {
+                            alert("The download was cancelled or failed.");
+                        }
+                    } catch (err) {
+                        alert(`Installation error: ${err.name} - ${err.message}`);
+                    }
+                }
+            }
+            break;
+        }
+        case "unavailable":
+            debugger;
+            recognition.options = {
+                langs: [lang],
+                processLocally: false
+            };
+            break;
+        case "available":
+            debugger;
+            recognition.options = {
+                langs: [lang],
+                processLocally: true
+            };
+            break;
+        default:
+            throw Error(`status == "${status}`);
+    }
+    return status;
+}
+
+await getRecognStatus();
