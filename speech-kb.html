@@ -296,20 +296,58 @@
             }
         }
 
-        #recogn-locally {
-            color: greenyellow;
-            display: none;
-        }
 
-        .mic-is-on.recogn-locally #recogn-locally {
-            display: unset;
-        }
-
-        #recogn-locally-sym {
-            background-image: url(./img/offline_pin.svg);
+        /*
+            The four availability statuses:
+            available, downloadable, downloading, unavailable
+        */
+        div.recogn-loc-sym {
             background-size: contain;
-            height: 20px;
+            NOdisplay: none;
             width: 20px;
+            height: 20px;
+            display: inline;
+            display: block;
+        }
+
+        #recogn-loc-available {
+            div.recogn-loc-sym {
+                background-image: url(./img/offline_pin.svg);
+            }
+        }
+        #recogn-loc-available::after {
+            content: "transcribe offline";
+            color: greenyellow;
+        }
+
+        #recogn-loc-downloadable {
+            div.recogn-loc-sym {
+                background-image: url(./img/download_for_offline.svg);
+            }
+        }
+        #recogn-loc-downloadable::after {
+            content: "transcribe downloadable";
+            color: yellow;
+        }
+
+        #recogn-loc-downloading {
+            div.recogn-loc-sym {
+                background-image: url(./img/downloading.svg);
+            }
+        }
+        #recogn-loc-downloading::after {
+            content: "transcribe downloading";
+            color: white;
+        }
+
+        #recogn-loc-unavailable {
+            div.recogn-loc-sym {
+                background-image: url(./img/offline_pin_off.svg);
+            }
+        }
+        #recogn-loc-unavailable::after {
+            content: "transcribe online";
+            color: red;
         }
 
 

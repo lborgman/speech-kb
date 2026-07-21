@@ -707,19 +707,43 @@ function displayPage() {
                 display: none;
             `;
 
-    const eltRcgnLocallySym = mkElt("div");
-    eltRcgnLocallySym.id = "recogn-locally-sym";
-    // eltRcgnLocallySym.classList.add("mic-btn");
-    // eltRcgnLocallySym.style.backgroundImage = "url(./img/offline-pin.svg)";
 
-    const eltRecLocally = mkElt("div", { id: "recogn-locally" }, [
-        eltRcgnLocallySym
+    ////////////////////////////////
+    // The four availability statuses:
+    // available, downloadable, downloading, unavailable
+
+    const eltRcgnLocalAvailable = mkElt("div", { id: "recogn-loc-available" }, [
+        mkElt("div", { class: "recogn-loc-sym" })
     ]);
+    const eltRcgnLocalUnvailable = mkElt("div", { id: "recogn-loc-unavailable" }, [
+        mkElt("div", { class: "recogn-loc-sym" })
+    ]);
+    const eltRcgnLocalDownloadable = mkElt("div", { id: "recogn-loc-downloadable" }, [
+        mkElt("div", { class: "recogn-loc-sym" })
+    ]);
+    const eltRcgnLocalDownloading = mkElt("div", { id: "recogn-loc-downloading" }, [
+        mkElt("div", { class: "recogn-loc-sym" })
+    ]);
+
+
+
+    const eltLocallyAvailability = mkElt("div", undefined, [
+        eltRcgnLocalAvailable,
+        eltRcgnLocalUnvailable,
+        eltRcgnLocalDownloadable,
+        eltRcgnLocalDownloading
+    ]);
+
+
+
 
     const divOnOffButtons = document.getElementById("on-off-buttons");
     // divOnOffButtons.append(btnStart, btnStop, eltMic);
     const eltBothMics = mkElt("div", { id: "mic-sym" }, [eltMicOff, eltMicOn])
-    const eltTheMic = mkElt("span", { id: "the-mic" }, [eltBothMics, eltRecLocally, eltMicStatus]);
+    const eltTheMic = mkElt("span", { id: "the-mic" }, [
+        eltBothMics,
+        eltLocallyAvailability,
+        eltMicStatus]);
     const inpModel = settingAdvancedSpeech.getInputElement();
     inpModel.style.backgroundColor = "var(--color-for-advanced)";
     inpModel.style.borderColor = "var(--color-for-advanced)";
