@@ -1384,7 +1384,8 @@ eltLogo.addEventListener("click", evt => {
     const aInfo = mkElt("a", {
         href: "https://lborgman.github.io/speech-kb/",
         target: "_blank"
-    })
+    });
+    aInfo.click();
 })
 
 async function getRecognStatus() {
@@ -1395,7 +1396,7 @@ async function getRecognStatus() {
     let status;
     try {
         status = await SpeechRecognition.available(options);
-        alert(`recognition locally for ${lang}: ${status}`);
+        // alert(`recognition locally for ${lang}: ${status}`);
     } catch (err) {
         // alert(`NO recognition locally for ${lang}: ${status}: ${err.name} - ${err.message}`);
         throw Error(`NO recognition locally for ${lang}: ${status}: ${err.name} - ${err.message}`);

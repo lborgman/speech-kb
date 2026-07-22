@@ -67,6 +67,7 @@
 
         #logo {
             display: block;
+            position: relative;
             width: 60px;
             height: 60px;
             background-image: url(./img/speech-kb.svg);
@@ -74,6 +75,18 @@
             background-position: center;
             background-repeat: no-repeat;
             cursor: pointer;
+        }
+        #logo-info {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            /* outline: 2px dotted red; */
+            background-color: white;
+            background-image: url(./img/info.svg);
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         h1 {
@@ -529,7 +542,7 @@
 
 <body>
     <header>
-        <span id="logo" aria-label="Logo"></span>
+        <span id="logo" aria-label="Logo"><span id="logo-info"></span></span>
         <div id="beside-logo">
             <h1>Speech Writer 0.102</h1>
             <button id="doc">
