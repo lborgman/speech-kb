@@ -97,8 +97,10 @@ recognition.interimResults = true; // Show results live as you speak
 // recognition.lang = 'en-US';
 {
     const sel = document.getElementById("speech-lang-chrome");
+    if (!sel) throw Error("!sel");
     const val = sel.value;
-    console.log(sel, val);
+    const opt = sel.querySelector("option:checked");
+    console.log(sel, val, opt);
     // debugger;
     recognition.lang = val;
 }
@@ -658,6 +660,12 @@ function displayPage() {
         mkElt("div", { class: "recogn-loc-sym" })
     ]);
 
+    eltRcgnLocalDownloadable.addEventListener("click", async evt => {
+        evt.stopPropagation();
+        const ans = await dialogRecognDownloadSelectedLang();
+        debugger;
+        alert(`Not ready. ans==${ans}`);
+    });
 
 
     const eltLocallyAvailability = mkElt("div", undefined, [
@@ -1448,3 +1456,37 @@ async function getRecognStatus() {
 }
 
 await getRecognStatus();
+
+
+/**
+ * @param {string} lang 
+ */
+async function recognDownloadLang(lang) {
+    try {
+        console.log(`Starting languagemodel ${lang} download... This may take a minute.`);
+
+        // This triggers the browser's native permission/download prompt
+        const success = await SpeechRecognition.install(options);
+
+        if (success) {
+            alert(`Model downloaded successfully! You can now use offline for ${lang}.`);
+        } else {
+            alert("The download was cancelled or failed.");
+        }
+    } catch (err) {
+        alert(`Installation error: ${err.name} - ${err.message}`);
+    }
+}
+async function dialogRecognDownloadSelectedLang() {
+    const sel = document.getElementById("speech-lang-chrome");
+    if (!sel) throw Error("!sel");
+    const val = sel.value;
+    const opt = sel.querySelector("option:checked");
+    if (!opt) throw Error("!opt");
+    const bdy = mkElt("div", undefined, [
+        mkElt("h3", undefined, `Download ${opt.textContent} (${val}) for offline speech recognition?`),
+    ]);
+    const ans = await modBasicUI.showDialogConfirm(bdy);
+    console.log({ans});
+    return ans;
+}
