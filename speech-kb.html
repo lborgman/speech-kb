@@ -76,6 +76,7 @@
             background-repeat: no-repeat;
             cursor: pointer;
         }
+
         #logo-info {
             position: absolute;
             width: 20px;
@@ -385,9 +386,18 @@
 
 
         #recogn-loc-downloadable {
+            border: 1px solid yellow;
+            border-radius: 4px;
+            padding: 4px;
+            cursor: pointer;
+
             div.recogn-loc-sym {
+                display: none;
                 background-image: url(./img/download_for_offline.svg);
             }
+        }
+        #recogn-loc-downloadable:hover {
+            outline: 4px dotted yellow;
         }
 
         #recogn-loc-downloadable::after {
