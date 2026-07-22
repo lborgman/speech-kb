@@ -611,28 +611,6 @@ function displayPage() {
         }
     }
 
-    /*
-    const eltMic = mkElt("div");
-    eltMic.title = "- Turn mic on/off";
-    eltMic.classList.add("mic-btn");
-    eltMic.style = `
-                background-image: url(./img/gmic.svg);
-                background-size: contain;
-                NOoutline: 1px dotted red;
-                width: 48px;
-                height: 48px;
-                cursor: pointer;
-            `;
-    eltMic.addEventListener("click", evt => {
-        evt.stopPropagation();
-        const isOn = document.documentElement.classList.contains("mic-is-on");
-        if (isOn) {
-            userStopListening();
-        } else {
-            userStartListening();
-        }
-    });
-    */
     const eltMicOff = mkElt("div");
     eltMicOff.id = "mic-off";
     eltMicOff.classList.add("mic-btn");
@@ -693,18 +671,19 @@ function displayPage() {
 
 
     const divOnOffButtons = document.getElementById("on-off-buttons");
-    // divOnOffButtons.append(btnStart, btnStop, eltMic);
     const eltBothMics = mkElt("div", { id: "mic-sym" }, [eltMicOff, eltMicOn])
     const eltTheMic = mkElt("span", { id: "the-mic" }, [
         eltBothMics,
         eltLocallyAvailability,
         eltMicStatus]);
+
+
     const inpModel = settingAdvancedSpeech.getInputElement();
     inpModel.style.backgroundColor = "var(--color-for-advanced)";
     inpModel.style.borderColor = "var(--color-for-advanced)";
     inpModel.style.color = "var(--color-text-for-advanced)";
     const lblModel = mkElt("label", undefined, [
-        "Advanced: ",
+        "DG: ",
         inpModel
     ]);
     if (inpModel.checked) {
@@ -719,7 +698,6 @@ function displayPage() {
         }
         return;
         if (inpModel.checked) {
-            // deepGramDialog();
             checkDeepGram();
         }
     });
@@ -732,14 +710,14 @@ function displayPage() {
     })
     const eltKey = mkElt("span", undefined, btnKey)
     const eltModel = mkElt("span", { id: "the-model" }, [lblModel, eltKey]);
-    /*
-    eltModel.style = `
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    `;
-    */
-    divOnOffButtons.append(eltTheMic, eltModel);
+    const divEltModel = document.getElementById("elt-model");
+    if (!divEltModel) throw Error("!divEltModel");
+    divEltModel.appendChild(eltModel);
+
+
+
+    // divOnOffButtons.append(eltTheMic, eltModel);
+    divOnOffButtons.append(eltTheMic);
 
 
     /************** EDIT ***********/
