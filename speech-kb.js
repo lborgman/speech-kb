@@ -1451,14 +1451,12 @@ async function getRecognStatus() {
             break;
         }
         case "unavailable":
-            debugger;
             recognition.options = {
                 langs: [lang],
                 processLocally: false
             };
             break;
         case "available":
-            debugger;
             recognition.options = {
                 langs: [lang],
                 processLocally: true
