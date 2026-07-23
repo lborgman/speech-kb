@@ -1341,6 +1341,9 @@ async function deepGramDialog() {
 
 ////// Edit
 function docStringToHtml(str) {
+    if (str.trim() == "") {
+        return [];
+    }
     const arrStr = str.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
     const arrHtml = arrStr.map(text => {
         const eltOut = mkElt("div", undefined, text);
