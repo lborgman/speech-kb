@@ -918,8 +918,11 @@ function displayPage() {
     btnDelete.addEventListener("click", evt => {
         evt.stopPropagation();
         const eltToEdit = getElementForOp();
-        console.log({ eltToEdit });
+        const eltBefore = eltToEdit.previousElementSibling;
+        console.log({ eltToEdit, eltBefore });
         eltToEdit.remove();
+        // FIX-ME: !eltBefore
+        eltBefore?.classList.add("selected");
         checkEditButtonsState();
     });
     btnRevert.addEventListener("click", evt => {
