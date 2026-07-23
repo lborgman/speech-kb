@@ -8,3 +8,6 @@ So in this little app I have tried to mix voice input with some basic commands o
 ### What is missing in Chrome on Android?
 The missing part there, that is crucial to this app, is __"on device speech to text"__. (This is actually already available today, 2026-07-22, in Chrome on Windows 11, but not on Android yet.) It is _an experimental feature that is not yet standardized_, but I guess Google will soon make it more widely available, maybe when Pixel 11 is ready?
 On device speech to text is much faster and therefore much more fun to use in an app like this!
+
+### More about "_on device speech to text_"
+https://chromestatus.com/feature/6090916291674112

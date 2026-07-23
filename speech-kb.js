@@ -72,6 +72,37 @@ function getElementOutputText() {
 const eltOutputText = document.getElementById("output-text");
 if (!eltOutputText) throw Error("Did not find output-text");
 
+function getElementForOp() {
+    if (!eltOutputText) {
+        debugger;
+        throw Error("!eltOutputText");
+    }
+    const eltOp = eltOutputText.querySelector(".selected")
+        ||
+        eltOutputText.querySelector(":last-child");
+    if (!eltOp) {
+        // debugger;
+        throw Error("!eltOp");
+    }
+    return eltOp;
+}
+function tryGetElementForOp() {
+    try {
+        const eltOp = getElementForOp();
+        return eltOp;
+    } catch (err) {
+        console.log({ err });
+        if (!(err instanceof Error)) {
+            debugger;
+            throw Error("not Error");
+        }
+        if (err.message == "!eltOp") { return; }
+        debugger;
+        throw Error("some error here");
+    }
+}
+
+
 const eltMicStatus = document.getElementById("mic-status");
 
 const langSelectChrome = document.getElementById('speech-lang-chrome');
@@ -351,11 +382,25 @@ function yourAppHandleResult(text) {
     UpperFirstCharPlusPunctuation(eltOut, ".");
     eltOut.classList.add("final-out");
 
-    eltOutputText.appendChild(eltOut);
+
+    // eltOutputText.appendChild(eltOut);
+    const eltOp = tryGetElementForOp();
+    const eltOpNext = eltOp?.nextElementSibling;
+    if (!eltOutputText) throw Error("!eltOutputText");
+    eltOutputText.insertBefore(eltOut, eltOpNext);
+    if (eltOp) {
+        if (eltOp.classList.contains("selected")) {
+            eltOp.classList.remove("selected");
+            eltOut.classList.add("selected");
+        }
+    }
+
+
+
     eltOut.scrollIntoView({ block: "end", behavoir: "auto" });
 
     // Claude:
-    eltOutputText.appendChild(eltOut);
+    // eltOutputText.appendChild(eltOut);
 
     const cs = getComputedStyle(eltOutputText);
     /*
@@ -880,24 +925,6 @@ function displayPage() {
         const eltToEdit = getElementForOp();
         eltToEdit.textContent = eltToEdit.dataset.orig;
     });
-    function getElementForOp() {
-        if (!eltOutputText) {
-            debugger;
-            throw Error("!eltOutputText");
-        }
-        const eltOp = eltOutputText.querySelector(".selected")
-            ||
-            eltOutputText.querySelector(":last-child");
-        if (!eltOp) {
-            debugger;
-            throw Error("!eltOp");
-        }
-        return eltOp;
-    }
-    function OLDgetLastFinalOut() {
-        const eltLast = eltOutputText.querySelector(":last-child");
-        return eltLast;
-    }
 
 
     function transcriberCallback(what, objDetails) {
@@ -1131,20 +1158,20 @@ async function saveOutputTextToOPFS() {
         // Get text content from our observed element
         // const contentToSave = targetElement.innerText;
         const contentToSave = targetElement.innerHTML;
-
+ 
         // Get the root of the Origin Private File System
         const root = await navigator.storage.getDirectory();
-
+ 
         // Get (or create) a reference to your file
         const fileHandle = await root.getFileHandle(settingCurrentDoc.valueS, { create: true });
-
+ 
         // Create a writeable stream access point
         const writable = await fileHandle.createWritable();
-
+ 
         // Write your DOM content and immediately close the stream to save disk space
         await writable.write(contentToSave);
         await writable.close();
-
+ 
         console.log(`Saved to OPFS at ${new Date().toLocaleTimeString()}! Data size: ${contentToSave.length} chars.`);
     } catch (error) {
         console.error("Failed to write data to OPFS:", error);
@@ -1163,7 +1190,7 @@ const observerOutputText = new MutationObserver((mutationsList) => {
     // Pass the accumulated mutations list to your debounced handler
     debouncedProcess(mutationsList);
 });
-
+ 
 // 6. Define what to watch (Attributes, Child Elements, and Text)
 const config = {
     attributes: true,
@@ -1487,6 +1514,6 @@ async function dialogRecognDownloadSelectedLang() {
         mkElt("h3", undefined, `Download ${opt.textContent} (${val}) for offline speech recognition?`),
     ]);
     const ans = await modBasicUI.showDialogConfirm(bdy);
-    console.log({ans});
+    console.log({ ans });
     return ans;
 }
