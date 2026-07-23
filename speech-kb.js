@@ -391,7 +391,9 @@ function yourAppHandleResult(text) {
     if (eltOp) {
         if (eltOp.classList.contains("selected")) {
             eltOp.classList.remove("selected");
-            eltOut.classList.add("selected");
+            if (eltOut.nextElementSibling) {
+                eltOut.classList.add("selected");
+            }
         }
     }
 
@@ -1390,7 +1392,9 @@ function setupForSelectSentence() {
         if (eltsSelected.length == 1) {
             eltsSelected[0].classList.remove("selected");
         }
-        target.classList.add("selected");
+        if (target.nextElementSibling) {
+            target.classList.add("selected");
+        }
     });
 }
 setupForSelectSentence();
