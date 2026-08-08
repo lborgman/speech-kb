@@ -313,10 +313,18 @@ export function nextPaint(fun) {
 // Snackbars
 /////////////
 
+// <!-- Native popover element configured manually so it doesn't light-dismiss -->
+// <div id="snackbar-popover" popover="manual" class="snackbar">
+// <span id="snackbar-text"></span>
+// </div>
+const eltSnackbar = mkElt("div", { id: "snackbar-popover" }, mkElt("span"));
+document.body.appendChild(eltSnackbar);
 class PopoverSnackbarQueue {
-  constructor(popoverId, textId) {
-    this.popover = document.getElementById(popoverId);
-    this.textEl = document.getElementById(textId);
+  constructor() {
+    // this.popover = document.getElementById("snackbar-popover");
+    this.popover = eltSnackbar;
+    // this.textEl = document.getElementById(textId);
+    this.textEl = this.popover?.firstElementChild;
     this.queue = [];
     this.isDisplaying = false;
 
