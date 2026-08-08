@@ -308,6 +308,137 @@ export function nextPaint(fun) {
 
 
 
+
+/////////////
+// Snackbars
+/////////////
+
+class PopoverSnackbarQueue {
+  constructor(popoverId, textId) {
+    this.popover = document.getElementById(popoverId);
+    this.textEl = document.getElementById(textId);
+    this.queue = [];
+    this.isDisplaying = false;
+
+    // Optional: Allow clicking the snackbar itself to dismiss immediately
+    this.popover.addEventListener('click', () => this.dismissCurrent());
+  }
+
+  show(message, duration = 3000) {
+    // Avoid queuing duplicate back-to-back messages
+    if (this.queue.some(item => item.message === message)) return;
+
+    this.queue.push({ message, duration });
+    if (!this.isDisplaying) {
+      this.processQueue();
+    }
+  }
+
+  async processQueue() {
+    if (this.queue.length === 0) {
+      this.isDisplaying = false;
+      return;
+    }
+
+    this.isDisplaying = true;
+    const { message, duration } = this.queue.shift();
+
+    // 1. Update text and open native popover
+    this.textEl.textContent = message;
+    this.popover.showPopover(); // Native API call
+
+    // 2. Wait for duration or manual dismissal
+    await new Promise((resolve) => {
+      this.currentResolver = resolve;
+      this.timeoutId = setTimeout(resolve, duration);
+    });
+
+    // 3. Hide native popover
+    this.popover.hidePopover(); // Native API call
+
+    // 4. Brief pause for exit transition before next item
+    setTimeout(() => this.processQueue(), 150);
+  }
+
+  dismissCurrent() {
+    if (this.currentResolver) {
+      clearTimeout(this.timeoutId);
+      this.currentResolver(); // Force current promise to resolve immediately
+    }
+  }
+}
+
+// Usage:
+const toast = new PopoverSnackbarQueue('snackbar-popover', 'snackbar-text');
+
+export function snackbar(txt) {
+  toast.show(txt);
+}
+// Example calls:
+// toast.show('Microphone enabled');
+// toast.show('Audio recording started');
+class OLDSnackbarQueue {
+  constructor() {
+    this.queue = [];
+    this.isDisplaying = false;
+  }
+
+  // Call this function whenever a new notification arrives
+  show(message, duration = 3000) {
+    this.queue.push({ message, duration });
+    if (!this.isDisplaying) {
+      this.processQueue();
+    }
+  }
+
+  async processQueue() {
+    if (this.queue.length === 0) {
+      this.isDisplaying = false;
+      return;
+    }
+
+    this.isDisplaying = true;
+    const { message, duration } = this.queue.shift();
+
+    // 1. Render and animate snackbar in
+    await this.renderSnackbar(message);
+
+    // 2. Wait for the duration
+    await new Promise((resolve) => setTimeout(resolve, duration));
+
+    // 3. Animate snackbar out
+    await this.dismissSnackbar();
+
+    // 4. Show the next one in queue
+    this.processQueue();
+  }
+
+  renderSnackbar(message) {
+    return new Promise((resolve) => {
+      const el = document.getElementById('snackbar');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(resolve, 200); // Wait for CSS slide-in animation
+    });
+  }
+
+  dismissSnackbar() {
+    return new Promise((resolve) => {
+      const el = document.getElementById('snackbar');
+      el.classList.remove('show');
+      setTimeout(resolve, 200); // Wait for CSS slide-out animation
+    });
+  }
+}
+
+// Global instance
+// const snackbars = new OLDSnackbarQueue();
+
+// Usage anywhere in your PWA:
+// snackbars.show('First action completed');
+// snackbars.show('Second action completed');
+
+
 // Module-level variable to track the active timer
 let tmrSnackbar = null;
 
@@ -320,7 +451,7 @@ let tmrSnackbar = null;
  *
  * @returns {void}
  */
-export function snackbar(bdy, sec = 10, colors = {}) {
+export function OLDsnackbar(bdy, sec = 10, colors = {}) {
   createSnackbarDiv(bdy, sec, false, {}, colors);
 
   return;
