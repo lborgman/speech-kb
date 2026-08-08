@@ -317,11 +317,83 @@ export function nextPaint(fun) {
 // <div id="snackbar-popover" popover="manual" class="snackbar">
 // <span id="snackbar-text"></span>
 // </div>
-const eltSnackbar = mkElt("div", { id: "snackbar-popover" }, mkElt("span"));
-eltSnackbar.setAttribute("popover", "");
-document.body.appendChild(eltSnackbar);
-
+/** @returns {HTMLDivElement} */
+function getSnackbar() {
+  let elt = document.getElementById("snackbar-popover");
+  if (!elt) {
+    elt = mkElt("div", { id: "snackbar-popover", popover: "manual" });
+    if (elt == null) { throw Error("elt == null"); }
+    document.body.appendChild(elt);
+  }
+  return /** @type {HTMLDivElement} */ (elt);
+}
 class PopoverSnackbarQueue {
+  constructor() {
+    // this.popover = document.getElementById(popoverId);
+    this.popover = getSnackbar();
+    // this.queue = /** @type {string[]} */ [];
+    /** @type {string[]} */
+    this.queue =  [];
+    this.isDisplaying = false;
+
+    // Allow clicking the snackbar to dismiss it early
+    this.popover.addEventListener('click', () => this.dismissCurrent());
+  }
+
+  /**
+   * @param {string} message 
+   * @param {number} duration 
+   */
+  show(message, duration = 3000) {
+    // Avoid queuing duplicate back-to-back messages
+    if (this.queue.some(item => item.message === message)) return;
+
+    this.queue.push({ message, duration });
+    if (!this.isDisplaying) {
+      this.processQueue();
+    }
+  }
+
+  async processQueue() {
+    if (this.queue.length === 0) {
+      this.isDisplaying = false;
+      return;
+    }
+
+    this.isDisplaying = true;
+    const { message, duration } = this.queue.shift();
+
+    // Set text directly on the popover container
+    this.popover.textContent = message;
+    this.popover.showPopover();
+
+    // Wait for display duration or manual click
+    await new Promise((resolve) => {
+      this.currentResolver = resolve;
+      this.timeoutId = setTimeout(resolve, duration);
+    });
+
+    this.popover.hidePopover();
+
+    // Brief pause for CSS fade-out before showing the next snackbar
+    setTimeout(() => this.processQueue(), 150);
+  }
+
+  dismissCurrent() {
+    if (this.currentResolver) {
+      clearTimeout(this.timeoutId);
+      this.currentResolver();
+    }
+  }
+}
+
+// Usage:
+const toast = new PopoverSnackbarQueue();
+// toast.show('Microphone enabled');
+
+
+
+class OLD2PopoverSnackbarQueue {
   constructor() {
     // this.popover = document.getElementById("snackbar-popover");
     this.popover = eltSnackbar;
@@ -378,8 +450,6 @@ class PopoverSnackbarQueue {
   }
 }
 
-// Usage:
-const toast = new PopoverSnackbarQueue('snackbar-popover', 'snackbar-text');
 
 export function snackbar(txt) {
   toast.show(txt);
