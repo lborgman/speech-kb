@@ -318,7 +318,9 @@ export function nextPaint(fun) {
 // <span id="snackbar-text"></span>
 // </div>
 const eltSnackbar = mkElt("div", { id: "snackbar-popover" }, mkElt("span"));
+eltSnackbar.setAttribute("popover", "");
 document.body.appendChild(eltSnackbar);
+
 class PopoverSnackbarQueue {
   constructor() {
     // this.popover = document.getElementById("snackbar-popover");
