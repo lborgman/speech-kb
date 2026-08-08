@@ -318,7 +318,7 @@ export function nextPaint(fun) {
 // <span id="snackbar-text"></span>
 // </div>
 /** @returns {HTMLDivElement} */
-function getSnackbar() {
+function getEltSnackbar() {
   let elt = document.getElementById("snackbar-popover");
   if (!elt) {
     elt = mkElt("div", { id: "snackbar-popover", popover: "manual" });
@@ -327,17 +327,16 @@ function getSnackbar() {
   }
   return /** @type {HTMLDivElement} */ (elt);
 }
-class PopoverSnackbarQueue {
+class SnackbarQueue {
   constructor() {
-    // this.popover = document.getElementById(popoverId);
-    this.popover = getSnackbar();
+    this.snackbarPopover = getEltSnackbar();
     // this.queue = /** @type {string[]} */ [];
     /** @type {string[]} */
     this.queue = [];
     this.isDisplaying = false;
 
     // Allow clicking the snackbar to dismiss it early
-    this.popover.addEventListener('click', () => this.dismissCurrent());
+    this.snackbarPopover.addEventListener('click', () => this.dismissCurrent());
   }
 
   /**
@@ -365,9 +364,9 @@ class PopoverSnackbarQueue {
 
     // Set text directly on the popover container
     // this.popover.textContent = message;
-    this.popover.textContent = "";
-    this.popover.append(message);
-    this.popover.showPopover();
+    this.snackbarPopover.textContent = "";
+    this.snackbarPopover.append(message);
+    this.snackbarPopover.showPopover();
 
     // Wait for display duration or manual click
     await new Promise((resolve) => {
@@ -375,7 +374,7 @@ class PopoverSnackbarQueue {
       this.timeoutId = setTimeout(resolve, duration);
     });
 
-    this.popover.hidePopover();
+    this.snackbarPopover.hidePopover();
 
     // Brief pause for CSS fade-out before showing the next snackbar
     setTimeout(() => this.processQueue(), 150);
@@ -390,7 +389,7 @@ class PopoverSnackbarQueue {
 }
 
 // Usage:
-const toast = new PopoverSnackbarQueue();
+const toast = new SnackbarQueue();
 // toast.show('Microphone enabled');
 
 
@@ -411,87 +410,8 @@ export function snackbar(message, duration) {
 // Module-level variable to track the active timer
 let tmrSnackbar = null;
 
-/**
- * @param {HTMLDivElement|string} bdy 
- * @param {number} sec 
- * @param {Object} [colors={}] - Colors
- * @param {string} [colors.bg]
- * @param {string} [colors.clr]
- *
- * @returns {void}
- */
-export function OLDsnackbar(bdy, sec = 10, colors = {}) {
-  createSnackbarDiv(bdy, sec, false, {}, colors);
 
-  return;
-  // Default to 10 seconds if not provided or if 0 is passed mistakenly
-  sec = sec === undefined ? 10 : sec;
-
-  /** @type {HTMLDialogElement|null} */
-  let dlg = document.getElementById("snackbar");
-
-  if (dlg) {
-    if (!(dlg instanceof HTMLDialogElement)) {
-      const msg = "!(dlg instanceof HTMLDialogElement)";
-      console.error(msg, dlg);
-      throw Error(msg);
-    }
-    // Close it immediately if it's already open from a previous call
-    if (dlg.open) {
-      dlg.close();
-    }
-  }
-
-  // 1. Clear any existing active timer to prevent premature closing
-  if (tmrSnackbar) {
-    clearTimeout(tmrSnackbar);
-  }
-
-  // 2. Create the element if it doesn't exist
-  if (!dlg) {
-    dlg = /** @type {HTMLDialogElement} */ (mkElt("dialog", undefined, bdy));
-    dlg.id = "snackbar";
-    // dlg.style.zIndex = "99999";
-    // document.body.appendChild(dlg); // Typically better to append to body than documentElement
-
-    // FIX-ME: last...
-    const lastModal = document.querySelector("dialog:modal");
-    const parent = lastModal || document.documentElement;
-    // document.documentElement.appendChild(dlg); // Typically better to append to body than documentElement
-    parent.appendChild(dlg); // Typically better to append to body than documentElement
-  }
-
-  // 3. Update content safely
-  dlg.textContent = "";
-  if (typeof bdy === "string") {
-    dlg.textContent = bdy;
-  } else {
-    dlg.append(bdy);
-  }
-
-  // 4. Show the dialog (Use showModal() if you want backdrop/centering, otherwise show())
-  if (!dlg.open) {
-    // dlg.showModal();
-    dlg.show();
-    console.log("snackbar: After dlg.show()")
-  }
-
-  // 5. Save the timeout reference to our module-level variable!
-  tmrSnackbar = setTimeout(() => {
-    console.log("Timer fired, closing dialog...", { sec, dlg });
-    try {
-      if (dlg && dlg.open) {
-        dlg.close();
-        dlg.remove();
-      }
-    } catch (err) {
-      console.error("Error closing dialog:", err);
-    }
-    tmrSnackbar = null; // Reset tracker after running
-  }, sec * 1000);
-}
-
-setTimeout(() => { snackbar("Hi, welcome!", 3) }, 500);
+setTimeout(() => { snackbar("Hi, welcome!", 8) }, 500);
 // setTimeout(() => { snackbar("Hi, welcome!", 3, { bg: "red", clr: "yellow" }) }, 500);
 
 
@@ -806,40 +726,6 @@ const isDefined = window.getComputedStyle(document.documentElement)
 */
 
 // function createSnackbar(message, duration = 4000, hasButton = false, position = 'bottom-left') {
-function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false) {
-
-  const snackbar = document.createElement('div');
-  snackbar.id = "snackbar";
-
-  snackbar.textContent = "";
-  snackbar.append(message);
-
-  const dismiss = () => {
-    return;
-    snackbar.hidePopover();
-    snackbar.remove();
-  };
-  setTimeout(dismiss, duration * 1000);
-
-
-  if (hasButton) {
-    const button = document.createElement('button');
-    button.textContent = 'Close';
-    button.onclick = dismiss;
-    snackbar.appendChild(button);
-  }
-
-  snackbar.popover = 'manual';
-  snackbar.setAttribute('aria-live', 'polite');
-
-  snackbar.style.display = 'flex';
-  snackbar.style.justifyContent = "space-between";
-
-  document.body.appendChild(snackbar);
-
-  snackbar.showPopover();
-
-}
 
 /**
  * Creates and displays a non-modal snackbar notification using the HTML Popover API.
