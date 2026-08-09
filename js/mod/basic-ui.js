@@ -374,7 +374,28 @@ class SnackbarQueue {
       this.timeoutId = setTimeout(resolve, duration);
     });
 
-    this.snackbarPopover.hidePopover();
+
+
+    // this.snackbarPopover.hidePopover();
+    // From Gemini:
+    dismissSnackbar(this.snackbarPopover);
+    async function dismissSnackbar(popoverEl) {
+      // Play the Material Design fast exit animation
+      const animation = popoverEl.animate([
+        { opacity: 1, transform: 'translateY(0)' },
+        { opacity: 0, transform: 'translateY(calc(100% + 2rem))' }
+      ], {
+        duration: 2000,
+        easing: 'cubic-bezier(0.3, 0, 1, 1)'
+      });
+
+      // Wait for animation to finish before native hide
+      await animation.finished;
+      popoverEl.hidePopover();
+    }
+
+
+
 
     // Brief pause for CSS fade-out before showing the next snackbar
     setTimeout(() => this.processQueue(), 150);
