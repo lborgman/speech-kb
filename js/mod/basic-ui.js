@@ -390,6 +390,7 @@ class SnackbarQueue {
   clearQueue() {
     this.queue.length = 0;
     this.dismissCurrent();
+    this.snackbarPopover.hidePopover();
   }
 }
 
