@@ -386,6 +386,11 @@ class SnackbarQueue {
       this.currentResolver();
     }
   }
+
+  clearQueue() {
+    this.queue.length = 0;
+    this.dismissCurrent();
+  }
 }
 
 // Usage:
@@ -406,6 +411,9 @@ export function snackbar(message, duration) {
 // Example calls:
 // toast.show('Microphone enabled');
 
+export function clearSnackbarQueue() {
+  toast.clearQueue();
+}
 
 // Module-level variable to track the active timer
 let tmrSnackbar = null;
