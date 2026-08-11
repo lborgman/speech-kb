@@ -13,64 +13,94 @@ const mkElt = window["mkElt"];
  * @returns {HTMLButtonElement}
  */
 export function mkXclose(funClose) {
-  const xClose = mkElt("button", { class: "x-close" }, "✖");
-  xClose.addEventListener("click", evt => {
-    evt.stopPropagation();
-    // debugger;
-    if (funClose) {
-      funClose();
-      return;
-    }
-    (xClose.closest("dialog"))?.close();
-  });
-  return xClose;
+    const xClose = mkElt("button", { class: "x-close" }, "✖");
+    xClose.addEventListener("click", evt => {
+        evt.stopPropagation();
+        // debugger;
+        if (funClose) {
+            funClose();
+            return;
+        }
+        (xClose.closest("dialog"))?.close();
+    });
+    return xClose;
 }
 export function addXclose(dialog) {
-  const btnClose = dialog.querySelector("button[class=x-close]");
-  if (btnClose) { return; }
-  const elt = mkXclose();
-  dialog.appendChild(elt);
-  return elt;
+    const btnClose = dialog.querySelector("button[class=x-close]");
+    if (btnClose) { return; }
+    const elt = mkXclose();
+    dialog.appendChild(elt);
+    return elt;
 }
 
-document.documentElement.addEventListener("click", evt => {
-  // evt.stopPropagation();
-  // evt.preventDefault();
-  // debugger;
-  // NOTE: first child element must covers the whole <dialog>
-  const dialog = evt.target;
-  // if (dialog?.tagName == "DIALOG") {
-  if (dialog instanceof HTMLDialogElement) {
+document.documentElement.addEventListener("click",
+    /** @param {MouseEvent} evt */
+    evt => {
+        // if (!evt.target) return;
 
-    const rect = dialog.getBoundingClientRect();
-    const scrollbarWidth = dialog.offsetWidth - dialog.clientWidth;
-    const xFromRight = rect.right - evt.clientX;
+        const target = /** @type {Element} */ (evt.target);
 
-    // Ignore if click is in scrollbar area
-    if (xFromRight <= scrollbarWidth && xFromRight > 0) {
-      return;
+        const dialog = target;
+        if (dialog instanceof HTMLDialogElement) {
+            // FIX-ME: NOTE: first child element must covers the whole <dialog>
+            const rect = dialog.getBoundingClientRect();
+            const scrollbarWidth = dialog.offsetWidth - dialog.clientWidth;
+            const xFromRight = rect.right - evt.clientX;
+            // Ignore if click is in scrollbar area
+            if (xFromRight <= scrollbarWidth && xFromRight > 0) {
+                return;
+            }
+            evt.stopPropagation();
+            evt.preventDefault();
+            closeDialog(dialog);
+            return;
+        }
+
+        const button = target.closest("button")
+        if (button) {
+            createRipple(evt, button);
+        }
+    });
+
+function createRipple(event, button) {
+    // const button = event.currentTarget;
+
+    const circle = document.createElement("span");
+    const diameter = Math.max(button.clientWidth, button.clientHeight);
+    const radius = diameter / 2;
+
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+    circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+    circle.classList.add("ripple");
+
+    const ripple = button.getElementsByClassName("ripple")[0];
+
+    if (ripple) {
+        ripple.remove();
     }
 
-    evt.stopPropagation();
-    evt.preventDefault();
-    closeDialog(dialog);
-  }
-  // const currentTarget = evt.currentTarget;
-  // const onDialog = dialog == currentTarget;
-  // if (onDialog) dialog.close();
-});
+    button.appendChild(circle);
+}
+
+/*
+const buttons = document.getElementsByTagName("button");
+for (const button of buttons) {
+  button.addEventListener("click", createRipple);
+}
+*/
 
 /**
  * 
  * @param {HTMLDialogElement} dialog 
  */
 function closeDialog(dialog) {
-  console.log("closeDialog", dialog);
-  dialog.close();
-  if (!dialog.classList.contains("html-dialog")) {
-    console.log("closeDialog remove");
-    dialog.remove();
-  }
+    console.log("closeDialog", dialog);
+    dialog.close();
+    if (!dialog.classList.contains("html-dialog")) {
+        console.log("closeDialog remove");
+        dialog.remove();
+    }
 }
 
 
@@ -81,13 +111,13 @@ function closeDialog(dialog) {
  * @returns {HTMLButtonElement}
  */
 export function mkFabButton(icon, title, small) {
-  const btn = mkElt("button", undefined, icon);
-  btn.classList.add("fab-button");
-  btn.title = title;
-  if (small) {
-    btn.classList.add("fab-button-small");
-  }
-  return btn;
+    const btn = mkElt("button", undefined, icon);
+    btn.classList.add("fab-button");
+    btn.title = title;
+    if (small) {
+        btn.classList.add("fab-button-small");
+    }
+    return btn;
 }
 
 /**
@@ -97,52 +127,52 @@ export function mkFabButton(icon, title, small) {
  * @returns {HTMLButtonElement}
  */
 export function mkIconButton(icon, title) {
-  const btn = mkElt("button", undefined, icon);
-  btn.classList.add("icon-button");
-  btn.title = title;
-  return btn;
+    const btn = mkElt("button", undefined, icon);
+    btn.classList.add("icon-button");
+    btn.title = title;
+    return btn;
 }
 
 
 
 // Modify your dialog opening function to include this viewport verification check:
 function openModalAndEnsureKeyboard(bdy) {
-  const dlg = document.createElement("dialog");
-  dlg.appendChild(bdy);
-  document.documentElement.appendChild(dlg);
+    const dlg = document.createElement("dialog");
+    dlg.appendChild(bdy);
+    document.documentElement.appendChild(dlg);
 
-  // 1. Open the modal normally (browser will focus the Save button)
-  dlg.showModal();
+    // 1. Open the modal normally (browser will focus the Save button)
+    dlg.showModal();
 
-  // 2. Wait a split second for the mobile browser to process the focus change
-  setTimeout(() => {
-    if (!window.visualViewport) return;
+    // 2. Wait a split second for the mobile browser to process the focus change
+    setTimeout(() => {
+        if (!window.visualViewport) return;
 
-    const visualHeight = window.visualViewport.height;
-    const totalHeight = window.innerHeight;
+        const visualHeight = window.visualViewport.height;
+        const totalHeight = window.innerHeight;
 
-    // 3. The Visual Viewport Check: 
-    // If the difference is negligible, the keyboard DID NOT open.
-    const keyboardIsOpen = (totalHeight - visualHeight) > 15;
+        // 3. The Visual Viewport Check: 
+        // If the difference is negligible, the keyboard DID NOT open.
+        const keyboardIsOpen = (totalHeight - visualHeight) > 15;
 
-    if (!keyboardIsOpen) {
-      console.log("Viewport unchanged. Forcing focus to bring up keyboard.");
+        if (!keyboardIsOpen) {
+            console.log("Viewport unchanged. Forcing focus to bring up keyboard.");
 
-      // Look exclusively inside this dialog for the text element
-      const textInput = dlg.querySelector(
-        'textarea, input:not([type="button"]):not([type="submit"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), [contenteditable="true"]'
-      );
-      if (!(textInput instanceof HTMLElement)) {
-        debugger;
-        throw Error("textInput is not HTMLElement");
-      }
+            // Look exclusively inside this dialog for the text element
+            const textInput = dlg.querySelector(
+                'textarea, input:not([type="button"]):not([type="submit"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), [contenteditable="true"]'
+            );
+            if (!(textInput instanceof HTMLElement)) {
+                debugger;
+                throw Error("textInput is not HTMLElement");
+            }
 
-      if (textInput) {
-        textInput.focus();
-        // textInput.click();
-      }
-    }
-  }, 150); // 150ms gives the mobile OS time to trigger the viewport resize if it was going to
+            if (textInput) {
+                textInput.focus();
+                // textInput.click();
+            }
+        }
+    }, 150); // 150ms gives the mobile OS time to trigger the viewport resize if it was going to
 }
 
 
@@ -159,84 +189,84 @@ function openModalAndEnsureKeyboard(bdy) {
  * @returns {Promise<any>}
  */
 export async function showDialog(bdy, valFun, buttons, dialogClass) {
-  if (valFun != undefined) {
-    if (typeof valFun !== 'function') {
-      debugger;
-      throw new Error('Parameter "valFun" must be a function');
+    if (valFun != undefined) {
+        if (typeof valFun !== 'function') {
+            debugger;
+            throw new Error('Parameter "valFun" must be a function');
+        }
+        if (valFun.constructor.name !== 'AsyncFunction') {
+            debugger;
+            throw new Error('Function "valFun" must be async');
+        }
+        if (valFun.length !== 0) {
+            debugger;
+            throw new Error('Async function "valFun" must take 0 parameters');
+        }
     }
-    if (valFun.constructor.name !== 'AsyncFunction') {
-      debugger;
-      throw new Error('Function "valFun" must be async');
-    }
-    if (valFun.length !== 0) {
-      debugger;
-      throw new Error('Async function "valFun" must take 0 parameters');
-    }
-  }
-  if (typeof bdy == "string") { bdy = mkElt("div", undefined, bdy); }
-  if (!(bdy instanceof HTMLDivElement)) {
-    debugger;
-    throw Error("bdy is not <div>");
-  }
-  // bdy.classList.add("modal-scroll-body");
-  const dlg = mkElt("dialog", undefined, bdy);
-  if (dialogClass) dlg.classList.add(dialogClass);
-  dlg.addEventListener("close", evt => { console.log("%%%%% dlg close"); });
-  dlg.addEventListener("cancel", evt => { console.log("%%%%% dlg cancel"); });
-  if (buttons) {
-    let myButtons = buttons;
-    if (!Array.isArray(myButtons)) { myButtons = [buttons]; }
-    const eltButtons = mkElt("div", { class: "dialog-buttons" });
-    myButtons.forEach(b => {
-      if (!(b instanceof HTMLButtonElement)) {
+    if (typeof bdy == "string") { bdy = mkElt("div", undefined, bdy); }
+    if (!(bdy instanceof HTMLDivElement)) {
         debugger;
-        throw Error("showDialog: buttons must only contain <button>");
-      }
-      eltButtons.appendChild(b);
+        throw Error("bdy is not <div>");
+    }
+    // bdy.classList.add("modal-scroll-body");
+    const dlg = mkElt("dialog", undefined, bdy);
+    if (dialogClass) dlg.classList.add(dialogClass);
+    dlg.addEventListener("close", evt => { console.log("%%%%% dlg close"); });
+    dlg.addEventListener("cancel", evt => { console.log("%%%%% dlg cancel"); });
+    if (buttons) {
+        let myButtons = buttons;
+        if (!Array.isArray(myButtons)) { myButtons = [buttons]; }
+        const eltButtons = mkElt("div", { class: "dialog-buttons" });
+        myButtons.forEach(b => {
+            if (!(b instanceof HTMLButtonElement)) {
+                debugger;
+                throw Error("showDialog: buttons must only contain <button>");
+            }
+            eltButtons.appendChild(b);
+        });
+        dlg.appendChild(eltButtons);
+    }
+    const eltX = addXclose(dlg);
+
+    // Look exclusively inside this dialog for the text element
+    const textInput = dlg.querySelector(
+        'textarea, input:not([type="button"]):not([type="submit"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), [contenteditable="true"]'
+    );
+    if (textInput && !(textInput instanceof HTMLElement)) {
+        debugger;
+        throw Error("textInput is not HTMLElement");
+    }
+
+    if (textInput) {
+        textInput.focus();
+        dlg.classList.add("has-text-input");
+        /** @type {HTMLDivElement|undefined} */
+        const eltScroll = mkElt("div", {
+            style: "height: 2px; background: red; padding: 0; margin:0;",
+            class: "scroll-for-text-input"
+        });
+        dlg.insertBefore(eltScroll, dlg.firstElementChild);
+        scrollForTextInput(dlg);
+    }
+
+
+    document.documentElement.appendChild(dlg);
+    dlg.showModal();
+    syncViewport();
+    // openModalAndEnsureKeyboard(bdy);
+
+    if (!valFun) return;
+    const promClose = new Promise(resolve => {
+        dlg.addEventListener("close", evt => { resolve("close"); });
     });
-    dlg.appendChild(eltButtons);
-  }
-  const eltX = addXclose(dlg);
-
-  // Look exclusively inside this dialog for the text element
-  const textInput = dlg.querySelector(
-    'textarea, input:not([type="button"]):not([type="submit"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), [contenteditable="true"]'
-  );
-  if (textInput && !(textInput instanceof HTMLElement)) {
-    debugger;
-    throw Error("textInput is not HTMLElement");
-  }
-
-  if (textInput) {
-    textInput.focus();
-    dlg.classList.add("has-text-input");
-    /** @type {HTMLDivElement|undefined} */
-    const eltScroll = mkElt("div", {
-      style: "height: 2px; background: red; padding: 0; margin:0;",
-      class: "scroll-for-text-input"
-    });
-    dlg.insertBefore(eltScroll, dlg.firstElementChild);
-    scrollForTextInput(dlg);
-  }
-
-
-  document.documentElement.appendChild(dlg);
-  dlg.showModal();
-  syncViewport();
-  // openModalAndEnsureKeyboard(bdy);
-
-  if (!valFun) return;
-  const promClose = new Promise(resolve => {
-    dlg.addEventListener("close", evt => { resolve("close"); });
-  });
-  // debugger;
-  // const ans = await valFun();
-  const ans = await Promise.race([valFun(), promClose]);
-  const tofAns = typeof ans;
-  if (tofAns != "boolean" && ans != "close") {
-    debugger;
-  }
-  return ans;
+    // debugger;
+    // const ans = await valFun();
+    const ans = await Promise.race([valFun(), promClose]);
+    const tofAns = typeof ans;
+    if (tofAns != "boolean" && ans != "close") {
+        debugger;
+    }
+    return ans;
 }
 /**
  * 
@@ -245,41 +275,41 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
  * @param {string} [cancel]
  */
 export async function showDialogConfirm(bdy, ok, cancel, funOkButton) {
-  bdy.classList.add("no-x-close-button"); // Remove the upper right X close button
-  ok = ok || "OK";
-  cancel = cancel || "Cancel";
-  const btnTrue = mkElt("button", { class: "button-ok" }, ok);
-  if (funOkButton) { funOkButton(btnTrue); }
-  const btnFalse = mkElt("button", undefined, cancel);
-  const funAns = async () => {
-    return await new Promise(resolve => {
-      btnTrue.addEventListener("click", evt => {
-        resolve(true);
-        closeMyDialog(btnTrue);
-      });
-      btnFalse.addEventListener("click", evt => {
-        resolve(false);
-        closeMyDialog(btnFalse);
-      });
-    });
-  }
-  const ans = await showDialog(bdy, funAns, [btnTrue, btnFalse]);
-  if (ans == "close") {
-    // Return false on close event
-    return false;
-  }
-  const tofAns = typeof ans;
-  if (tofAns != "boolean") {
-    const msg = `showDialogConfirm: typeof ans == "${tofAns}`;
-    console.error(msg);
-    debugger;
-    throw Error(msg);
-  }
-  return ans;
+    bdy.classList.add("no-x-close-button"); // Remove the upper right X close button
+    ok = ok || "OK";
+    cancel = cancel || "Cancel";
+    const btnTrue = mkElt("button", { class: "button-ok" }, ok);
+    if (funOkButton) { funOkButton(btnTrue); }
+    const btnFalse = mkElt("button", undefined, cancel);
+    const funAns = async () => {
+        return await new Promise(resolve => {
+            btnTrue.addEventListener("click", evt => {
+                resolve(true);
+                closeMyDialog(btnTrue);
+            });
+            btnFalse.addEventListener("click", evt => {
+                resolve(false);
+                closeMyDialog(btnFalse);
+            });
+        });
+    }
+    const ans = await showDialog(bdy, funAns, [btnTrue, btnFalse]);
+    if (ans == "close") {
+        // Return false on close event
+        return false;
+    }
+    const tofAns = typeof ans;
+    if (tofAns != "boolean") {
+        const msg = `showDialogConfirm: typeof ans == "${tofAns}`;
+        console.error(msg);
+        debugger;
+        throw Error(msg);
+    }
+    return ans;
 }
 export function closeMyDialog(elt) {
-  const dlg = elt.closest("dialog");
-  dlg.close();
+    const dlg = elt.closest("dialog");
+    dlg.close();
 }
 
 /**
@@ -289,21 +319,21 @@ export function closeMyDialog(elt) {
  * @returns 
  */
 export function nextPaint(fun) {
-  const tofFun = typeof fun;
-  if (tofFun != "function") throw Error(`nextPaint, typeof fun == "${tofFun}"`);
-  const lenFun = fun.length;
-  if (lenFun != 0) throw Error(`nextPaint, fun.length == "${lenFun}"`);
+    const tofFun = typeof fun;
+    if (tofFun != "function") throw Error(`nextPaint, typeof fun == "${tofFun}"`);
+    const lenFun = fun.length;
+    if (lenFun != 0) throw Error(`nextPaint, fun.length == "${lenFun}"`);
 
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      queueMicrotask(
-        () => {
-          fun();
-          requestAnimationFrame(resolve);
-        }
-      );
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+            queueMicrotask(
+                () => {
+                    fun();
+                    requestAnimationFrame(resolve);
+                }
+            );
+        });
     });
-  });
 }
 
 
@@ -319,100 +349,100 @@ export function nextPaint(fun) {
 // </div>
 /** @returns {HTMLDivElement} */
 function getEltSnackbar() {
-  let elt = document.getElementById("snackbar-popover");
-  if (!elt) {
-    elt = mkElt("div", { id: "snackbar-popover", popover: "manual" });
-    if (elt == null) { throw Error("elt == null"); }
-    document.body.appendChild(elt);
-  }
-  return /** @type {HTMLDivElement} */ (elt);
+    let elt = document.getElementById("snackbar-popover");
+    if (!elt) {
+        elt = mkElt("div", { id: "snackbar-popover", popover: "manual" });
+        if (elt == null) { throw Error("elt == null"); }
+        document.body.appendChild(elt);
+    }
+    return /** @type {HTMLDivElement} */ (elt);
 }
 class SnackbarQueue {
-  constructor() {
-    this.snackbarPopover = getEltSnackbar();
-    // this.queue = /** @type {string[]} */ [];
-    /** @type {string[]} */
-    this.queue = [];
-    this.isDisplaying = false;
+    constructor() {
+        this.snackbarPopover = getEltSnackbar();
+        // this.queue = /** @type {string[]} */ [];
+        /** @type {string[]} */
+        this.queue = [];
+        this.isDisplaying = false;
 
-    // Allow clicking the snackbar to dismiss it early
-    this.snackbarPopover.addEventListener('click', () => this.dismissCurrent());
-  }
-
-  /**
-   * @param {string|HTMLDivElement} message
-   * @param {number} duration
-   */
-  show(message, duration = 3000) {
-    // Avoid queuing duplicate back-to-back messages
-    if (this.queue.some(item => item.message === message)) return;
-
-    this.queue.push({ message, duration });
-    if (!this.isDisplaying) {
-      this.processQueue();
-    }
-  }
-
-  async processQueue() {
-    if (this.queue.length === 0) {
-      this.isDisplaying = false;
-      return;
+        // Allow clicking the snackbar to dismiss it early
+        this.snackbarPopover.addEventListener('click', () => this.dismissCurrent());
     }
 
-    this.isDisplaying = true;
-    const { message, duration } = this.queue.shift();
+    /**
+     * @param {string|HTMLDivElement} message
+     * @param {number} duration
+     */
+    show(message, duration = 3000) {
+        // Avoid queuing duplicate back-to-back messages
+        if (this.queue.some(item => item.message === message)) return;
 
-    // Set text directly on the popover container
-    // this.popover.textContent = message;
-    this.snackbarPopover.textContent = "";
-    this.snackbarPopover.append(message);
-    this.snackbarPopover.showPopover();
-
-    // Wait for display duration or manual click
-    await new Promise((resolve) => {
-      this.currentResolver = resolve;
-      this.timeoutId = setTimeout(resolve, duration);
-    });
-
-
-
-    // this.snackbarPopover.hidePopover();
-    // From Gemini:
-    dismissSnackbar(this.snackbarPopover);
-    async function dismissSnackbar(popoverEl) {
-      // Play the Material Design fast exit animation
-      const animation = popoverEl.animate([
-        { opacity: 1, transform: 'translateY(0)' },
-        { opacity: 0, transform: 'translateY(calc(100% + 2rem))' }
-      ], {
-        duration: 2000,
-        easing: 'cubic-bezier(0.3, 0, 1, 1)'
-      });
-
-      // Wait for animation to finish before native hide
-      await animation.finished;
-      popoverEl.hidePopover();
+        this.queue.push({ message, duration });
+        if (!this.isDisplaying) {
+            this.processQueue();
+        }
     }
 
+    async processQueue() {
+        if (this.queue.length === 0) {
+            this.isDisplaying = false;
+            return;
+        }
+
+        this.isDisplaying = true;
+        const { message, duration } = this.queue.shift();
+
+        // Set text directly on the popover container
+        // this.popover.textContent = message;
+        this.snackbarPopover.textContent = "";
+        this.snackbarPopover.append(message);
+        this.snackbarPopover.showPopover();
+
+        // Wait for display duration or manual click
+        await new Promise((resolve) => {
+            this.currentResolver = resolve;
+            this.timeoutId = setTimeout(resolve, duration);
+        });
 
 
 
-    // Brief pause for CSS fade-out before showing the next snackbar
-    setTimeout(() => this.processQueue(), 150);
-  }
+        // this.snackbarPopover.hidePopover();
+        // From Gemini:
+        dismissSnackbar(this.snackbarPopover);
+        async function dismissSnackbar(popoverEl) {
+            // Play the Material Design fast exit animation
+            const animation = popoverEl.animate([
+                { opacity: 1, transform: 'translateY(0)' },
+                { opacity: 0, transform: 'translateY(calc(100% + 2rem))' }
+            ], {
+                duration: 2000,
+                easing: 'cubic-bezier(0.3, 0, 1, 1)'
+            });
 
-  dismissCurrent() {
-    if (this.currentResolver) {
-      clearTimeout(this.timeoutId);
-      this.currentResolver();
+            // Wait for animation to finish before native hide
+            await animation.finished;
+            popoverEl.hidePopover();
+        }
+
+
+
+
+        // Brief pause for CSS fade-out before showing the next snackbar
+        setTimeout(() => this.processQueue(), 150);
     }
-  }
 
-  clearQueue() {
-    this.queue.length = 0;
-    this.dismissCurrent();
-    this.snackbarPopover.hidePopover();
-  }
+    dismissCurrent() {
+        if (this.currentResolver) {
+            clearTimeout(this.timeoutId);
+            this.currentResolver();
+        }
+    }
+
+    clearQueue() {
+        this.queue.length = 0;
+        this.dismissCurrent();
+        this.snackbarPopover.hidePopover();
+    }
 }
 
 // Usage:
@@ -428,13 +458,13 @@ const toast = new SnackbarQueue();
  */
 
 export function snackbar(message, duration) {
-  toast.show(message, duration);
+    toast.show(message, duration);
 }
 // Example calls:
 // toast.show('Microphone enabled');
 
 export function clearSnackbarQueue() {
-  toast.clearQueue();
+    toast.clearQueue();
 }
 
 // Module-level variable to track the active timer
@@ -452,110 +482,110 @@ setTimeout(() => { snackbar("Hi, welcome!", 8) }, 500);
 // (Made by Gemini from a prompt in an incognito tab.)
 
 class MdcInput extends HTMLElement {
-  #internalValue = '';
+    #internalValue = '';
 
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.renderShell();
-  }
-
-  static get observedAttributes() {
-    return ['label', 'type', 'value', 'required', 'pattern', 'variant'];
-  }
-
-  // Exposes the underlying native HTMLInputElement.
-  get inputElement() {
-    return this.shadowRoot.querySelector('.mdc-text-field__input');
-  }
-
-  // Gets or sets the live value of the input field.
-  get value() {
-    return this.inputElement ? this.inputElement.value : this.#internalValue;
-  }
-
-  set value(val) {
-    this.#internalValue = val;
-    const input = this.inputElement;
-    if (input) {
-      input.value = val;
-    }
-  }
-
-  // Gets or sets the floating label display text.
-  get label() {
-    return this.getAttribute('label') || '';
-  }
-
-  set label(/** @type {string} */ val) {
-    this.setAttribute('label', val);
-  }
-
-  // Gets or sets the component's custom error styling state.
-  get error() {
-    return this.inputElement ? this.inputElement.classList.contains('has-error') : false;
-  }
-
-  set error(val) {
-    const input = this.inputElement;
-    if (input) {
-      if (val) {
-        input.classList.add('has-error');
-      } else {
-        input.classList.remove('has-error');
-      }
-    }
-  }
-
-  connectedCallback() {
-    if (this.hasAttribute('value')) {
-      this.value = this.getAttribute('value');
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.renderShell();
     }
 
-    // Sync the initial text content for the label tag safely
-    const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
-    if (labelText) {
-      labelText.textContent = this.getAttribute('label') || '';
+    static get observedAttributes() {
+        return ['label', 'type', 'value', 'required', 'pattern', 'variant'];
     }
 
-    this.setupListeners();
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue === newValue) return;
-
-    if (name === 'value') {
-      this.value = newValue;
-      return;
+    // Exposes the underlying native HTMLInputElement.
+    get inputElement() {
+        return this.shadowRoot.querySelector('.mdc-text-field__input');
     }
 
-    const input = this.inputElement;
-    const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
-
-    if (name === 'label' && labelText) labelText.textContent = newValue;
-    if (name === 'type' && input) input.type = newValue;
-
-    if (name === 'required' && input) {
-      this.hasAttribute('required') ? input.setAttribute('required', '') : input.removeAttribute('required');
+    // Gets or sets the live value of the input field.
+    get value() {
+        return this.inputElement ? this.inputElement.value : this.#internalValue;
     }
-    if (name === 'pattern' && input) {
-      input.setAttribute('pattern', newValue);
+
+    set value(val) {
+        this.#internalValue = val;
+        const input = this.inputElement;
+        if (input) {
+            input.value = val;
+        }
     }
-  }
 
-  setupListeners() {
-    const input = this.inputElement;
-    if (!input) return;
+    // Gets or sets the floating label display text.
+    get label() {
+        return this.getAttribute('label') || '';
+    }
 
-    input.addEventListener('input', () => {
-      this.#internalValue = input.value;
-      // Dispatch standard input event so developers can listen directly to <mdc-input>
-      this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-    });
-  }
+    set label(/** @type {string} */ val) {
+        this.setAttribute('label', val);
+    }
 
-  renderShell() {
-    this.shadowRoot.innerHTML = `
+    // Gets or sets the component's custom error styling state.
+    get error() {
+        return this.inputElement ? this.inputElement.classList.contains('has-error') : false;
+    }
+
+    set error(val) {
+        const input = this.inputElement;
+        if (input) {
+            if (val) {
+                input.classList.add('has-error');
+            } else {
+                input.classList.remove('has-error');
+            }
+        }
+    }
+
+    connectedCallback() {
+        if (this.hasAttribute('value')) {
+            this.value = this.getAttribute('value');
+        }
+
+        // Sync the initial text content for the label tag safely
+        const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
+        if (labelText) {
+            labelText.textContent = this.getAttribute('label') || '';
+        }
+
+        this.setupListeners();
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (oldValue === newValue) return;
+
+        if (name === 'value') {
+            this.value = newValue;
+            return;
+        }
+
+        const input = this.inputElement;
+        const labelText = this.shadowRoot.querySelector('.mdc-floating-label');
+
+        if (name === 'label' && labelText) labelText.textContent = newValue;
+        if (name === 'type' && input) input.type = newValue;
+
+        if (name === 'required' && input) {
+            this.hasAttribute('required') ? input.setAttribute('required', '') : input.removeAttribute('required');
+        }
+        if (name === 'pattern' && input) {
+            input.setAttribute('pattern', newValue);
+        }
+    }
+
+    setupListeners() {
+        const input = this.inputElement;
+        if (!input) return;
+
+        input.addEventListener('input', () => {
+            this.#internalValue = input.value;
+            // Dispatch standard input event so developers can listen directly to <mdc-input>
+            this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+        });
+    }
+
+    renderShell() {
+        this.shadowRoot.innerHTML = `
       <style>
         :host {
           display: inline-block;
@@ -705,7 +735,7 @@ class MdcInput extends HTMLElement {
         <div class="mdc-line-ripple"></div>
       </label>
     `;
-  }
+    }
 }
 
 customElements.define('mdc-input', MdcInput);
@@ -718,28 +748,28 @@ customElements.define('mdc-input', MdcInput);
  * @returns {boolean}
  */
 export function isCssVariableDefined(variableName, className) {
-  // Ensure the variable name starts with '--'
-  const formattedVar = variableName.startsWith('--') ? variableName : `--${variableName}`;
+    // Ensure the variable name starts with '--'
+    const formattedVar = variableName.startsWith('--') ? variableName : `--${variableName}`;
 
-  const testElem = document.createElement('div');
-  if (className) {
-    testElem.className = className;
-  }
+    const testElem = document.createElement('div');
+    if (className) {
+        testElem.className = className;
+    }
 
-  // Isolate the element completely out of the document flow
-  testElem.style.position = 'fixed';
-  testElem.style.top = '-9999px';
-  testElem.style.visibility = 'hidden';
+    // Isolate the element completely out of the document flow
+    testElem.style.position = 'fixed';
+    testElem.style.top = '-9999px';
+    testElem.style.visibility = 'hidden';
 
-  document.body.appendChild(testElem);
+    document.body.appendChild(testElem);
 
-  // Read the computed value of the variable
-  const value = window.getComputedStyle(testElem).getPropertyValue(formattedVar).trim();
+    // Read the computed value of the variable
+    const value = window.getComputedStyle(testElem).getPropertyValue(formattedVar).trim();
 
-  document.body.removeChild(testElem);
+    document.body.removeChild(testElem);
 
-  // If the variable doesn't exist, the browser returns an empty string
-  return value !== '';
+    // If the variable doesn't exist, the browser returns an empty string
+    return value !== '';
 }
 
 // Example 1: Check if a global variable exists on a class
@@ -775,76 +805,76 @@ const isDefined = window.getComputedStyle(document.documentElement)
  * @param {string} [colors.clr]
  */
 function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}, colors = {}) {
-  // Validate conflicting coordinate properties
-  if (coords.top !== undefined && coords.bottom !== undefined) {
-    console.warn("Snackbar Conflict: Both 'top' and 'bottom' provided. 'top' will take priority.");
-  }
-  if (coords.left !== undefined && coords.right !== undefined) {
-    console.warn("Snackbar Conflict: Both 'left' and 'right' provided. 'left' will take priority.");
-  }
+    // Validate conflicting coordinate properties
+    if (coords.top !== undefined && coords.bottom !== undefined) {
+        console.warn("Snackbar Conflict: Both 'top' and 'bottom' provided. 'top' will take priority.");
+    }
+    if (coords.left !== undefined && coords.right !== undefined) {
+        console.warn("Snackbar Conflict: Both 'left' and 'right' provided. 'left' will take priority.");
+    }
 
-  const snackbar = document.createElement('div');
-  snackbar.id = "snackbar";
-  if (colors.bg) {
-    snackbar.style.setProperty("--snack-bg", colors.bg);
-  }
-  if (colors.clr) {
-    snackbar.style.color = colors.clr;
-  }
+    const snackbar = document.createElement('div');
+    snackbar.id = "snackbar";
+    if (colors.bg) {
+        snackbar.style.setProperty("--snack-bg", colors.bg);
+    }
+    if (colors.clr) {
+        snackbar.style.color = colors.clr;
+    }
 
-  snackbar.textContent = "";
-  snackbar.append(message);
+    snackbar.textContent = "";
+    snackbar.append(message);
 
-  const dismiss = () => {
-    // return;
+    const dismiss = () => {
+        // return;
+        snackbar.style.opacity = '0';
+        snackbar.addEventListener('transitionend', () => {
+            snackbar.hidePopover();
+            snackbar.remove();
+        }, { once: true });
+    };
+
+    setTimeout(dismiss, duration * 1000);
+
+    if (hasButton) {
+        const button = document.createElement('button');
+        button.textContent = 'Close';
+        button.onclick = dismiss;
+        snackbar.appendChild(button);
+    }
+
+    snackbar.popover = 'manual';
+    snackbar.setAttribute('aria-live', 'polite');
+    snackbar.style.display = 'flex';
+    snackbar.style.justifyContent = "space-between";
+
+    // Assign requested positioning rules
+    Object.assign(snackbar.style, coords);
+
+    // Fallback defaults to clear browser center-locking mechanisms
+    if (coords.top !== undefined) {
+        snackbar.style.bottom = 'auto';
+    } else if (coords.bottom !== undefined) {
+        snackbar.style.top = 'auto';
+    }
+
+    if (coords.left !== undefined) {
+        snackbar.style.right = 'auto';
+    } else if (coords.right !== undefined) {
+        snackbar.style.left = 'auto';
+    }
+
+    // Setup opacity animation baseline
     snackbar.style.opacity = '0';
-    snackbar.addEventListener('transitionend', () => {
-      snackbar.hidePopover();
-      snackbar.remove();
-    }, { once: true });
-  };
+    snackbar.style.transition = 'opacity 0.2s ease-out';
 
-  setTimeout(dismiss, duration * 1000);
+    document.body.appendChild(snackbar);
+    snackbar.showPopover();
 
-  if (hasButton) {
-    const button = document.createElement('button');
-    button.textContent = 'Close';
-    button.onclick = dismiss;
-    snackbar.appendChild(button);
-  }
-
-  snackbar.popover = 'manual';
-  snackbar.setAttribute('aria-live', 'polite');
-  snackbar.style.display = 'flex';
-  snackbar.style.justifyContent = "space-between";
-
-  // Assign requested positioning rules
-  Object.assign(snackbar.style, coords);
-
-  // Fallback defaults to clear browser center-locking mechanisms
-  if (coords.top !== undefined) {
-    snackbar.style.bottom = 'auto';
-  } else if (coords.bottom !== undefined) {
-    snackbar.style.top = 'auto';
-  }
-
-  if (coords.left !== undefined) {
-    snackbar.style.right = 'auto';
-  } else if (coords.right !== undefined) {
-    snackbar.style.left = 'auto';
-  }
-
-  // Setup opacity animation baseline
-  snackbar.style.opacity = '0';
-  snackbar.style.transition = 'opacity 0.2s ease-out';
-
-  document.body.appendChild(snackbar);
-  snackbar.showPopover();
-
-  // Kick off entry transition
-  requestAnimationFrame(() => {
-    snackbar.style.opacity = '1';
-  });
+    // Kick off entry transition
+    requestAnimationFrame(() => {
+        snackbar.style.opacity = '1';
+    });
 }
 
 
@@ -856,25 +886,25 @@ function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}
  * @returns {HTMLDialogElement}
  */
 export function mkDialogMenu() {
-  const eltDialogMenuContainer = mkElt("dialog", { class: "menu-container" });
-  // The bubbling:
-  eltDialogMenuContainer.addEventListener("click", evt => {
-    evt.stopPropagation();
-    eltDialogMenuContainer.close();
-    eltDialogMenuContainer.remove();
-  });
-  return eltDialogMenuContainer;
+    const eltDialogMenuContainer = mkElt("dialog", { class: "menu-container" });
+    // The bubbling:
+    eltDialogMenuContainer.addEventListener("click", evt => {
+        evt.stopPropagation();
+        eltDialogMenuContainer.close();
+        eltDialogMenuContainer.remove();
+    });
+    return eltDialogMenuContainer;
 }
 
 export function addMenuDivider(dialogMenu) {
-  const divider = mkElt("div");
-  divider.style = `
+    const divider = mkElt("div");
+    divider.style = `
     height: 4px;
     background-color: lightgray;
     margin: 0;
     padding: 0;
   `;
-  dialogMenu.appendChild(divider);
+    dialogMenu.appendChild(divider);
 }
 /**
  *
@@ -883,50 +913,50 @@ export function addMenuDivider(dialogMenu) {
  * @param {function():void} fun 
  */
 export function addMenuAlt(dialogMenu, txt, fun) {
-  if (!(dialogMenu instanceof HTMLDialogElement)) {
-    throw Error("dialogMenu is not <dialog>");
-  }
-  if (!(dialogMenu.classList.contains("menu-container"))) {
-    throw Error("!dialogMenu.menu-container");
-  }
-  const tofTxt = typeof txt;
-  if (tofTxt != "string") {
-    if (!(txt instanceof HTMLSpanElement)) {
-      // throw Error(`typeof txt: "${tofTxt} != "string`);
-      throw Error(`Must be string or <span>`);
+    if (!(dialogMenu instanceof HTMLDialogElement)) {
+        throw Error("dialogMenu is not <dialog>");
     }
-  }
-  if (fun) {
-    const tofFun = typeof fun;
-    if (tofFun != "function") {
-      debugger;
-      throw Error(`typeof fun: "${tofFun} != "function`);
+    if (!(dialogMenu.classList.contains("menu-container"))) {
+        throw Error("!dialogMenu.menu-container");
     }
-    if (fun.length > 0) {
-      throw Error(`function fun should take 0 parameter: ${fun.length}`);
+    const tofTxt = typeof txt;
+    if (tofTxt != "string") {
+        if (!(txt instanceof HTMLSpanElement)) {
+            // throw Error(`typeof txt: "${tofTxt} != "string`);
+            throw Error(`Must be string or <span>`);
+        }
     }
-  }
-
-  const alt = mkMenuAlt(txt, fun);
-  dialogMenu.appendChild(alt);
-  function mkMenuAlt(txt, fun) {
-    const btn = mkElt("button", { class: "menu-alt" }, txt);
     if (fun) {
-      btn.addEventListener("click", evt => {
-        // evt.stopPropagation();
-        fun();
-      });
-    } else {
-      /*
-      btn.addEventListener("click", evt => {
-        evt.stopPropagation();
-      });
-      */
-      btn.disabled = true;
-      btn.style.color = "currentColor";
+        const tofFun = typeof fun;
+        if (tofFun != "function") {
+            debugger;
+            throw Error(`typeof fun: "${tofFun} != "function`);
+        }
+        if (fun.length > 0) {
+            throw Error(`function fun should take 0 parameter: ${fun.length}`);
+        }
     }
-    return btn;
-  }
+
+    const alt = mkMenuAlt(txt, fun);
+    dialogMenu.appendChild(alt);
+    function mkMenuAlt(txt, fun) {
+        const btn = mkElt("button", { class: "menu-alt" }, txt);
+        if (fun) {
+            btn.addEventListener("click", evt => {
+                // evt.stopPropagation();
+                fun();
+            });
+        } else {
+            /*
+            btn.addEventListener("click", evt => {
+              evt.stopPropagation();
+            });
+            */
+            btn.disabled = true;
+            btn.style.color = "currentColor";
+        }
+        return btn;
+    }
 }
 
 /**
@@ -934,121 +964,99 @@ export function addMenuAlt(dialogMenu, txt, fun) {
  * @param {Object} objDialogPosition
  */
 export function displayMenu(dialogMenu, objDialogPosition) {
-  const {
-    parent,
-    relativeX = "right-inner",
-    ...rest
-  } = objDialogPosition;
-  if (Object.keys(rest).length > 0) {
-    const unknownKeys = Object.keys(rest).join(", ");
-    throw new Error(
-      `Invalid options passed to displayMenu: ${unknownKeys}. ` +
-      `Only allowed: parent, relativeX`
-    );
-  }
-  const bcrParent = parent.getBoundingClientRect();
-  dialogMenu.style.top = `${bcrParent.bottom}px`;
-  switch (relativeX) {
-    case "right-inner":
-      {
-        const distanceFromRightEdge = window.innerWidth - bcrParent.right;
-        dialogMenu.style.right = `${distanceFromRightEdge}px`;
-      }
-      break;
-    case "left-inner":
-      dialogMenu.style.left = `${bcrParent.left}px`;
-      break;
-    default:
-      throw Error(`Bad relativeX == "${relativeX}"`);
-  }
+    const {
+        parent,
+        relativeX = "right-inner",
+        ...rest
+    } = objDialogPosition;
+    if (Object.keys(rest).length > 0) {
+        const unknownKeys = Object.keys(rest).join(", ");
+        throw new Error(
+            `Invalid options passed to displayMenu: ${unknownKeys}. ` +
+            `Only allowed: parent, relativeX`
+        );
+    }
+    const bcrParent = parent.getBoundingClientRect();
+    dialogMenu.style.top = `${bcrParent.bottom}px`;
+    switch (relativeX) {
+        case "right-inner":
+            {
+                const distanceFromRightEdge = window.innerWidth - bcrParent.right;
+                dialogMenu.style.right = `${distanceFromRightEdge}px`;
+            }
+            break;
+        case "left-inner":
+            dialogMenu.style.left = `${bcrParent.left}px`;
+            break;
+        default:
+            throw Error(`Bad relativeX == "${relativeX}"`);
+    }
 
-  document.body.appendChild(dialogMenu);
-  const bcr = dialogMenu.getBoundingClientRect();
-  console.log("displayMenu:", { bcr }, dialogMenu);
-  if (bcr.x < 0) {
-    const right = dialogMenu.style.right;
-    // debugger;
-    const distanceFromRightEdge = window.innerWidth - bcrParent.right + bcr.x;
-    dialogMenu.style.right = `${distanceFromRightEdge}px`;
-  }
-  dialogMenu.showModal();
+    document.body.appendChild(dialogMenu);
+    const bcr = dialogMenu.getBoundingClientRect();
+    console.log("displayMenu:", { bcr }, dialogMenu);
+    if (bcr.x < 0) {
+        const right = dialogMenu.style.right;
+        // debugger;
+        const distanceFromRightEdge = window.innerWidth - bcrParent.right + bcr.x;
+        dialogMenu.style.right = `${distanceFromRightEdge}px`;
+    }
+    dialogMenu.showModal();
 }
 
 
 // Global Mobile Viewport & Virtual Keyboard Handler
 function OLDmonitorVisualViewPort() {
-  console.log("OLDmonitorVisualViewPort");
-  snackbar("OLDmonitorVisualViewPort", 8);
-  if (window.visualViewport) {
-    let isPending = false;
+    console.log("OLDmonitorVisualViewPort");
+    snackbar("OLDmonitorVisualViewPort", 8);
+    if (window.visualViewport) {
+        let isPending = false;
 
-    // 1. The Core Measuring Function
-    const globalSyncViewport = () => {
-      if (isPending) return;
-      isPending = true;
+        // 1. The Core Measuring Function
+        const globalSyncViewport = () => {
+            if (isPending) return;
+            isPending = true;
 
-      requestAnimationFrame(() => {
-        isPending = false;
+            requestAnimationFrame(() => {
+                isPending = false;
 
-        console.log("setting height variables");
+                console.log("setting height variables");
 
-        const visualHeight = window.visualViewport.height;
-        const totalHeight = window.innerHeight;
-        const keyboardHeight = Math.max(0, totalHeight - visualHeight);
+                const visualHeight = window.visualViewport.height;
+                const totalHeight = window.innerHeight;
+                const keyboardHeight = Math.max(0, totalHeight - visualHeight);
 
-        // Write values globally to the root <html> element
-        document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
-        document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
-      });
-    };
+                // Write values globally to the root <html> element
+                document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
+                document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+            });
+        };
 
-    // 2. Continuous Listeners (Handles orientation flips, zooming, and standard keyboards)
-    window.visualViewport.addEventListener('resize', globalSyncViewport);
-    window.visualViewport.addEventListener('scroll', globalSyncViewport);
+        // 2. Continuous Listeners (Handles orientation flips, zooming, and standard keyboards)
+        window.visualViewport.addEventListener('resize', globalSyncViewport);
+        window.visualViewport.addEventListener('scroll', globalSyncViewport);
 
-    // Initialize the values immediately on page load
-    globalSyncViewport();
+        // Initialize the values immediately on page load
+        globalSyncViewport();
 
-    // 3. Global Fallback for GBoard / Stuck Focus Bugs
-    // Captures taps on any input or editable field globally
-    document.addEventListener('pointerup', (event) => {
-      const el = event.target;
-      const isInput = el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable;
+        // 3. Global Fallback for GBoard / Stuck Focus Bugs
+        // Captures taps on any input or editable field globally
+        document.addEventListener('pointerup', (event) => {
+            const el = event.target;
+            const isInput = el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable;
 
-      if (isInput) {
-        // Short delay lets GBoard finish sliding out before measuring
-        setTimeout(globalSyncViewport, 150);
-      }
-    });
-  }
+            if (isInput) {
+                // Short delay lets GBoard finish sliding out before measuring
+                setTimeout(globalSyncViewport, 150);
+            }
+        });
+    }
 }
 // OLDmonitorVisualViewPort();
 
 
 let resizeTimeout;
 function syncViewport() {
-  // Clear any pending debounced checks
-  if (resizeTimeout) clearTimeout(resizeTimeout);
-
-  const visualHeight = window.visualViewport.height;
-  const totalHeight = window.innerHeight;
-
-  // We add a tiny buffer (like 15px) because zoom or subpixel rendering 
-  // can make innerHeight and visualViewport.height differ slightly even without a keyboard.
-  const keyboardHeight = (totalHeight - visualHeight > 15) ? (totalHeight - visualHeight) : 0;
-
-  document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
-  document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
-};
-
-
-// Suggested by Gemini:
-function monitorVisualViewport() {
-  if (!window.visualViewport) return;
-
-  // let resizeTimeout;
-
-  const OLDsyncViewport = () => {
     // Clear any pending debounced checks
     if (resizeTimeout) clearTimeout(resizeTimeout);
 
@@ -1061,38 +1069,60 @@ function monitorVisualViewport() {
 
     document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
     document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
-  };
+};
 
-  // 1. Listen to the native viewport events
-  window.visualViewport.addEventListener('resize', () => {
+
+// Suggested by Gemini:
+function monitorVisualViewport() {
+    if (!window.visualViewport) return;
+
+    // let resizeTimeout;
+
+    const OLDsyncViewport = () => {
+        // Clear any pending debounced checks
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+
+        const visualHeight = window.visualViewport.height;
+        const totalHeight = window.innerHeight;
+
+        // We add a tiny buffer (like 15px) because zoom or subpixel rendering 
+        // can make innerHeight and visualViewport.height differ slightly even without a keyboard.
+        const keyboardHeight = (totalHeight - visualHeight > 15) ? (totalHeight - visualHeight) : 0;
+
+        document.documentElement.style.setProperty('--visible-height', `${visualHeight}px`);
+        document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+    };
+
+    // 1. Listen to the native viewport events
+    window.visualViewport.addEventListener('resize', () => {
+        // syncViewport();
+        // Safety Net: Keyboards on mobile (especially iOS & GBoard) often report 
+        // intermediate sizes mid-animation. This ensures we catch the absolute final state.
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            syncViewport();
+            const eltScroll = document.querySelector("dialog div.scroll-for-text-input");
+            if (!eltScroll) return;
+            const dlg = eltScroll.closest("dialog")
+            if (!dlg) {
+                debugger;
+            }
+            scrollForTextInput(dlg, 999);
+        }, 100);
+    });
+
+    // window.visualViewport.addEventListener('scroll', syncViewport);
+
+    // 2. Catch focus loss / keyboard dismissal
+    // Tapping outside an input or pressing "done" needs to trigger a recalculation
+    document.addEventListener('focusout', () => {
+        // Small timeout gives the keyboard time to begin collapsing
+        setTimeout(syncViewport, 100);
+    });
+
+    // Initial calculation
     // syncViewport();
-    // Safety Net: Keyboards on mobile (especially iOS & GBoard) often report 
-    // intermediate sizes mid-animation. This ensures we catch the absolute final state.
-    if (resizeTimeout) clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      syncViewport();
-      const eltScroll = document.querySelector("dialog div.scroll-for-text-input");
-      if (!eltScroll) return;
-      const dlg = eltScroll.closest("dialog")
-      if (!dlg) {
-        debugger;
-      }
-      scrollForTextInput(dlg, 999);
-    }, 100);
-  });
-
-  // window.visualViewport.addEventListener('scroll', syncViewport);
-
-  // 2. Catch focus loss / keyboard dismissal
-  // Tapping outside an input or pressing "done" needs to trigger a recalculation
-  document.addEventListener('focusout', () => {
-    // Small timeout gives the keyboard time to begin collapsing
-    setTimeout(syncViewport, 100);
-  });
-
-  // Initial calculation
-  // syncViewport();
-  setTimeout(syncViewport, 500);
+    setTimeout(syncViewport, 500);
 }
 
 
@@ -1103,16 +1133,16 @@ function monitorVisualViewport() {
  * @throws
  */
 function scrollForTextInput(dlg, msTimeout = 300) {
-  if (!(dlg instanceof HTMLDialogElement)) throw Error("not dialog elment");
-  // if (!dlg.classList.contains("has-text-input")) return;
-  setTimeout(() => {
-    console.log("using textInput");
-    const eltScroll = dlg.querySelector("div.scroll-for-text-input");
-    if (!eltScroll) throw Error("!eltScroll");
-    if (!(eltScroll instanceof HTMLDivElement)) throw Error("eltScroll is not div");
-    syncViewport();
-    eltScroll.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, msTimeout);
+    if (!(dlg instanceof HTMLDialogElement)) throw Error("not dialog elment");
+    // if (!dlg.classList.contains("has-text-input")) return;
+    setTimeout(() => {
+        console.log("using textInput");
+        const eltScroll = dlg.querySelector("div.scroll-for-text-input");
+        if (!eltScroll) throw Error("!eltScroll");
+        if (!(eltScroll instanceof HTMLDivElement)) throw Error("eltScroll is not div");
+        syncViewport();
+        eltScroll.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, msTimeout);
 }
 
 
@@ -1122,41 +1152,41 @@ function scrollForTextInput(dlg, msTimeout = 300) {
 * @returns {Promise<WeakMap<HTMLElement, ResizeObserverEntry>>} Resolves with a WeakMap mapping elements to their final entries.
 */
 export function waitForLayoutSilence(elements) {
-  return new Promise((resolve) => {
-    // Normalize input to an array so we can safely loop over it
-    const targets = elements instanceof NodeList || Array.isArray(elements)
-      ? Array.from(elements)
-      : [elements];
+    return new Promise((resolve) => {
+        // Normalize input to an array so we can safely loop over it
+        const targets = elements instanceof NodeList || Array.isArray(elements)
+            ? Array.from(elements)
+            : [elements];
 
-    let rafId = null;
+        let rafId = null;
 
-    // Create the WeakMap that will be passed back to the user
-    const latestEntries = new WeakMap();
+        // Create the WeakMap that will be passed back to the user
+        const latestEntries = new WeakMap();
 
-    const observer = new ResizeObserver((entries) => {
-      // 1. Map the element directly to its latest resize data
-      for (let entry of entries) {
-        // latestEntries.set(entry.target, entry.contentRect);
-        latestEntries.set(entry.target, entry.target.getBoundingClientRect());
-      }
+        const observer = new ResizeObserver((entries) => {
+            // 1. Map the element directly to its latest resize data
+            for (let entry of entries) {
+                // latestEntries.set(entry.target, entry.contentRect);
+                latestEntries.set(entry.target, entry.target.getBoundingClientRect());
+            }
 
-      // 2. Clear previous frame schedule if layout is still moving
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
+            // 2. Clear previous frame schedule if layout is still moving
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
 
-      // 3. Wait for one full frame of silence
-      rafId = requestAnimationFrame(() => {
-        observer.disconnect();
+            // 3. Wait for one full frame of silence
+            rafId = requestAnimationFrame(() => {
+                observer.disconnect();
 
-        // 4. Resolve the Promise directly with the WeakMap
-        resolve(latestEntries);
-      });
+                // 4. Resolve the Promise directly with the WeakMap
+                resolve(latestEntries);
+            });
+        });
+
+        // Start observing all targeted elements
+        targets.forEach(el => observer.observe(el));
     });
-
-    // Start observing all targeted elements
-    targets.forEach(el => observer.observe(el));
-  });
 }
 
 monitorVisualViewport();
