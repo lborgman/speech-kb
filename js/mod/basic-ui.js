@@ -58,6 +58,9 @@ document.documentElement.addEventListener("click",
 
         const button = target.closest("button")
         if (button) {
+            if (evt.isDelayedClick) {
+                return;
+            }
             evt.stopImmediatePropagation();
             evt.preventDefault();
             addRippleAndClickDelayed(evt, button);
@@ -85,6 +88,7 @@ function addRippleAndClickDelayed(event, button) {
             cancelable: true,
             view: window
         });
+        delayedClick.isDelayedClick = true;
         button.dispatchEvent(delayedClick)
     });
 
