@@ -58,12 +58,15 @@ document.documentElement.addEventListener("click",
 
         const button = target.closest("button")
         if (button) {
-            createRipple(evt, button);
+            evt.stopImmediatePropagation();
+            evt.preventDefault();
+            addRippleAndClickDelayed(evt, button);
         }
     });
 
-function createRipple(event, button) {
-    // const button = event.currentTarget;
+function addRippleAndClickDelayed(event, button) {
+    const currentRipple = button.getElementsByClassName("ripple")[0];
+    if (currentRipple) { return; }
 
     const circle = document.createElement("span");
     const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -74,11 +77,15 @@ function createRipple(event, button) {
     circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
     circle.classList.add("ripple");
 
-    const ripple = button.getElementsByClassName("ripple")[0];
-
-    if (ripple) {
-        ripple.remove();
-    }
+    circle.addEventListener("animationend", () => {
+        circle.remove();
+        const delayedClick = new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        button.dispatchEvent(delayedClick)
+    });
 
     button.appendChild(circle);
 }
