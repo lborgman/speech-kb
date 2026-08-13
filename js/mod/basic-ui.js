@@ -64,6 +64,7 @@ document.documentElement.addEventListener("click",
                 addRippleAndClickDelayed(evt, button);
                 return;
             }
+            evt.preventDefault();
             return;
         }
     });
