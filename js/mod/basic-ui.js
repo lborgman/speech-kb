@@ -61,9 +61,9 @@ document.documentElement.addEventListener("click",
             evt.stopImmediatePropagation();
             if (!evt.isDelayedClick) {
                 evt.preventDefault();
+                addRippleAndClickDelayed(evt, button);
                 return;
             }
-            addRippleAndClickDelayed(evt, button);
             return;
         }
     });
