@@ -58,7 +58,7 @@ document.documentElement.addEventListener("click",
 
         const button = target.closest("button")
         if (button) {
-            if (evt.isDelayedClick) {
+            if (!evt.isDelayedClick) {
                 return;
             }
             evt.stopImmediatePropagation();
