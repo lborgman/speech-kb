@@ -81,7 +81,23 @@ function addRippleAndClickDelayed(event, button) {
     circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
     circle.classList.add("ripple");
 
-    circle.addEventListener("animationend", () => {
+
+
+    /*
+        Much easier to use timeout.
+        And more flexible.
+    */
+    // circle.addEventListener("animationend", () => { whenRippleFinishes(); });
+    const rippleTimout = getCssVarMs("--ripple-duration");
+    if (Number.isNaN(rippleTimout)) {
+        debugger;
+        throw Error("Did not get --ripple-timeout");
+    }
+    setTimeout(whenRippleFinishes, rippleTimout);
+
+
+
+    function whenRippleFinishes() {
         circle.remove();
         const delayedClick = new MouseEvent("click", {
             bubbles: true,
@@ -90,7 +106,8 @@ function addRippleAndClickDelayed(event, button) {
         });
         delayedClick.isDelayedClick = true;
         button.dispatchEvent(delayedClick)
-    });
+    }
+    // getProperty
 
     button.appendChild(circle);
 }
@@ -1202,3 +1219,36 @@ export function waitForLayoutSilence(elements) {
 }
 
 monitorVisualViewport();
+
+
+
+export function getCssVarMs(cssVar) {
+    let strCssVar =
+        window.getComputedStyle(document.documentElement)
+            .getPropertyValue(cssVar)
+            .trim();
+    if (strCssVar.length == 0) {
+        debugger;
+        throw Error(`${cssVar} not set on :root`);
+        // strCssVar = "500ms";
+    }
+    const isSec = strCssVar.endsWith("s");
+    const isMs = strCssVar.endsWith("ms");
+    if (!isSec) {
+        debugger;
+        throw Error(`${cssVar} does not end with ms or s`);
+    }
+    strCssVar = strCssVar.slice(0, -1);
+    if (isMs) { strCssVar = strCssVar.slice(0, -1); }
+    if (strCssVar.endsWith(" ")) {
+        debugger;
+        throw Error(`${cssVar} space before ms`);
+    }
+    if (Number.isNaN(Number(strCssVar))) {
+        debugger;
+        throw Error(`${cssVar} does not have a number`);
+    }
+    let ms = parseFloat(strCssVar);
+    if (!isMs) { ms = 1000 * ms; }
+    return ms
+}
