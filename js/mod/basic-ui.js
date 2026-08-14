@@ -58,11 +58,11 @@ document.documentElement.addEventListener("click",
 
         const button = target.closest("button")
         if (button) {
-            console.log("----- button click", evt);
+            // console.log("----- button click", evt);
             if (!evt.isDelayedClick) {
                 evt.stopImmediatePropagation();
                 evt.preventDefault();
-                console.log("----- button click, !evt.isDelayedClick");
+                // console.log("----- button click, !evt.isDelayedClick");
                 addRippleAndClickDelayed(evt, button);
                 return;
             }
