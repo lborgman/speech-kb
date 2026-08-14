@@ -245,6 +245,7 @@ dialog:not([open])::backdrop {
 }
 
 .x-close {
+    color: currentColor;
     background: none;
     border: none;
     box-shadow: none;
