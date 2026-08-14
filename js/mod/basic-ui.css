@@ -253,6 +253,9 @@ dialog:not([open])::backdrop {
     top: 0;
     width: 32px;
     aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .x-close:hover {
