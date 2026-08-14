@@ -69,7 +69,7 @@ document.documentElement.addEventListener("click",
             evt.preventDefault();
             return;
         }
-    });
+    }, { capture: true });
 
 function addRippleAndClickDelayed(event, button) {
     const currentRipple = button.getElementsByClassName("ripple")[0];
