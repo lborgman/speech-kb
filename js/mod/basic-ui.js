@@ -90,12 +90,12 @@ function addRippleAndClickDelayed(event, button) {
         And more flexible.
     */
     // circle.addEventListener("animationend", () => { whenRippleFinishes(); });
-    const rippleTimout = getCssVarMs("--ripple-duration");
-    if (Number.isNaN(rippleTimout)) {
+    const rippleDuration = getCssVarMs("--ripple-duration");
+    if (Number.isNaN(rippleDuration)) {
         debugger;
         throw Error("Did not get --ripple-timeout");
     }
-    setTimeout(whenRippleFinishes, rippleTimout * 0.7);
+    setTimeout(whenRippleFinishes, rippleDuration * 0.7);
 
 
 
