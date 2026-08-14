@@ -12,6 +12,7 @@
     font-family: Arial, Helvetica, sans-serif;
     --snack-bg: lightblue;
     /* --snack-bg: red; */
+    --ripple-duration: 1s;
 }
 
 :root {
