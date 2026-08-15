@@ -374,14 +374,11 @@ export function nextPaint(fun) {
 // Snackbars
 /////////////
 
-// <!-- Native popover element configured manually so it doesn't light-dismiss -->
-// <div id="snackbar-popover" popover="manual" class="snackbar">
-// <span id="snackbar-text"></span>
-// </div>
 /** @returns {HTMLDivElement} */
 function getEltSnackbar() {
     let elt = document.getElementById("snackbar-popover");
     if (!elt) {
+        // <!-- Native popover element configured manually so it doesn't light-dismiss -->
         elt = mkElt("div", { id: "snackbar-popover", popover: "manual" });
         if (elt == null) { throw Error("elt == null"); }
         document.body.appendChild(elt);
@@ -396,7 +393,7 @@ class SnackbarQueue {
         this.queue = [];
         this.isDisplaying = false;
 
-        // Allow clicking the snackbar to dismiss it early
+        // Allow clicking to dismiss early
         this.snackbarPopover.addEventListener('click', () => this.dismissCurrent());
     }
 
@@ -453,6 +450,7 @@ class SnackbarQueue {
             // Wait for animation to finish before native hide
             await animation.finished;
             popoverEl.hidePopover();
+            popoverEl.remove();
         }
 
 
