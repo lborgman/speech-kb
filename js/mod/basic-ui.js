@@ -817,7 +817,7 @@ const isDefined = window.getComputedStyle(document.documentElement)
 
 // function createSnackbar(message, duration = 4000, hasButton = false, position = 'bottom-left') {
 
-/**
+/* *
  * Creates and displays a non-modal snackbar notification using the HTML Popover API.
  * This guarantees the snackbar stays in the Top Layer above open modal dialogs.
  *
@@ -834,7 +834,7 @@ const isDefined = window.getComputedStyle(document.documentElement)
  * @param {string} [colors.bg]
  * @param {string} [colors.clr]
  */
-function createSnackbarDiv(message, duration = 4, hasButton = false, coords = {}, colors = {}) {
+function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false, coords = {}, colors = {}) {
     // Validate conflicting coordinate properties
     if (coords.top !== undefined && coords.bottom !== undefined) {
         console.warn("Snackbar Conflict: Both 'top' and 'bottom' provided. 'top' will take priority.");
