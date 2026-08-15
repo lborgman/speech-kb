@@ -422,7 +422,8 @@ class SnackbarQueue {
 
         // Set text directly on the popover container
         // this.popover.textContent = message;
-        this.snackbarPopover.textContent = "";
+        // this.snackbarPopover.textContent = "";
+        this.snackbarPopover = getEltSnackbar();
         this.snackbarPopover.append(message);
         this.snackbarPopover.showPopover();
 
