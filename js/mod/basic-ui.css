@@ -339,7 +339,7 @@ dialog:has(div.no-x-close-button) {
     accent-color: #666666 !important;
 }
 
-#snackbar {
+#OLDsnackbar {
     position: fixed;
     z-index: 2147483647;
     top: auto;

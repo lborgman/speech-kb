@@ -376,10 +376,10 @@ export function nextPaint(fun) {
 
 /** @returns {HTMLDivElement} */
 function getEltSnackbar() {
-    let elt = document.getElementById("snackbar-popover");
+    let elt = document.getElementById("snackbar");
     if (!elt) {
         // <!-- Native popover element configured manually so it doesn't light-dismiss -->
-        elt = mkElt("div", { id: "snackbar-popover", popover: "manual" });
+        elt = mkElt("div", { id: "snackbar", popover: "manual" });
         if (elt == null) { throw Error("elt == null"); }
         document.body.appendChild(elt);
     }
