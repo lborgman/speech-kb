@@ -10,7 +10,7 @@
 :root {
     font-size: 16px;
     font-family: Arial, Helvetica, sans-serif;
-    --snackbar-bg: lightblue;
+    /* --snackbar-bg: lightblue; */
     /* --snackbar-bg: red; */
     --ripple-duration: 1s;
 }
