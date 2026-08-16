@@ -96,7 +96,7 @@ function addRippleAndClickDelayed(event, button) {
         debugger;
         throw Error("Did not get --ripple-timeout");
     }
-    setTimeout(whenRippleFinishes, rippleDuration * 0.7);
+    setTimeout(whenRippleFinishes, rippleDuration * 0.5);
 
 
 
