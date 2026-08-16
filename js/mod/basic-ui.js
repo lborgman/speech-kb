@@ -95,6 +95,7 @@ function addRippleAndClickDelayed(event, button) {
 
 
     function whenRippleFinishes() {
+        console.log("whenRippleFinishes", { rippleDuration });
         circle.remove();
         const delayedClick = new MouseEvent("click", {
             bubbles: true,
