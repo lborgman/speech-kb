@@ -91,6 +91,7 @@ function addRippleAndClickDelayed(event, button) {
     */
     // circle.addEventListener("animationend", () => { whenRippleFinishes(); });
     const rippleDuration = getCssVarMs("--ripple-duration");
+    console.log({ rippleDuration });
     if (Number.isNaN(rippleDuration)) {
         debugger;
         throw Error("Did not get --ripple-timeout");
@@ -834,6 +835,7 @@ const isDefined = window.getComputedStyle(document.documentElement)
  * @param {string} [colors.bg]
  * @param {string} [colors.clr]
  */
+/*
 function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false, coords = {}, colors = {}) {
     // Validate conflicting coordinate properties
     if (coords.top !== undefined && coords.bottom !== undefined) {
@@ -846,7 +848,7 @@ function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false, coords =
     const snackbar = document.createElement('div');
     snackbar.id = "snackbar";
     if (colors.bg) {
-        snackbar.style.setProperty("--snack-bg", colors.bg);
+        snackbar.style.setProperty("--snackbar-bg", colors.bg);
     }
     if (colors.clr) {
         snackbar.style.color = colors.clr;
@@ -906,6 +908,7 @@ function OLDcreateSnackbarDiv(message, duration = 4, hasButton = false, coords =
         snackbar.style.opacity = '1';
     });
 }
+*/
 
 
 
