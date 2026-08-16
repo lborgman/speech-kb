@@ -85,17 +85,11 @@ function addRippleAndClickDelayed(event, button) {
 
 
 
-    /*
-        Much easier to use timeout.
-        And more flexible.
-    */
-    // circle.addEventListener("animationend", () => { whenRippleFinishes(); });
-    const rippleDuration = getCssVarMs("--ripple-duration");
+    const rippleDuration = getRootCssVarMs("--ripple-duration");
     console.log({ rippleDuration });
-    if (Number.isNaN(rippleDuration)) {
-        debugger;
-        throw Error("Did not get --ripple-timeout");
-    }
+    // if (Number.isNaN(rippleDuration)) { throw Error("Did not get --ripple-timeout"); }
+    // circle.addEventListener("animationend", () => { whenRippleFinishes(); });
+    /* Much easier to use timeout.  And more flexible.  */
     setTimeout(whenRippleFinishes, rippleDuration * 0.5);
 
 
@@ -415,6 +409,7 @@ class SnackbarQueue {
     async processQueue() {
         if (this.queue.length === 0) {
             this.isDisplaying = false;
+            console.log("snackbar queue was empty");
             return;
         }
 
@@ -462,6 +457,7 @@ class SnackbarQueue {
     }
 
     dismissCurrent() {
+        console.log("SnackbarQueue, dismissCurrent");
         if (this.currentResolver) {
             clearTimeout(this.timeoutId);
             this.currentResolver();
@@ -469,6 +465,7 @@ class SnackbarQueue {
     }
 
     clearQueue() {
+        console.log("SnackbarQueue, clearQueue");
         this.queue.length = 0;
         this.dismissCurrent();
         this.snackbarPopover.hidePopover();
@@ -1225,7 +1222,16 @@ monitorVisualViewport();
 
 
 
-export function getCssVarMs(cssVar) {
+/**
+ * @param {string} cssVar -- 500ms, 0.5s
+ * @returns {number}
+ * @throws
+ */
+export function getRootCssVarMs(cssVar) {
+    if (!cssVar.startsWith("--")) {
+        debugger;
+        throw Error(`${cssVar} is not a css variable name`);
+    }
     let strCssVar =
         window.getComputedStyle(document.documentElement)
             .getPropertyValue(cssVar)
@@ -1233,7 +1239,6 @@ export function getCssVarMs(cssVar) {
     if (strCssVar.length == 0) {
         debugger;
         throw Error(`${cssVar} not set on :root`);
-        // strCssVar = "500ms";
     }
     const isSec = strCssVar.endsWith("s");
     const isMs = strCssVar.endsWith("ms");
