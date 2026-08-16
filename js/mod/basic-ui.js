@@ -410,13 +410,13 @@ class SnackbarQueue {
     async processQueue() {
         if (this.queue.length === 0) {
             this.isDisplaying = false;
-            console.log("snackbar queue was empty");
+            console.log("processQueue: snackbar queue was empty");
             return;
         }
 
         this.isDisplaying = true;
         const { message, duration } = this.queue.shift();
-        console.log("snackbar duration", duration);
+        console.log("processQueue: snackbar duration", duration);
 
         // Set text directly on the popover container
         this.snackbarPopover = getEltSnackbar();
