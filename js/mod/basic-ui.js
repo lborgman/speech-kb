@@ -402,7 +402,7 @@ class SnackbarQueue {
      * @param {string|HTMLDivElement} message
      * @param {number} duration
      */
-    show(message, duration = 3000) {
+    showBar(message, duration = 3000) {
         // Avoid queuing duplicate back-to-back messages
         if (this.queue.some(item => item.message === message)) return;
 
@@ -420,11 +420,11 @@ class SnackbarQueue {
 
         this.isDisplaying = true;
         const { message, duration } = this.queue.shift();
+        console.log("snackbar duration", duration);
 
         // Set text directly on the popover container
-        // this.popover.textContent = message;
-        // this.snackbarPopover.textContent = "";
         this.snackbarPopover = getEltSnackbar();
+        this.snackbarPopover.textContent = "";
         this.snackbarPopover.append(message);
         this.snackbarPopover.showPopover();
 
@@ -436,7 +436,6 @@ class SnackbarQueue {
 
 
 
-        // this.snackbarPopover.hidePopover();
         // From Gemini:
         dismissSnackbar(this.snackbarPopover);
         async function dismissSnackbar(popoverEl) {
@@ -489,7 +488,7 @@ const toast = new SnackbarQueue();
  */
 
 export function snackbar(message, duration) {
-    toast.show(message, duration);
+    toast.showBar(message, duration);
 }
 // Example calls:
 // toast.show('Microphone enabled');
