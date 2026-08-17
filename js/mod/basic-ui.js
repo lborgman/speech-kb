@@ -377,6 +377,10 @@ function getEltSnackbar() {
         // <!-- Native popover element configured manually so it doesn't light-dismiss -->
         elt = mkElt("div", { id: "snackbar", popover: "manual" });
         if (elt == null) { throw Error("elt == null"); }
+        elt.addEventListener("click", evt => {
+            evt.stopPropagation();
+            toast.clearQueue();
+        });
         document.body.appendChild(elt);
     }
     return /** @type {HTMLDivElement} */ (elt);
@@ -483,13 +487,13 @@ const toast = new SnackbarQueue();
 /**
  * @param {string|HTMLDivElement} message
  * @param {number} duration
+ *
+ * @example
+ *   snackbar('Microphone enabled');
  */
-
 export function snackbar(message, duration) {
     toast.showBar(message, duration);
 }
-// Example calls:
-// toast.show('Microphone enabled');
 
 export function clearSnackbarQueue() {
     toast.clearQueue();
