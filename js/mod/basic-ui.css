@@ -339,23 +339,7 @@ dialog:has(div.no-x-close-button) {
     accent-color: #666666 !important;
 }
 
-#OLDsnackbar {
-    position: fixed;
-    z-index: 2147483647;
-    top: auto;
-    bottom: 50px;
-    left: 20vw;
-    width: 60vw;
-    margin: 0;
-    padding: 6px;
-    color: black;
-    background-color: var(--snack-bg);
-    box-shadow: 0px 0px 20px 4px var(--snack-bg);
-    outline: none;
-    border: none;
-    border-radius: 4px;
-    overflow-x: clip;
-}
+/* #OLDsnackbar { position: fixed; overflow-x: clip; } */
 
 
 .basic-card {
