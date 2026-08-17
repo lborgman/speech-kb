@@ -10,12 +10,16 @@
 :root {
     font-size: 16px;
     font-family: Arial, Helvetica, sans-serif;
-    /* --snackbar-bg: lightblue; */
-    /* --snackbar-bg: red; */
-    --ripple-duration: 1s;
-}
 
-:root {
+    input,
+    button,
+    textarea,
+    select {
+        font-family: inherit;
+    }
+
+    --ripple-duration: 1s;
+
     --icon-button-size: 48;
     --checkbox-border-color: #8b8c89;
     --checkbox-checked-color: #274c77;
@@ -27,6 +31,8 @@
     --checkbox-hover-color: orange;
     --checkbox-disabled-bg-color: #d9d9d9;
 }
+
+
 
 button {
     cursor: pointer;
@@ -398,5 +404,4 @@ dialog[open].menu-container::backdrop {
     border-radius: 0;
     border: none;
     padding: 8px;
-    NObackground: red;
 }
