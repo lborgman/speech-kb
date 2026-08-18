@@ -1278,79 +1278,85 @@ export function getRootCssVarMs(cssVar) {
  * @returns {Record<string, string>} Object containing CSS custom properties and hex values
  */
 function generateMaterialPalette(baseHex) {
-  // Convert Hex to HSL components
-  let hex = baseHex.replace("#", "");
-  if (hex.length === 3) {
-    hex = hex.split("").map((c) => c + c).join("");
-  }
-
-  const r = parseInt(hex.substring(0, 2), 16) / 255;
-  const g = parseInt(hex.substring(2, 4), 16) / 255;
-  const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-
-  if (max === min) {
-    h = s = 0; // achromatic
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
+    // Convert Hex to HSL components
+    let hex = baseHex.replace("#", "");
+    if (hex.length === 3) {
+        hex = hex.split("").map((c) => c + c).join("");
     }
-    h /= 6;
-  }
 
-  const hDeg = Math.round(h * 360);
-  const sPct = Math.round(s * 100);
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
 
-  // Helper to convert HSL back to Hex
-  const hslToHex = (h, s, l) => {
-    l /= 100;
-    const a = (s * Math.min(l, 1 - l)) / 100;
-    const f = (n) => {
-      const k = (n + h / 30) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color).toString(16).padStart(2, "0");
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+        h = s = 0; // achromatic
+    } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    const hDeg = Math.round(h * 360);
+    const sPct = Math.round(s * 100);
+
+    // Helper to convert HSL back to Hex
+    const hslToHex = (h, s, l) => {
+        l /= 100;
+        const a = (s * Math.min(l, 1 - l)) / 100;
+        const f = (n) => {
+            const k = (n + h / 30) % 12;
+            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, "0");
+        };
+        return `#${f(0)}${f(8)}${f(4)}`;
     };
-    return `#${f(0)}${f(8)}${f(4)}`;
-  };
 
-  return {
-    "--primary": baseHex,
-    "--primary-container": hslToHex(hDeg, sPct, 92),
+    return {
+        "--primary": baseHex,
+        "--primary-container": hslToHex(hDeg, sPct, 92),
 
-    // Secondary: Shifted hue (-15deg)
-    "--secondary": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 44),
-    "--secondary-container": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 94),
+        // Secondary: Shifted hue (-15deg)
+        "--secondary": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 44),
+        "--secondary-container": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 94),
 
-    // Tertiary: Split complement hue (+170deg)
-    "--tertiary": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 32),
-    "--tertiary-container": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 90),
+        // Tertiary: Split complement hue (+170deg)
+        "--tertiary": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 32),
+        "--tertiary-container": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 90),
 
-    // Neutral Surfaces (slightly tinted with primary hue)
-    "--surface": hslToHex(hDeg, 10, 98),
-    "--surface-variant": hslToHex(hDeg, 10, 96),
-    "--outline": hslToHex(hDeg, 8, 64),
-    "--outline-variant": hslToHex(hDeg, 12, 90),
+        // Neutral Surfaces (slightly tinted with primary hue)
+        "--surface": hslToHex(hDeg, 10, 98),
+        "--surface-variant": hslToHex(hDeg, 10, 96),
+        "--outline": hslToHex(hDeg, 8, 64),
+        "--outline-variant": hslToHex(hDeg, 12, 90),
 
-    // Error states
-    "--error": "#dc2626",
-    "--error-container": "#fee2e2",
-  };
+        // Error states
+        "--error": "#dc2626",
+        "--error-container": "#fee2e2",
+
+        // Inverse Surface (Dark neutral container for Snackbars/Toasts)
+        "--inverse-surface": hslToHex(hDeg, 10, 18),
+
+        // Inverse Primary (Light accent color for Snackbar action buttons)
+        "--inverse-primary": hslToHex(hDeg, 90, 70),
+    };
 }
 
 /**
  * Applies the generated palette directly to an element (defaults to :root)
  */
 export function applyMaterialTheme(baseHex, targetElement = document.documentElement) {
-  const palette = generateMaterialPalette(baseHex);
-  Object.entries(palette).forEach(([prop, value]) => {
-    targetElement.style.setProperty(prop, value);
-  });
+    const palette = generateMaterialPalette(baseHex);
+    Object.entries(palette).forEach(([prop, value]) => {
+        targetElement.style.setProperty(prop, value);
+    });
 }
 
 // Example Usage:
