@@ -1277,7 +1277,7 @@ export function getRootCssVarMs(cssVar) {
  * @param {string} baseHex - Seed color in hex format (e.g., "#f97316")
  * @returns {Record<string, string>} Object containing CSS custom properties and hex values
  */
-function generateMaterialPalette(baseHex) {
+function OLDgenerateMaterialPalette(baseHex) {
     // Convert Hex to HSL components
     let hex = baseHex.replace("#", "");
     if (hex.length === 3) {
