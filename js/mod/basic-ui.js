@@ -1272,18 +1272,6 @@ export function getRootCssVarMs(cssVar) {
 /////////////////
 //// Color themes
 
-function OLDgenerateMaterialPaletteFromAny(colorInput) {
-    // If it's a color name, convert it to hex first
-    const hex = colorInput.startsWith("#") ? colorInput : colorNameToHex(colorInput);
-
-    if (!hex) {
-        throw new Error(`Invalid color name or format: "${colorInput}"`);
-    }
-
-    return generateMaterialPalette(hex);
-}
-
-
 
 /**
  * Converts any valid CSS color string (name, rgb, hsl) to a hex string.
