@@ -1272,83 +1272,7 @@ export function getRootCssVarMs(cssVar) {
 /////////////////
 //// Color themes
 
-/**
- * Generates a minimal Material Design color palette object from a single hex color.
- * @param {string} baseHex - Seed color in hex format (e.g., "#f97316")
- * @returns {Record<string, string>} Object containing CSS custom properties and hex values
- */
-function OLDgenerateMaterialPalette(baseHex) {
-    // Convert Hex to HSL components
-    let hex = baseHex.replace("#", "");
-    if (hex.length === 3) {
-        hex = hex.split("").map((c) => c + c).join("");
-    }
-
-    const r = parseInt(hex.substring(0, 2), 16) / 255;
-    const g = parseInt(hex.substring(2, 4), 16) / 255;
-    const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
-
-    if (max === min) {
-        h = s = 0; // achromatic
-    } else {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch (max) {
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-    }
-
-    const hDeg = Math.round(h * 360);
-    const sPct = Math.round(s * 100);
-
-    // Helper to convert HSL back to Hex
-    const hslToHex = (h, s, l) => {
-        l /= 100;
-        const a = (s * Math.min(l, 1 - l)) / 100;
-        const f = (n) => {
-            const k = (n + h / 30) % 12;
-            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-            return Math.round(255 * color).toString(16).padStart(2, "0");
-        };
-        return `#${f(0)}${f(8)}${f(4)}`;
-    };
-
-    return {
-        "--primary": baseHex,
-        "--primary-container": hslToHex(hDeg, sPct, 92),
-
-        // Secondary: Shifted hue (-15deg)
-        "--secondary": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 44),
-        "--secondary-container": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 94),
-
-        // Tertiary: Split complement hue (+170deg)
-        "--tertiary": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 32),
-        "--tertiary-container": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 90),
-
-        // Neutral Surfaces (slightly tinted with primary hue)
-        "--surface": hslToHex(hDeg, 10, 98),
-        "--surface-variant": hslToHex(hDeg, 10, 96),
-        "--outline": hslToHex(hDeg, 8, 64),
-        "--outline-variant": hslToHex(hDeg, 12, 90),
-
-        // Error states
-        "--error": "#dc2626",
-        "--error-container": "#fee2e2",
-
-        // Inverse Surface (Dark neutral container for Snackbars/Toasts)
-        "--inverse-surface": hslToHex(hDeg, 10, 18),
-
-        // Inverse Primary (Light accent color for Snackbar action buttons)
-        "--inverse-primary": hslToHex(hDeg, 90, 70),
-    };
-}
-function generateMaterialPaletteFromAny(colorInput) {
+function OLDgenerateMaterialPaletteFromAny(colorInput) {
     // If it's a color name, convert it to hex first
     const hex = colorInput.startsWith("#") ? colorInput : colorNameToHex(colorInput);
 
@@ -1360,17 +1284,6 @@ function generateMaterialPaletteFromAny(colorInput) {
 }
 
 
-/**
- * Applies the generated palette directly to an element (defaults to :root)
- * @param {string} colorInput - any css color spec
- * @param {Element} targetElement
- */
-export function OLDapplyMaterialTheme(colorInput, targetElement = document.documentElement) {
-    const palette = generateMaterialPaletteFromAny(colorInput);
-    Object.entries(palette).forEach(([prop, value]) => {
-        targetElement.style.setProperty(prop, value);
-    });
-}
 
 /**
  * Converts any valid CSS color string (name, rgb, hsl) to a hex string.
@@ -1408,101 +1321,101 @@ export function colorNameToHex(colorName) {
  * @returns {Record<string, string>} Object containing CSS custom properties.
  */
 function generateMaterialPalette(baseInput, isDark = false) {
-  // Convert color name or raw hex string to normalized 6-digit hex
-  let hex = baseInput.startsWith("#") ? baseInput : colorNameToHex(baseInput);
-  if (!hex) {
-    throw new Error(`Invalid color format or name: "${baseInput}"`);
-  }
-
-  hex = hex.replace("#", "");
-  if (hex.length === 3) {
-    hex = hex.split("").map((c) => c + c).join("");
-  }
-
-  // Convert Hex to HSL
-  const r = parseInt(hex.substring(0, 2), 16) / 255;
-  const g = parseInt(hex.substring(2, 4), 16) / 255;
-  const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-
-  if (max === min) {
-    h = s = 0;
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
+    // Convert color name or raw hex string to normalized 6-digit hex
+    let hex = baseInput.startsWith("#") ? baseInput : colorNameToHex(baseInput);
+    if (!hex) {
+        throw new Error(`Invalid color format or name: "${baseInput}"`);
     }
-    h /= 6;
-  }
 
-  const hDeg = Math.round(h * 360);
-  const sPct = Math.round(s * 100);
+    hex = hex.replace("#", "");
+    if (hex.length === 3) {
+        hex = hex.split("").map((c) => c + c).join("");
+    }
 
-  // Helper: HSL to Hex
-  const hslToHex = (h, s, l) => {
-    l = Math.min(100, Math.max(0, l)) / 100;
-    s = Math.min(100, Math.max(0, s)) / 100;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n) => {
-      const k = (n + h / 30) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color).toString(16).padStart(2, "0");
+    // Convert Hex to HSL
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+        h = s = 0;
+    } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    const hDeg = Math.round(h * 360);
+    const sPct = Math.round(s * 100);
+
+    // Helper: HSL to Hex
+    const hslToHex = (h, s, l) => {
+        l = Math.min(100, Math.max(0, l)) / 100;
+        s = Math.min(100, Math.max(0, s)) / 100;
+        const a = s * Math.min(l, 1 - l);
+        const f = (n) => {
+            const k = (n + h / 30) % 12;
+            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, "0");
+        };
+        return `#${f(0)}${f(8)}${f(4)}`;
     };
-    return `#${f(0)}${f(8)}${f(4)}`;
-  };
 
-  // Branch token calculations for Light vs Dark mode
-  if (isDark) {
+    // Branch token calculations for Light vs Dark mode
+    if (isDark) {
+        return {
+            "--primary": hslToHex(hDeg, Math.min(sPct + 10, 100), 75),
+            "--primary-container": hslToHex(hDeg, sPct, 25),
+
+            "--secondary": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 70),
+            "--secondary-container": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 28),
+
+            "--tertiary": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 68),
+            "--tertiary-container": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 22),
+
+            "--surface": hslToHex(hDeg, 10, 8),
+            "--surface-variant": hslToHex(hDeg, 10, 14),
+            "--outline": hslToHex(hDeg, 8, 48),
+            "--outline-variant": hslToHex(hDeg, 10, 24),
+
+            "--inverse-surface": hslToHex(hDeg, 10, 92),
+            "--inverse-primary": hslToHex(hDeg, sPct, 45),
+
+            "--error": "#f87171",
+            "--error-container": "#7f1d1d",
+        };
+    }
+
+    // Light Mode (Default)
     return {
-      "--primary": hslToHex(hDeg, Math.min(sPct + 10, 100), 75),
-      "--primary-container": hslToHex(hDeg, sPct, 25),
+        "--primary": `#${hex}`,
+        "--primary-container": hslToHex(hDeg, sPct, 92),
 
-      "--secondary": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 70),
-      "--secondary-container": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 28),
+        "--secondary": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 44),
+        "--secondary-container": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 94),
 
-      "--tertiary": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 68),
-      "--tertiary-container": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 22),
+        "--tertiary": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 32),
+        "--tertiary-container": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 90),
 
-      "--surface": hslToHex(hDeg, 10, 8),
-      "--surface-variant": hslToHex(hDeg, 10, 14),
-      "--outline": hslToHex(hDeg, 8, 48),
-      "--outline-variant": hslToHex(hDeg, 10, 24),
+        "--surface": hslToHex(hDeg, 10, 98),
+        "--surface-variant": hslToHex(hDeg, 10, 96),
+        "--outline": hslToHex(hDeg, 8, 64),
+        "--outline-variant": hslToHex(hDeg, 12, 90),
 
-      "--inverse-surface": hslToHex(hDeg, 10, 92),
-      "--inverse-primary": hslToHex(hDeg, sPct, 45),
+        "--inverse-surface": hslToHex(hDeg, 10, 18),
+        "--inverse-primary": hslToHex(hDeg, 90, 70),
 
-      "--error": "#f87171",
-      "--error-container": "#7f1d1d",
+        "--error": "#dc2626",
+        "--error-container": "#fee2e2",
     };
-  }
-
-  // Light Mode (Default)
-  return {
-    "--primary": `#${hex}`,
-    "--primary-container": hslToHex(hDeg, sPct, 92),
-
-    "--secondary": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 44),
-    "--secondary-container": hslToHex((hDeg - 15 + 360) % 360, Math.max(sPct - 10, 10), 94),
-
-    "--tertiary": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 32),
-    "--tertiary-container": hslToHex((hDeg + 170) % 360, Math.min(sPct + 10, 90), 90),
-
-    "--surface": hslToHex(hDeg, 10, 98),
-    "--surface-variant": hslToHex(hDeg, 10, 96),
-    "--outline": hslToHex(hDeg, 8, 64),
-    "--outline-variant": hslToHex(hDeg, 12, 90),
-
-    "--inverse-surface": hslToHex(hDeg, 10, 18),
-    "--inverse-primary": hslToHex(hDeg, 90, 70),
-
-    "--error": "#dc2626",
-    "--error-container": "#fee2e2",
-  };
 }
 
 /**
@@ -1512,10 +1425,10 @@ function generateMaterialPalette(baseInput, isDark = false) {
  * @param {HTMLElement} [targetElement=document.documentElement] - Optional target container element
  */
 export function applyMaterialTheme(baseColor, isDark = false, targetElement = document.documentElement) {
-  const palette = generateMaterialPaletteFromAny(baseColor, isDark);
-  Object.entries(palette).forEach(([prop, value]) => {
-    targetElement.style.setProperty(prop, value);
-  });
+    const palette = generateMaterialPalette(baseColor, isDark);
+    Object.entries(palette).forEach(([prop, value]) => {
+        targetElement.style.setProperty(prop, value);
+    });
 }
 
 
