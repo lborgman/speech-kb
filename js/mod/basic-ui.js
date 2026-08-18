@@ -1348,17 +1348,65 @@ function generateMaterialPalette(baseHex) {
         "--inverse-primary": hslToHex(hDeg, 90, 70),
     };
 }
+function generateMaterialPaletteFromAny(colorInput) {
+    // If it's a color name, convert it to hex first
+    const hex = colorInput.startsWith("#") ? colorInput : colorNameToHex(colorInput);
+
+    if (!hex) {
+        throw new Error(`Invalid color name or format: "${colorInput}"`);
+    }
+
+    return generateMaterialPalette(hex);
+}
+
 
 /**
  * Applies the generated palette directly to an element (defaults to :root)
+ * @param {string} colorInput - any css color spec
+ * @param {Element} targetElement
  */
-export function applyMaterialTheme(baseHex, targetElement = document.documentElement) {
-    const palette = generateMaterialPalette(baseHex);
+export function applyMaterialTheme(colorInput, targetElement = document.documentElement) {
+    const palette = generateMaterialPaletteFromAny(colorInput);
     Object.entries(palette).forEach(([prop, value]) => {
         targetElement.style.setProperty(prop, value);
     });
 }
 
+/**
+ * Converts any valid CSS color string (name, rgb, hsl) to a hex string.
+ * @param {string} colorName - e.g., "orange", "deepskyblue", "papayawhip"
+ * @returns {string} Hex color string (e.g., "#f97316") or null if invalid
+ */
+export function colorNameToHex(colorName) {
+    // Create an in-memory 1x1 canvas context
+    const ctx = document.createElement("canvas").getContext("2d");
+    if (!ctx) return null;
+
+    ctx.fillStyle = colorName;
+    const computed = ctx.fillStyle;
+
+    // Browser resolves valid colors to hex "#rrggbb" or "rgba(...)"
+    if (computed.startsWith("#")) {
+        return computed;
+    }
+
+    // Handle rgb(r, g, b) return values from canvas
+    const rgbMatch = computed.match(/\d+/g);
+    if (rgbMatch && rgbMatch.length >= 3) {
+        const [r, g, b] = rgbMatch.map(Number);
+        return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    }
+
+    return null;
+}
+
+// Example usage:
+// console.log(colorNameToHex("orange"));       // "#ffa500"
+// console.log(colorNameToHex("coral"));        // "#ff7f50"
+// console.log(colorNameToHex("teal"));         // "#008080"
+// console.log(colorNameToHex("invalidname"));  // null
+
 // Example Usage:
-applyMaterialTheme("#f97316"); // Generates and applies the Orange theme
-applyMaterialTheme("#00ff00"); // Generates and applies the Orange theme
+// applyMaterialTheme("#f97316"); // Generates and applies the Orange theme
+// applyMaterialTheme("#00ff00");
+applyMaterialTheme("yellow");
