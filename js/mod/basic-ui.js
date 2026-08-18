@@ -1276,15 +1276,39 @@ export function getRootCssVarMs(cssVar) {
 /**
  * Converts any valid CSS color string (name, rgb, hsl) to a hex string.
  * @param {string} colorName - e.g., "orange", "deepskyblue", "papayawhip"
- * @returns {string} Hex color string (e.g., "#f97316") or null if invalid
+ * @returns {string|null} Hex color string (e.g., "#f97316") or null if invalid
  */
 export function colorNameToHex(colorName) {
     // Create an in-memory 1x1 canvas context
     const ctx = document.createElement("canvas").getContext("2d");
     if (!ctx) return null;
 
+    // ctx.fillStyle = colorName;
+    // const computed = ctx.fillStyle;
+
+
+
+    // 1. Set to a baseline color
+    ctx.fillStyle = "#000000";
     ctx.fillStyle = colorName;
-    const computed = ctx.fillStyle;
+
+    // If assigning colorName failed and it didn't compute to black, it's invalid
+    const computedFirst = ctx.fillStyle;
+
+    // 2. Double-check against a second baseline to verify actual black input vs fallback
+    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = colorName;
+    const computedSecond = ctx.fillStyle;
+
+    // If the fillStyle didn't change with colorName, the input string is invalid
+    if (computedFirst !== computedSecond) {
+        return null;
+    }
+
+    const computed = computedFirst;
+
+
+
 
     // Browser resolves valid colors to hex "#rrggbb" or "rgba(...)"
     if (computed.startsWith("#")) {
