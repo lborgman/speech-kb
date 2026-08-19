@@ -345,7 +345,6 @@ dialog:has(div.no-x-close-button) {
     accent-color: #666666 !important;
 }
 
-/* #OLDsnackbar { position: fixed; overflow-x: clip; } */
 
 
 .basic-card {
@@ -424,12 +423,14 @@ dialog[open].menu-container::backdrop {
     background-color: var(--inverse-surface);
     color: contrast-color(var(--inverse-surface));
 
-    box-shadow: 0 0 20px 4px var(--snackbar-visible-bg);
+    /* box-shadow: 0 0 20px 4px var(--snackbar-visible-bg); */
+    box-shadow: 0 0 20px 4px var(--inverse-surface);
 
     /* Closed: completely below viewport */
     transform: translateY(calc(100% + 2rem));
     opacity: 0;
-    background-color: var(--snackbar-hidden-bg);
+    /* background-color: var(--snackbar-hidden-bg); */
+    background-color: red;
 
     transition:
         transform var(--snackbar-entry-duration) cubic-bezier(0.3, 0, 1, 1),
@@ -445,13 +446,14 @@ dialog[open].menu-container::backdrop {
     /* Open: bottom: 2rem determines the position */
     transform: translateY(0);
     opacity: 1;
-    background-color: var(--snackbar-visible-bg);
+    /* background-color: var(--snackbar-visible-bg); */
+    background-color: var(--inverse-surface);
 
     @starting-style {
         /* Start completely below viewport */
         transform: translateY(calc(100% + 2rem));
         opacity: 0;
-        /* background-color: red; */
-        background-color: var(--snackbar-visible-bg);
+        /* background-color: var(--snackbar-visible-bg); */
+        background-color: var(--inverse-surface);
     }
 }
