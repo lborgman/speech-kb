@@ -1403,6 +1403,9 @@ function generateMaterialPalette(baseInput, isDark = false) {
 
             "--error": "#f87171",
             "--error-container": "#7f1d1d",
+
+            // Dark Mode Backdrop
+            "--backdrop": `hsl(${hDeg}deg 20% 5% / 72%)`,
         };
     }
 
@@ -1427,6 +1430,9 @@ function generateMaterialPalette(baseInput, isDark = false) {
 
         "--error": "#dc2626",
         "--error-container": "#fee2e2",
+
+        // Light Mode Backdrop
+        "--backdrop": `hsl(${hDeg}deg 20% 10% / 32%)`,
     };
 }
 
