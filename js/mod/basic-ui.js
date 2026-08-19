@@ -1302,6 +1302,10 @@ function generateMaterialPalette(baseInput, isDark = false) {
 
             "--surface": hslToHex(hDeg, 10, 8),
             "--surface-variant": hslToHex(hDeg, 10, 14),
+
+            "--on-surface": hslToHex(hDeg, 10, 90),
+            "--on-surface-variant": hslToHex(hDeg, 12, 72),
+
             "--outline": hslToHex(hDeg, 8, 48),
             "--outline-variant": hslToHex(hDeg, 10, 24),
 
@@ -1332,6 +1336,10 @@ function generateMaterialPalette(baseInput, isDark = false) {
 
         "--surface": hslToHex(hDeg, 10, 98),
         "--surface-variant": hslToHex(hDeg, 10, 96),
+
+        "--on-surface": hslToHex(hDeg, 10, 10),
+        "--on-surface-variant": hslToHex(hDeg, 12, 32),
+
         "--outline": hslToHex(hDeg, 8, 64),
         "--outline-variant": hslToHex(hDeg, 12, 90),
 
