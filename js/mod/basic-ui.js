@@ -1313,6 +1313,9 @@ function generateMaterialPalette(baseInput, isDark = false) {
 
             // Dark Mode Backdrop
             "--backdrop": `hsl(${hDeg}deg 20% 5% / 72%)`,
+
+            "--link-color": "hsl(212deg 100% 75%)",
+            "--link-hover": "hsl(212deg 100% 85%)"
         };
     }
 
@@ -1340,6 +1343,9 @@ function generateMaterialPalette(baseInput, isDark = false) {
 
         // Light Mode Backdrop
         "--backdrop": `hsl(${hDeg}deg 20% 10% / 32%)`,
+
+        "--link-color": "hsl(212deg 100% 36%)",
+        "--link-hover": "hsl(212deg 100% 25%)"
     };
 }
 
