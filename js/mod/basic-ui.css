@@ -225,8 +225,6 @@ dialog::backdrop {
 }
 
 dialog[open]::backdrop {
-    /* background-color: #0008; */
-    /* background-color: yellow; */
     background-color: var(--backdrop, "red");
     backdrop-filter: blur(2px);
 }
@@ -414,10 +412,12 @@ dialog[open].menu-container::backdrop {
     top: auto;
     bottom: 2rem;
     left: 2rem;
-    right: auto;
+    right: 2rem;
     margin: 0;
+    max-width: calc(10dvw - 2rem);
+    width: auto;
 
-    max-width: clamp(160px, 400px, calc(100dvw - 4rem));
+    /* max-width: clamp(160px, 400px, calc(100dvw - 4rem)); */
     overflow-wrap: anywhere;
 
     border-radius: 10px;
