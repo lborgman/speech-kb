@@ -414,7 +414,7 @@ dialog[open].menu-container::backdrop {
     left: 2rem;
     right: 2rem;
     margin: 0;
-    max-width: calc(10dvw - 2rem);
+    max-width: calc(100dvw - 2rem);
     width: auto;
 
     /* max-width: clamp(160px, 400px, calc(100dvw - 4rem)); */
