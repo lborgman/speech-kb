@@ -422,7 +422,8 @@ dialog[open].menu-container::backdrop {
 
     border-radius: 10px;
     border: 2px solid;
-    color: var(--snackbar-color);
+    background-color: var(--inverse-surface);
+    color: contrast-color(var(--inverse-surface));
 
     box-shadow: 0 0 20px 4px var(--snackbar-visible-bg);
 
