@@ -225,8 +225,9 @@ dialog::backdrop {
 }
 
 dialog[open]::backdrop {
-    background-color: #0008;
-    background-color: yellow;
+    /* background-color: #0008; */
+    /* background-color: yellow; */
+    background-color: var(--backdrop, "red");
     backdrop-filter: blur(2px);
 }
 
