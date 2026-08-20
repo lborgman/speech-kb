@@ -269,7 +269,7 @@ export async function showDialog(bdy, valFun, buttons, dialogClass) {
         dlg.classList.add("has-text-input");
         /** @type {HTMLDivElement|undefined} */
         const eltScroll = mkElt("div", {
-            style: "height: 2px; background: red; padding: 0; margin:0;",
+            style: "height: 0.5px; padding: 0; margin:0;",
             class: "scroll-for-text-input"
         });
         dlg.insertBefore(eltScroll, dlg.firstElementChild);
